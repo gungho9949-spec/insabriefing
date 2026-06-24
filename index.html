@@ -28,3 +28,5 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 async function load() {
   const {data, error} = await sb.from('companies').select('*');
   if (error) { document.getElementById('status').textContent = '오류: ' + error.message
+
+  
