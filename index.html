@@ -4,13 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>인사브리핑 - 기업 연봉 비교</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 body{font-family:sans-serif;background:#F2F4F8;margin:0;padding:20px;}
-h1{color:#3B6EF8;}
-table{width:100%;background:#fff;border-radius:12px;border-collapse:collapse;}
-th,td{padding:12px;text-align:left;border-bottom:1px solid #eee;}
+h1{color:#3B6EF8;font-size:22px;}
+p{color:#666;margin-bottom:16px;}
+table{width:100%;background:#fff;border-radius:12px;border-collapse:collapse;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+th,td{padding:12px 16px;text-align:left;border-bottom:1px solid #eee;}
 th{background:#3B6EF8;color:#fff;}
+tr:last-child td{border-bottom:none;}
 </style>
 </head>
 <body>
@@ -21,12 +22,29 @@ th{background:#3B6EF8;color:#fff;}
 <tbody id="list"></tbody>
 </table>
 <script>
-const SUPABASE_URL = 'https://ylsneyixrbgssfljvpaj.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_MLvTQx0gxmhwsG533vkpqg_E-YKN6lU
-';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 async function load() {
-  const {data, error} = await sb.from('companies').select('*');
-  if (error) { document.getElementById('status').textContent = '오류: ' + error.message
-
-  
+  try {
+    const res = await fetch(
+      'https://ylsneyixrbgssfljvpaj.supabase.co/rest/v1/companies?select=*',
+      { headers: {
+        'apikey': 'sb_publishable_MLvTQx0gxmhwsG533vkpqg_E-YKN6lU',
+        'Authorization': 'Bearer sb_publishable_MLvTQx0gxmhwsG533vkpqg_E-YKN6lU'
+      }}
+    );
+    const data = await res.json();
+    if (!Array.isArray(data)) {
+      document.getElementById('status').textContent = '오류: ' + JSON.stringify(data);
+      return;
+    }
+    document.getElementById('status').textContent = '총 ' + data.length + '개 기업';
+    document.getElementById('list').innerHTML = data.map(c =>
+      '<tr><td>' + c.company_name + '</td><td>' + (c.industry||'-') + '</td><td>' + (c.company_size||'-') + '</td></tr>'
+    ).join('');
+  } catch(e) {
+    document.getElementById('status').textContent = '오류: ' + e.message;
+  }
+}
+load();
+</script>
+</body>
+</html>
