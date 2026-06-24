@@ -2,48 +2,351 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>인사브리핑 - 기업 연봉 비교</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>기업 연봉 비교 — 인사브리핑</title>
 <style>
-body{font-family:sans-serif;background:#F2F4F8;margin:0;padding:20px;}
-h1{color:#3B6EF8;font-size:22px;}
-p{color:#666;margin-bottom:16px;}
-table{width:100%;background:#fff;border-radius:12px;border-collapse:collapse;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-th,td{padding:12px 16px;text-align:left;border-bottom:1px solid #eee;}
-th{background:#3B6EF8;color:#fff;}
-tr:last-child td{border-bottom:none;}
-.salary{font-weight:bold;color:#E53935;}
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+:root{--bg:#F2F4F8;--card:#fff;--blue:#3B6EF8;--blue-soft:#EEF2FF;--ink:#111827;--gray:#6B7280;--border:#E5E7EB;--shadow:0 2px 12px rgba(0,0,0,0.07);--up:#E53935;--down:#1B9E6E;--radius:14px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:'Pretendard',-apple-system,sans-serif;}
+header{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;display:flex;justify-content:space-between;align-items:center;height:56px;position:sticky;top:0;z-index:50;}
+.brand{font-size:19px;font-weight:800;}.brand span{color:var(--blue);}
+.hamburger{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
+.hamburger span{width:22px;height:2px;background:var(--ink);border-radius:2px;}
+nav.desktop{display:none;gap:2px;}
+nav.desktop a{padding:6px 12px;font-size:14px;font-weight:500;color:var(--gray);text-decoration:none;border-radius:6px;}
+nav.desktop a.active{color:var(--blue);background:var(--blue-soft);font-weight:700;}
+.container{max-width:1200px;margin:0 auto;padding:24px 16px;}
+.page-title h1{font-size:22px;font-weight:800;margin-bottom:4px;}
+.dart-badge{background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;border-radius:99px;padding:2px 10px;font-size:11px;font-weight:700;}
+.search-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:16px;}
+.search-top{display:flex;gap:10px;margin-bottom:12px;}
+.search-top input{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:15px;font-family:inherit;outline:none;}
+.btn-search{background:var(--blue);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:700;cursor:pointer;}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-row select{border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;background:var(--bg);outline:none;flex:1;min-width:110px;}
+.btn-reset{border:1.5px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;font-family:inherit;color:var(--gray);background:var(--card);cursor:pointer;}
+.stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--card);border-radius:12px;padding:16px;box-shadow:var(--shadow);}
+.stat-card .slabel{font-size:11px;color:var(--gray);font-weight:700;margin-bottom:6px;}
+.stat-card .svalue{font-size:22px;font-weight:800;}
+.stat-card .ssub{font-size:11px;color:var(--gray);margin-top:3px;}
+.loading-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:60px 20px;text-align:center;}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.company-list{display:flex;flex-direction:column;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.list-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.sort-tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);}
+.sort-tab{padding:10px 14px;font-size:12px;font-weight:600;color:var(--gray);white-space:nowrap;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;}
+.sort-tab.active{color:var(--blue);border-bottom:2px solid var(--blue);}
+.company-row{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;gap:12px;}
+.row-rank{font-size:13px;font-weight:800;color:#D1D5DB;width:22px;text-align:center;flex-shrink:0;}
+.row-rank.t1{color:#F59E0B;}.row-rank.t2{color:#9CA3AF;}.row-rank.t3{color:#B45309;}
+.row-main{flex:1;min-width:0;}
+.row-name{font-size:15px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-right{text-align:right;flex-shrink:0;}
+.row-salary{font-size:17px;font-weight:800;font-family:monospace;}
+.row-salary.high{color:var(--up);}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;}
+.b-IT{background:#EEF2FF;color:#3B6EF8;}.b-제조{background:#FFF7ED;color:#EA580C;}
+.b-금융{background:#F0FDF4;color:#16A34A;}.b-바이오{background:#FDF4FF;color:#9333EA;}
+.b-유통{background:#FFFBEB;color:#D97706;}.b-건설{background:#F1F5F9;color:#475569;}
+.b-에너지{background:#FEF3C7;color:#D97706;}.b-기타{background:#F9FAFB;color:#6B7280;}
+.pagination{display:flex;justify-content:center;gap:6px;padding:16px;flex-wrap:wrap;}
+.page-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-weight:600;cursor:pointer;color:var(--ink);}
+.page-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.desktop-table{display:none;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.desktop-table table{width:100%;border-collapse:collapse;}
+.desktop-table thead th{padding:11px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--gray);background:#FAFAFA;border-bottom:1px solid var(--border);}
+.desktop-table tbody tr{border-bottom:1px solid var(--border);cursor:pointer;}
+.desktop-table tbody tr:hover{background:#F8F9FF;}
+.desktop-table td{padding:13px 16px;font-size:14px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{position:absolute;bottom:0;left:0;right:0;background:var(--card);border-radius:20px 20px 0 0;padding:20px 20px 36px;transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 16px;}
+.modal-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;}
+.modal-top h2{font-size:20px;font-weight:800;}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.modal-item{background:var(--bg);border-radius:10px;padding:14px;}
+.modal-item .mlabel{font-size:11px;color:var(--gray);font-weight:700;margin-bottom:5px;}
+.modal-item .mvalue{font-size:20px;font-weight:800;}
+.modal-item .msub{font-size:11px;color:var(--gray);margin-top:3px;}
+.modal-note{font-size:12px;color:var(--gray);line-height:1.7;background:var(--bg);border-radius:10px;padding:12px 14px;}
+.up{color:var(--up);}
+.debug-box{background:#FFF3CD;border:1px solid #FFC107;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#856404;display:none;}
+footer{text-align:center;padding:24px 16px;font-size:12px;color:var(--gray);border-top:1px solid var(--border);background:var(--card);margin-top:24px;}
+@media(min-width:768px){
+  .stats-row{grid-template-columns:repeat(4,1fr);}
+  .company-list{display:none;}
+  .desktop-table{display:block;}
+  .modal{position:relative;bottom:auto;left:auto;right:auto;border-radius:16px;max-width:540px;margin:auto;transform:translateY(20px);max-height:none;}
+  .modal-overlay{display:flex;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open .modal{transform:translateY(0);}
+  .modal-handle{display:none;}
+  nav.desktop{display:flex;}
+  .hamburger{display:none!important;}
+}
 </style>
 </head>
 <body>
-<h1>💰 인사브리핑 - 기업 연봉 비교</h1>
-<p id="status">데이터 불러오는 중...</p>
-<table>
-<thead><tr><th>순위</th><th>기업명</th><th>업종</th><th>평균연봉</th><th>직원수</th></tr></thead>
-<tbody id="list"></tbody>
-</table>
+<header>
+  <div class="brand">인사<span>브리핑</span></div>
+  <nav class="desktop">
+    <a href="#">홈</a><a href="#" class="active">연봉 비교</a><a href="#">인사이트</a>
+  </nav>
+  <div class="hamburger"><span></span><span></span><span></span></div>
+</header>
+<div class="container">
+  <div class="page-title">
+    <h1>💰 기업 연봉 비교 <span class="dart-badge">✓ DART 공시</span></h1>
+    <p style="font-size:13px;color:var(--gray);margin-top:4px">금융감독원 DART 사업보고서 기준 · 2024년</p>
+  </div>
+  <div class="debug-box" id="debugBox"></div>
+  <div class="search-card">
+    <div class="search-top">
+      <input type="text" id="searchInput" placeholder="회사명 검색..." autocomplete="off">
+      <button class="btn-search" onclick="applyFilter()">검색</button>
+    </div>
+    <div class="filter-row">
+      <select id="indFilter">
+        <option value="">전체 업종</option>
+        <option value="IT">IT/인터넷</option>
+        <option value="제조">제조</option>
+        <option value="금융">금융</option>
+        <option value="바이오">바이오</option>
+        <option value="유통">유통</option>
+        <option value="건설">건설</option>
+        <option value="에너지">에너지</option>
+      </select>
+      <select id="sizeFilter">
+        <option value="">전체 규모</option>
+        <option value="대기업">대기업</option>
+        <option value="중견기업">중견기업</option>
+      </select>
+      <select id="sortFilter" onchange="applyFilter()">
+        <option value="salary_desc">연봉 높은순</option>
+        <option value="salary_asc">연봉 낮은순</option>
+        <option value="emp_desc">직원 많은순</option>
+        <option value="name_asc">가나다순</option>
+      </select>
+      <button class="btn-reset" onclick="resetFilter()">초기화</button>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="slabel">전체 기업</div><div class="svalue" id="statCount">—</div><div class="ssub">DART 연동</div></div>
+    <div class="stat-card"><div class="slabel">연봉 중앙값</div><div class="svalue" id="statMedian">—</div><div class="ssub">전체 기업</div></div>
+    <div class="stat-card"><div class="slabel">최고 평균연봉</div><div class="svalue up" id="statMax">—</div><div class="ssub" id="statMaxCo">—</div></div>
+    <div class="stat-card"><div class="slabel">평균 근속연수</div><div class="svalue" id="statTenure">—</div><div class="ssub">전체 평균</div></div>
+  </div>
+  <div id="loadingBox" class="loading-box">
+    <div class="spinner"></div>
+    <p style="color:var(--gray)">데이터를 불러오는 중...</p>
+  </div>
+  <div class="company-list" id="mobileWrap" style="display:none">
+    <div class="list-head">
+      <h2 style="font-size:15px;font-weight:700">기업별 연봉 현황</h2>
+      <span style="font-size:12px;color:var(--gray)" id="tcountM">—</span>
+    </div>
+    <div class="sort-tabs">
+      <button class="sort-tab active" onclick="setSortTab(this,'salary_desc')">연봉↓</button>
+      <button class="sort-tab" onclick="setSortTab(this,'salary_asc')">연봉↑</button>
+      <button class="sort-tab" onclick="setSortTab(this,'emp_desc')">직원수↓</button>
+      <button class="sort-tab" onclick="setSortTab(this,'name_asc')">가나다</button>
+    </div>
+    <div id="mobileList"></div>
+    <div class="pagination" id="paginationM"></div>
+  </div>
+  <div class="desktop-table" id="desktopWrap" style="display:none">
+    <div class="list-head">
+      <h2 style="font-size:15px;font-weight:700">기업별 연봉 현황</h2>
+      <span style="font-size:12px;color:var(--gray)" id="tcountD">—</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th style="width:44px;text-align:center">#</th>
+        <th>회사명</th><th>업종</th><th>규모</th>
+        <th style="text-align:right">평균연봉</th>
+        <th style="text-align:right">직원 수</th>
+        <th style="text-align:right">근속연수</th>
+      </tr></thead>
+      <tbody id="desktopBody"></tbody>
+    </table>
+    <div class="pagination" id="paginationD"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay" onclick="handleModalClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-top"><h2 id="mTitle">—</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div style="margin-bottom:16px" id="mInd"></div>
+    <div class="modal-grid" id="mGrid"></div>
+    <div class="modal-note" id="mNote"></div>
+  </div>
+</div>
+<footer><b>인사브리핑</b> · DART 사업보고서 + Supabase 실시간 연동<br>등기임원 제외 직원 평균급여. 참고용으로만 활용하세요.</footer>
 <script>
-const URL = 'https://ylsneyixrbgssfljvpaj.supabase.co/rest/v1';
-const KEY = 'sb_publishable_MLvTQx0gxmhwsG533vkpqg_E-YKN6lU';
-const H = {'apikey':KEY,'Authorization':'Bearer '+KEY};
-async function load() {
-  const [c, s] = await Promise.all([
-    fetch(URL+'/companies?select=*',{headers:H}).then(r=>r.json()),
-    fetch(URL+'/salary_data?select=*&data_year=eq.2024',{headers:H}).then(r=>r.json())
-  ]);
-  const map = {};
-  s.forEach(x=>map[x.company_id]=x);
-  const merged = c.map(x=>({...x, salary:map[x.id]}));
-  merged.sort((a,b)=>(b.salary?.avg_salary_wan||0)-(a.salary?.avg_salary_wan||0));
-  document.getElementById('status').textContent = '총 '+c.length+'개 기업 · 2024년 기준';
-  document.getElementById('list').innerHTML = merged.map((c,i)=>{
-    const sal = c.salary?.avg_salary_wan;
-    const salStr = sal ? (sal>=10000?(sal/10000).toFixed(2)+'억':sal.toLocaleString()+'만')+'원' : '-';
-    const emp = c.salary?.employee_count;
-    return '<tr><td>'+(i+1)+'</td><td>'+c.company_name+'</td><td>'+(c.industry||'-')+'</td><td class="salary">'+salStr+'</td><td>'+(emp?emp.toLocaleString()+'명':'-')+'</td></tr>';
-  }).join('');
+const SUPABASE_URL='https://ylsneyixrbgssfljvpaj.supabase.co';
+const SUPABASE_KEY='sb_publishable_MLvTQx0gxmhwsG533vkpqg_E-YKN6lU';
+const H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+let allData=[],filtered=[],curPage=1;
+const PER=20;
+const fmt=w=>{if(!w)return'미공개';if(w>=10000)return(w/10000).toFixed(2)+'억';return w.toLocaleString()+'만원';};
+const fmtEmp=n=>{if(!n)return'-';return n.toLocaleString()+'명';};
+const getBadge=ind=>{
+  if(!ind)return'<span class="badge b-기타">기타</span>';
+  const map={IT:'b-IT',제조:'b-제조',금융:'b-금융',바이오:'b-바이오',유통:'b-유통',건설:'b-건설',에너지:'b-에너지'};
+  const key=Object.keys(map).find(k=>ind.includes(k))||'기타';
+  return`<span class="badge ${map[key]||'b-기타'}">${ind}</span>`;
+};
+function showDebug(msg){const b=document.getElementById('debugBox');b.style.display='block';b.innerHTML='⚠️ '+msg;}
+async function loadData(){
+  try{
+    const cRes=await fetch(`${SUPABASE_URL}/rest/v1/companies?select=*&limit=500&order=id.asc`,{headers:H});
+    if(!cRes.ok)throw new Error('companies 로드 실패: '+cRes.status);
+    const companies=await cRes.json();
+    const sRes=await fetch(`${SUPABASE_URL}/rest/v1/salary_data?select=*&limit=1000&order=data_year.desc`,{headers:H});
+    if(!sRes.ok)throw new Error('salary_data 로드 실패: '+sRes.status);
+    const salaries=await sRes.json();
+    let salaryCol=null,empCol=null,tenureCol=null,yearCol=null,idCol=null;
+    if(Array.isArray(salaries)&&salaries.length>0){
+      const sample=salaries[0];
+      const keys=Object.keys(sample);
+      salaryCol=['avg_salary_wan','avg_salary','salary','salary_wan','average_salary'].find(k=>keys.includes(k));
+      empCol=['employee_count','emp_count','employees','headcount','total_employees'].find(k=>keys.includes(k));
+      tenureCol=['avg_tenure','tenure','average_tenure','avg_service_year'].find(k=>keys.includes(k));
+      yearCol=['data_year','year','fiscal_year','report_year'].find(k=>keys.includes(k));
+      idCol=['company_id','corp_id'].find(k=>keys.includes(k));
+      if(!salaryCol)salaryCol=keys.find(k=>{const v=sample[k];return typeof v==='number'&&v>1000&&v<200000;});
+      if(!empCol)empCol=keys.find(k=>{const v=sample[k];return typeof v==='number'&&v>10&&v<500000&&k!==salaryCol;});
+    }
+    if(!Array.isArray(salaries)||salaries.length===0){
+      showDebug('salary_data 테이블이 비어있습니다. 연봉 데이터를 입력해주세요.');
+    }else if(!salaryCol){
+      showDebug('연봉 컬럼을 찾지 못했습니다. salary_data 컬럼: '+Object.keys(salaries[0]).join(', '));
+    }
+    const salMap={};
+    if(Array.isArray(salaries)){
+      salaries.forEach(s=>{
+        const cid=idCol?s[idCol]:s.company_id;
+        if(!cid)return;
+        if(salMap[cid]){
+          const existYear=yearCol?salMap[cid][yearCol]:0;
+          const newYear=yearCol?s[yearCol]:0;
+          if(newYear<=existYear)return;
+        }
+        salMap[cid]=s;
+      });
+    }
+    allData=Array.isArray(companies)?companies.map(c=>{
+      const sal=salMap[c.id]||{};
+      return{...c,
+        salary:salaryCol?(sal[salaryCol]||null):null,
+        emp:empCol?(sal[empCol]||null):null,
+        tenure:tenureCol?(sal[tenureCol]||null):null,
+        dataYear:yearCol?(sal[yearCol]||null):null};
+    }):[];
+    allData.sort((a,b)=>(b.salary||0)-(a.salary||0));
+    document.getElementById('loadingBox').style.display='none';
+    document.getElementById('mobileWrap').style.display='flex';
+    document.getElementById('desktopWrap').style.display='block';
+    applyFilter();
+  }catch(e){
+    const lb=document.getElementById('loadingBox');
+    lb.querySelector('p').textContent='오류: '+e.message;
+    lb.querySelector('p').style.color='#E53935';
+  }
 }
-load();
+function applyFilter(){
+  const q=document.getElementById('searchInput').value.trim();
+  const ind=document.getElementById('indFilter').value;
+  const size=document.getElementById('sizeFilter').value;
+  const srt=document.getElementById('sortFilter').value;
+  filtered=allData.filter(d=>(!q||d.company_name.includes(q))&&(!ind||(d.industry||'').includes(ind))&&(!size||d.company_size===size));
+  doSort(srt);curPage=1;updateStats();renderAll();
+}
+function doSort(srt){
+  if(srt==='salary_desc')filtered.sort((a,b)=>(b.salary||0)-(a.salary||0));
+  else if(srt==='salary_asc')filtered.sort((a,b)=>(a.salary||0)-(b.salary||0));
+  else if(srt==='emp_desc')filtered.sort((a,b)=>(b.emp||0)-(a.emp||0));
+  else if(srt==='name_asc')filtered.sort((a,b)=>a.company_name.localeCompare(b.company_name));
+}
+function setSortTab(el,v){document.querySelectorAll('.sort-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('sortFilter').value=v;applyFilter();}
+function resetFilter(){document.getElementById('searchInput').value='';document.getElementById('indFilter').value='';document.getElementById('sizeFilter').value='';document.getElementById('sortFilter').value='salary_desc';applyFilter();}
+function updateStats(){
+  document.getElementById('statCount').textContent=filtered.length+'개';
+  const w=filtered.filter(d=>d.salary);if(!w.length)return;
+  const s=[...w].sort((a,b)=>a.salary-b.salary);
+  const mx=w.reduce((a,b)=>a.salary>b.salary?a:b);
+  document.getElementById('statMedian').textContent=fmt(s[Math.floor(s.length/2)].salary);
+  document.getElementById('statMax').textContent=fmt(mx.salary);
+  document.getElementById('statMaxCo').textContent=mx.company_name;
+  const ta=w.filter(d=>d.tenure);
+  if(ta.length)document.getElementById('statTenure').textContent=(ta.reduce((s,d)=>s+d.tenure,0)/ta.length).toFixed(1)+'년';
+}
+function renderAll(){renderMobile();renderDesktop();}
+function renderMobile(){
+  const start=(curPage-1)*PER,page=filtered.slice(start,start+PER);
+  document.getElementById('tcountM').textContent='총 '+filtered.length+'개';
+  const el=document.getElementById('mobileList');
+  if(!filtered.length){el.innerHTML='<div style="padding:48px;text-align:center;color:var(--gray)">🔍 검색 결과가 없어요</div>';document.getElementById('paginationM').innerHTML='';return;}
+  el.innerHTML=page.map((d,i)=>{
+    const r=start+i+1,rc=r===1?'t1':r===2?'t2':r===3?'t3':'';
+    return`<div class="company-row" onclick="openModal(${d.id})">
+      <div class="row-rank ${rc}">${r}</div>
+      <div class="row-main"><div class="row-name">${d.company_name}</div>
+      <div style="display:flex;align-items:center;gap:6px">${getBadge(d.industry)}<span style="font-size:11px;color:var(--gray)">${d.company_size||''}</span>${d.emp?`<span style="font-size:11px;color:var(--gray)">· ${fmtEmp(d.emp)}</span>`:''}</div></div>
+      <div class="row-right"><div class="row-salary ${d.salary>=12000?'high':''}">${d.salary?fmt(d.salary):'미공개'}</div>
+      ${d.tenure?`<div style="font-size:12px;color:var(--gray)">근속 ${d.tenure}년</div>`:''}</div>
+    </div>`;
+  }).join('');
+  renderPg('paginationM');
+}
+function renderDesktop(){
+  const start=(curPage-1)*PER,page=filtered.slice(start,start+PER);
+  document.getElementById('tcountD').textContent='총 '+filtered.length+'개 기업';
+  const tb=document.getElementById('desktopBody');
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="7" style="padding:48px;text-align:center;color:var(--gray)">🔍 검색 결과가 없어요</td></tr>';document.getElementById('paginationD').innerHTML='';return;}
+  const colors=['#F59E0B','#9CA3AF','#B45309'];
+  tb.innerHTML=page.map((d,i)=>{
+    const r=start+i+1;
+    return`<tr onclick="openModal(${d.id})">
+      <td style="text-align:center;font-weight:800;font-size:13px;color:${r<=3?colors[r-1]:'#D1D5DB'}">${r}</td>
+      <td style="font-weight:700">${d.company_name}</td>
+      <td>${getBadge(d.industry)}</td>
+      <td style="font-size:12px;color:var(--gray)">${d.company_size||'-'}</td>
+      <td style="text-align:right;font-weight:800;font-size:15px;font-family:monospace;${d.salary>=12000?'color:var(--up)':''}">${d.salary?fmt(d.salary):'미공개'}</td>
+      <td style="text-align:right;font-family:monospace;font-size:13px">${fmtEmp(d.emp)}</td>
+      <td style="text-align:right;font-family:monospace;font-size:13px;color:var(--gray)">${d.tenure?d.tenure+'년':'-'}</td>
+    </tr>`;
+  }).join('');
+  renderPg('paginationD');
+}
+function renderPg(id){
+  const total=Math.ceil(filtered.length/PER),pg=document.getElementById(id);
+  if(total<=1){pg.innerHTML='';return;}
+  pg.innerHTML=Array.from({length:total},(_,i)=>`<button class="page-btn ${i+1===curPage?'active':''}" onclick="goPage(${i+1})">${i+1}</button>`).join('');
+}
+function goPage(n){curPage=n;renderAll();window.scrollTo({top:200,behavior:'smooth'});}
+function openModal(id){
+  const d=allData.find(x=>x.id===id);if(!d)return;
+  document.getElementById('mTitle').textContent=d.company_name;
+  document.getElementById('mInd').innerHTML=getBadge(d.industry);
+  document.getElementById('mGrid').innerHTML=`
+    <div class="modal-item"><div class="mlabel">평균연봉</div><div class="mvalue up">${d.salary?fmt(d.salary):'미공개'}</div><div class="msub">${d.dataYear?d.dataYear+'년 기준':'DART 기준'}</div></div>
+    <div class="modal-item"><div class="mlabel">직원 수</div><div class="mvalue">${d.emp?fmtEmp(d.emp):'—'}</div><div class="msub">등기임원 제외</div></div>
+    <div class="modal-item"><div class="mlabel">평균 근속</div><div class="mvalue">${d.tenure?d.tenure+'년':'—'}</div><div class="msub">전체 직원 평균</div></div>
+    <div class="modal-item"><div class="mlabel">기업 규모</div><div class="mvalue" style="font-size:16px">${d.company_size||'—'}</div><div class="msub">${d.is_listed?'상장':'비상장'}</div></div>`;
+  document.getElementById('mNote').innerHTML='※ DART 사업보고서 직원현황 공시 기준. 성과급·스톡옵션 미포함 가능.';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');document.body.style.overflow='';}
+function handleModalClick(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')applyFilter();});
+loadData();
 </script>
 </body>
 </html>
