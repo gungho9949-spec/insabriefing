@@ -1,7 +1,29 @@
 <!DOCTYPE html>
-<html>
-<head><title>인사브리핑</title></head>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인사브리핑 - 기업 연봉 비교</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{font-family:sans-serif;background:#F2F4F8;margin:0;padding:20px;}
+h1{color:#3B6EF8;}
+table{width:100%;background:#fff;border-radius:12px;border-collapse:collapse;}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #eee;}
+th{background:#3B6EF8;color:#fff;}
+</style>
+</head>
 <body>
-<h1>인사브리핑 - 준비 중</h1>
-</body>
-</html>
+<h1>💰 인사브리핑 - 기업 연봉 비교</h1>
+<p id="status">데이터 불러오는 중...</p>
+<table>
+<thead><tr><th>기업명</th><th>업종</th><th>규모</th></tr></thead>
+<tbody id="list"></tbody>
+</table>
+<script>
+const SUPABASE_URL = 'https://ylsneyixrbgssfljvpaj.supabase.co';
+const SUPABASE_KEY = 'sb_secret_F-nEfd_D6ZY6Ep3cu6C8wQ_BHQsKrpY';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+async function load() {
+  const {data, error} = await sb.from('companies').select('*');
+  if (error) { document.getElementById('status').textContent = '오류: ' + error.message
