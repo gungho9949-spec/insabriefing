@@ -22,7 +22,8 @@ th{background:#3B6EF8;color:#fff;}
 </table>
 <script>
 const SUPABASE_URL = 'https://ylsneyixrbgssfljvpaj.supabase.co';
-const SUPABASE_KEY = 'sb_secret_F-nEfd_D6ZY6Ep3cu6C8wQ_BHQsKrpY';
+const SUPABASE_KEY = 'sb_publishable_MLvTQx0gxmhwsG533vkpqg_E-YKN6lU
+';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 async function load() {
   const {data, error} = await sb.from('companies').select('*');
