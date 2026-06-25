@@ -70,6 +70,229 @@ nav.desktop a.active{color:var(--blue);background:var(--blue-soft);font-weight:7
 .modal-item .msub{font-size:11px;color:var(--gray);margin-top:3px;}
 .modal-note{font-size:12px;color:var(--gray);line-height:1.7;background:var(--bg);border-radius:10px;padding:12px 14px;}
 .up{color:var(--up);}
-.debug-box{background:#FFF3CD;border:1px solid #FFC107;border-radius:10px;padding:12px 16
-
-  
+.debug-box{background:#FFF3CD;border:1px solid #FFC107;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#856404;display:none;}
+footer{text-align:center;padding:24px 16px;font-size:12px;color:var(--gray);border-top:1px solid var(--border);background:var(--card);margin-top:24px;}
+@media(min-width:768px){
+  .stats-row{grid-template-columns:repeat(4,1fr);}
+  nav.desktop{display:flex;}
+  .hamburger{display:none!important;}
+  .modal{position:relative;bottom:auto;left:auto;right:auto;border-radius:16px;max-width:540px;margin:auto;transform:translateY(20px);max-height:none;}
+  .modal-overlay{display:flex;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open .modal{transform:translateY(0);}
+  .modal-handle{display:none;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">인사<span>브리핑</span></div>
+  <nav class="desktop">
+    <a href="#">홈</a><a href="#" class="active">연봉 비교</a><a href="#">인사이트</a>
+  </nav>
+  <div class="hamburger"><span></span><span></span><span></span></div>
+</header>
+<div class="container">
+  <div class="page-title">
+    <h1>💰 기업 연봉 비교 <span class="dart-badge">✓ DART 공시</span></h1>
+    <p style="font-size:13px;color:var(--gray);margin-top:4px">금융감독원 DART 사업보고서 기준 · 2024년</p>
+  </div>
+  <div class="debug-box" id="debugBox"></div>
+  <div class="search-card">
+    <div class="search-top">
+      <input type="text" id="searchInput" placeholder="회사명 검색..." autocomplete="off">
+      <button class="btn-search" onclick="applyFilter()">검색</button>
+    </div>
+    <div class="filter-row">
+      <select id="indFilter">
+        <option value="">전체 업종</option>
+        <option value="IT">IT/인터넷</option>
+        <option value="제조">제조</option>
+        <option value="금융">금융</option>
+        <option value="바이오">바이오</option>
+        <option value="유통">유통</option>
+        <option value="건설">건설</option>
+        <option value="에너지">에너지</option>
+      </select>
+      <select id="sizeFilter">
+        <option value="">전체 규모</option>
+        <option value="대기업">대기업</option>
+        <option value="중견기업">중견기업</option>
+      </select>
+      <select id="sortFilter" onchange="applyFilter()">
+        <option value="salary_desc">연봉 높은순</option>
+        <option value="salary_asc">연봉 낮은순</option>
+        <option value="emp_desc">직원 많은순</option>
+        <option value="name_asc">가나다순</option>
+      </select>
+      <button class="btn-reset" onclick="resetFilter()">초기화</button>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="slabel">전체 기업</div><div class="svalue" id="statCount">—</div><div class="ssub">DART 연동</div></div>
+    <div class="stat-card"><div class="slabel">연봉 중앙값</div><div class="svalue" id="statMedian">—</div><div class="ssub">전체 기업</div></div>
+    <div class="stat-card"><div class="slabel">최고 평균연봉</div><div class="svalue up" id="statMax">—</div><div class="ssub" id="statMaxCo">—</div></div>
+    <div class="stat-card"><div class="slabel">평균 근속연수</div><div class="svalue" id="statTenure">—</div><div class="ssub">전체 평균</div></div>
+  </div>
+  <div id="loadingBox" class="loading-box">
+    <div class="spinner"></div>
+    <p style="color:var(--gray)">데이터를 불러오는 중...</p>
+  </div>
+  <div class="company-list" id="mobileWrap" style="display:none">
+    <div class="list-head">
+      <h2 style="font-size:15px;font-weight:700">기업별 연봉 현황</h2>
+      <span style="font-size:12px;color:var(--gray)" id="tcountM">—</span>
+    </div>
+    <div class="sort-tabs">
+      <button class="sort-tab active" onclick="setSortTab(this,'salary_desc')">연봉↓</button>
+      <button class="sort-tab" onclick="setSortTab(this,'salary_asc')">연봉↑</button>
+      <button class="sort-tab" onclick="setSortTab(this,'emp_desc')">직원수↓</button>
+      <button class="sort-tab" onclick="setSortTab(this,'name_asc')">가나다</button>
+    </div>
+    <div id="mobileList"></div>
+    <div class="pagination" id="paginationM"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay" onclick="handleModalClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-top"><h2 id="mTitle">—</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div style="margin-bottom:16px" id="mInd"></div>
+    <div class="modal-grid" id="mGrid"></div>
+    <div class="modal-note" id="mNote"></div>
+  </div>
+</div>
+<footer><b>인사브리핑</b> · DART 사업보고서 + Supabase 실시간 연동<br>등기임원 제외 직원 평균급여. 참고용으로만 활용하세요.</footer>
+<script>
+const SUPABASE_URL='https://ylsneyixrbgssfljvpaj.supabase.co';
+const SUPABASE_KEY='sb_publishable_MLvTQx0gxmhwsG533vkpqg_E-YKN6lU';
+const H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+let allData=[],filtered=[],curPage=1;
+const PER=20;
+const fmt=w=>{if(!w)return'미공개';if(w>=10000)return(w/10000).toFixed(2)+'억';return w.toLocaleString()+'만원';};
+const fmtEmp=n=>{if(!n)return'';return n.toLocaleString()+'명';};
+const getBadge=ind=>{
+  if(!ind)return'<span class="badge b-기타">기타</span>';
+  const map={IT:'b-IT',제조:'b-제조',금융:'b-금융',바이오:'b-바이오',유통:'b-유통',건설:'b-건설',에너지:'b-에너지'};
+  const key=Object.keys(map).find(k=>ind.includes(k))||'기타';
+  return`<span class="badge ${map[key]||'b-기타'}">${ind}</span>`;
+};
+function showDebug(msg){const b=document.getElementById('debugBox');b.style.display='block';b.innerHTML='⚠️ '+msg;}
+async function loadData(){
+  try{
+    const cRes=await fetch(`${SUPABASE_URL}/rest/v1/companies?select=*&limit=500&order=id.asc`,{headers:H});
+    if(!cRes.ok)throw new Error('companies 로드 실패: '+cRes.status);
+    const companies=await cRes.json();
+    const sRes=await fetch(`${SUPABASE_URL}/rest/v1/salary_data?select=*&limit=1000&order=data_year.desc`,{headers:H});
+    if(!sRes.ok)throw new Error('salary_data 로드 실패: '+sRes.status);
+    const salaries=await sRes.json();
+    let salaryCol=null,empCol=null,tenureCol=null,yearCol=null,idCol=null;
+    if(Array.isArray(salaries)&&salaries.length>0){
+      const sample=salaries[0];
+      const keys=Object.keys(sample);
+      salaryCol=['avg_salary_wan','avg_salary','salary','salary_wan','average_salary'].find(k=>keys.includes(k));
+      empCol=['employee_count','emp_count','employees','headcount'].find(k=>keys.includes(k));
+      tenureCol=['avg_tenure','tenure','average_tenure'].find(k=>keys.includes(k));
+      yearCol=['data_year','year','fiscal_year'].find(k=>keys.includes(k));
+      idCol=['company_id','corp_id'].find(k=>keys.includes(k));
+    }
+    const salMap={};
+    if(Array.isArray(salaries)){
+      salaries.forEach(s=>{
+        const cid=idCol?s[idCol]:s.company_id;
+        if(!cid)return;
+        if(salMap[cid]){
+          const existYear=yearCol?salMap[cid][yearCol]:0;
+          const newYear=yearCol?s[yearCol]:0;
+          if(newYear<=existYear)return;
+        }
+        salMap[cid]=s;
+      });
+    }
+    allData=Array.isArray(companies)?companies.map(c=>{
+      const sal=salMap[c.id]||{};
+      return{...c,
+        salary:salaryCol?(sal[salaryCol]||null):null,
+        emp:empCol?(sal[empCol]||null):null,
+        tenure:tenureCol?(sal[tenureCol]||null):null,
+        dataYear:yearCol?(sal[yearCol]||null):null};
+    }):[];
+    allData.sort((a,b)=>(b.salary||0)-(a.salary||0));
+    document.getElementById('loadingBox').style.display='none';
+    document.getElementById('mobileWrap').style.display='flex';
+    applyFilter();
+  }catch(e){
+    const lb=document.getElementById('loadingBox');
+    lb.querySelector('p').textContent='오류: '+e.message;
+    lb.querySelector('p').style.color='#E53935';
+  }
+}
+function applyFilter(){
+  const q=document.getElementById('searchInput').value.trim();
+  const ind=document.getElementById('indFilter').value;
+  const size=document.getElementById('sizeFilter').value;
+  const srt=document.getElementById('sortFilter').value;
+  filtered=allData.filter(d=>(!q||d.company_name.includes(q))&&(!ind||(d.industry||'').includes(ind))&&(!size||d.company_size===size));
+  doSort(srt);curPage=1;updateStats();renderMobile();
+}
+function doSort(srt){
+  if(srt==='salary_desc')filtered.sort((a,b)=>(b.salary||0)-(a.salary||0));
+  else if(srt==='salary_asc')filtered.sort((a,b)=>(a.salary||0)-(b.salary||0));
+  else if(srt==='emp_desc')filtered.sort((a,b)=>(b.emp||0)-(a.emp||0));
+  else if(srt==='name_asc')filtered.sort((a,b)=>a.company_name.localeCompare(b.company_name));
+}
+function setSortTab(el,v){document.querySelectorAll('.sort-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('sortFilter').value=v;applyFilter();}
+function resetFilter(){document.getElementById('searchInput').value='';document.getElementById('indFilter').value='';document.getElementById('sizeFilter').value='';document.getElementById('sortFilter').value='salary_desc';applyFilter();}
+function updateStats(){
+  document.getElementById('statCount').textContent=filtered.length+'개';
+  const w=filtered.filter(d=>d.salary);if(!w.length)return;
+  const s=[...w].sort((a,b)=>a.salary-b.salary);
+  const mx=w.reduce((a,b)=>a.salary>b.salary?a:b);
+  document.getElementById('statMedian').textContent=fmt(s[Math.floor(s.length/2)].salary);
+  document.getElementById('statMax').textContent=fmt(mx.salary);
+  document.getElementById('statMaxCo').textContent=mx.company_name;
+  const ta=w.filter(d=>d.tenure);
+  if(ta.length)document.getElementById('statTenure').textContent=(ta.reduce((s,d)=>s+d.tenure,0)/ta.length).toFixed(1)+'년';
+}
+function renderMobile(){
+  const start=(curPage-1)*PER,page=filtered.slice(start,start+PER);
+  document.getElementById('tcountM').textContent='총 '+filtered.length+'개';
+  const el=document.getElementById('mobileList');
+  if(!filtered.length){el.innerHTML='<div style="padding:48px;text-align:center;color:var(--gray)">🔍 검색 결과가 없어요</div>';document.getElementById('paginationM').innerHTML='';return;}
+  el.innerHTML=page.map((d,i)=>{
+    const r=start+i+1,rc=r===1?'t1':r===2?'t2':r===3?'t3':'';
+    return`<div class="company-row" onclick="openModal(${d.id})">
+      <div class="row-rank ${rc}">${r}</div>
+      <div class="row-main"><div class="row-name">${d.company_name}</div>
+      <div style="display:flex;align-items:center;gap:6px">${getBadge(d.industry)}<span style="font-size:11px;color:var(--gray)">${d.company_size||''}</span>${d.emp?`<span style="font-size:11px;color:var(--gray)">· ${fmtEmp(d.emp)}</span>`:''}</div></div>
+      <div class="row-right"><div class="row-salary ${d.salary>=12000?'high':''}">${d.salary?fmt(d.salary):'미공개'}</div>
+      ${d.tenure?`<div style="font-size:12px;color:var(--gray)">근속 ${d.tenure}년</div>`:''}</div>
+    </div>`;
+  }).join('');
+  renderPg('paginationM');
+}
+function renderPg(id){
+  const total=Math.ceil(filtered.length/PER),pg=document.getElementById(id);
+  if(total<=1){pg.innerHTML='';return;}
+  pg.innerHTML=Array.from({length:total},(_,i)=>`<button class="page-btn ${i+1===curPage?'active':''}" onclick="goPage(${i+1})">${i+1}</button>`).join('');
+}
+function goPage(n){curPage=n;renderMobile();window.scrollTo({top:200,behavior:'smooth'});}
+function openModal(id){
+  const d=allData.find(x=>x.id===id);if(!d)return;
+  document.getElementById('mTitle').textContent=d.company_name;
+  document.getElementById('mInd').innerHTML=getBadge(d.industry);
+  document.getElementById('mGrid').innerHTML=`
+    <div class="modal-item"><div class="mlabel">평균연봉</div><div class="mvalue up">${d.salary?fmt(d.salary):'미공개'}</div><div class="msub">${d.dataYear?d.dataYear+'년 기준':'DART 기준'}</div></div>
+    <div class="modal-item"><div class="mlabel">직원 수</div><div class="mvalue">${d.emp?fmtEmp(d.emp):'—'}</div><div class="msub">등기임원 제외</div></div>
+    <div class="modal-item"><div class="mlabel">평균 근속</div><div class="mvalue">${d.tenure?d.tenure+'년':'—'}</div><div class="msub">전체 직원 평균</div></div>
+    <div class="modal-item"><div class="mlabel">기업 규모</div><div class="mvalue" style="font-size:16px">${d.company_size||'—'}</div><div class="msub">${d.is_listed?'상장':'비상장'}</div></div>`;
+  document.getElementById('mNote').innerHTML='※ DART 사업보고서 직원현황 공시 기준. 성과급·스톡옵션 미포함 가능.';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');document.body.style.overflow='';}
+function handleModalClick(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')applyFilter();});
+loadData();
+</script>
+</body>
+</html>
