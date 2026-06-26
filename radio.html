@@ -145,13 +145,21 @@ const earthMat=new THREE.MeshPhongMaterial({color:0x2255aa,shininess:15,specular
 const earth=new THREE.Mesh(earthGeo,earthMat);
 const TL=new THREE.TextureLoader();
 TL.crossOrigin='anonymous';
-const REPO='https://raw.githubusercontent.com/gungho9949-spec/insabriefing/main/';
 onLoad('지구 텍스처 불러오는 중…',10);
-TL.load(REPO+'earth.jpg',
-  t=>{t.anisotropy=renderer.capabilities.getMaxAnisotropy();t.minFilter=THREE.LinearMipmapLinearFilter;earthMat.map=t;earthMat.color=new THREE.Color(0xffffff);earthMat.needsUpdate=true;onLoad('완료 ✓',100);},
-  xhr=>{if(xhr.total)onLoad('불러오는 중… '+(xhr.loaded/1024|0)+'KB',Math.min(90,xhr.loaded/xhr.total*90));},
-  ()=>{onLoad('기본 색상으로 표시',100);}
-);
+const URLS=[
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/2/1/2',
+  'https://unpkg.com/three-globe@2.24.5/example/img/earth-blue-marble.jpg',
+  'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg',
+];
+function tryLoad(urls,idx){
+  if(idx>=urls.length){onLoad('기본 색상으로 표시',100);return;}
+  TL.load(urls[idx],
+    t=>{t.anisotropy=renderer.capabilities.getMaxAnisotropy();earthMat.map=t;earthMat.color=new THREE.Color(0xffffff);earthMat.needsUpdate=true;onLoad('완료 ✓',100);},
+    xhr=>{if(xhr.total)onLoad('불러오는 중…',Math.min(90,xhr.loaded/xhr.total*90));},
+    ()=>tryLoad(urls,idx+1)
+  );
+}
+tryLoad(URLS,0);
 const cloudGeo=new THREE.SphereGeometry(1.007,48,48);
 const cloudMat=new THREE.MeshPhongMaterial({transparent:true,opacity:0.20,depthWrite:false,color:0xffffff});
 const clouds=new THREE.Mesh(cloudGeo,cloudMat);
