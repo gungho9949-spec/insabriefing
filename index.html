@@ -17,13 +17,11 @@
   --ink:#F0F4FF;
   --gray:#8892A4;
   --blue:#4A7BF7;
-  --up:#FF6B6B;
   --radius:16px;
   --shadow:0 8px 32px rgba(0,0,0,0.4);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--ink);font-family:'Pretendard','Noto Sans KR',sans-serif;min-height:100vh;}
-/* 배경 그라데이션 */
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 0%,rgba(74,123,247,0.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(201,168,76,0.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
 
 header{background:rgba(10,15,30,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 20px;display:flex;justify-content:space-between;align-items:center;height:60px;position:sticky;top:0;z-index:50;}
@@ -37,14 +35,12 @@ nav.desktop a.active{color:var(--gold);background:rgba(201,168,76,0.1);}
 
 .container{max-width:800px;margin:0 auto;padding:28px 16px;position:relative;z-index:1;}
 
-/* 히어로 */
 .hero{text-align:center;padding:40px 0 32px;}
 .hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;}
 .hero h1{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;line-height:1.2;color:var(--ink);margin-bottom:10px;}
 .hero h1 em{color:var(--gold);font-style:normal;}
 .hero-sub{font-size:13px;color:var(--gray);letter-spacing:0.03em;}
 
-/* 통계 */
 .stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;}
 .stat-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;backdrop-filter:blur(10px);}
 .stat-card .slabel{font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--gray);text-transform:uppercase;margin-bottom:8px;}
@@ -52,7 +48,6 @@ nav.desktop a.active{color:var(--gold);background:rgba(201,168,76,0.1);}
 .stat-card .svalue.gold{color:var(--gold);}
 .stat-card .ssub{font-size:11px;color:var(--gray);margin-top:4px;}
 
-/* 검색 */
 .search-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;backdrop-filter:blur(10px);margin-bottom:16px;}
 .search-top{display:flex;gap:10px;margin-bottom:12px;}
 .search-top input{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--card-border);border-radius:10px;padding:11px 16px;font-size:14px;font-family:inherit;outline:none;color:var(--ink);}
@@ -60,33 +55,55 @@ nav.desktop a.active{color:var(--gold);background:rgba(201,168,76,0.1);}
 .search-top input:focus{border-color:rgba(201,168,76,0.4);}
 .btn-search{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0F1E;border:none;border-radius:10px;padding:11px 18px;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:0.05em;}
 .filter-row{display:flex;gap:8px;flex-wrap:wrap;}
-.filter-row select{background:rgba(255,255,255,0.05);border:1px solid var(--card-border);border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;color:var(--ink);outline:none;flex:1;min-width:110px;}
+.filter-row select{background:rgba(255,255,255,0.05);border:1px solid var(--card-border);border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;color:var(--ink);outline:none;flex:1;min-width:110px;-webkit-appearance:none;appearance:none;}
 .filter-row select option{background:#0F1628;color:var(--ink);}
 .btn-reset{background:transparent;border:1px solid var(--card-border);border-radius:8px;padding:8px 14px;font-size:12px;font-family:inherit;color:var(--gray);cursor:pointer;}
 
-/* 로딩 */
 .loading-box{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:60px 20px;text-align:center;}
 .spinner{width:36px;height:36px;border:2px solid var(--card-border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* 리스트 */
-.company-list{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);backdrop-filter:blur(10px);overflow:hidden;}
+.company-list{
+  background:var(--card);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius);
+  backdrop-filter:blur(10px);
+  overflow:hidden;
+  display:block;
+  position:relative;
+}
 .list-head{padding:16px 20px;border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;}
 .list-head h2{font-size:13px;font-weight:700;letter-spacing:0.08em;color:var(--gray);text-transform:uppercase;}
 .sort-tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--card-border);padding:0 4px;}
 .sort-tab{padding:11px 14px;font-size:11px;font-weight:700;color:var(--gray);white-space:nowrap;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;letter-spacing:0.05em;}
 .sort-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
-.company-row{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--card-border);cursor:pointer;gap:14px;transition:background .15s;}
+
+.company-row{
+  display:flex;
+  align-items:center;
+  padding:15px 20px;
+  border-bottom:1px solid var(--card-border);
+  cursor:pointer;
+  gap:14px;
+  transition:background .15s;
+  width:100%;
+}
+.company-row:last-child{border-bottom:none;}
 .company-row:hover{background:rgba(255,255,255,0.03);}
-.row-rank{font-size:12px;font-weight:800;color:rgba(255,255,255,0.2);width:22px;text-align:center;flex-shrink:0;font-family:monospace;}
-.row-rank.t1{color:#FFD700;}.row-rank.t2{color:#C0C0C0;}.row-rank.t3{color:#CD7F32;}
+
+.row-rank{font-size:13px;font-weight:800;color:rgba(255,255,255,0.2);width:26px;text-align:center;flex-shrink:0;font-family:monospace;}
+.row-rank.t1{color:#FFD700;}
+.row-rank.t2{color:#C0C0C0;}
+.row-rank.t3{color:#CD7F32;}
+
 .row-main{flex:1;min-width:0;}
-.row-name{font-size:15px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);}
-.row-meta{display:flex;align-items:center;gap:6px;}
-.row-right{text-align:right;flex-shrink:0;}
-.row-salary{font-size:18px;font-weight:800;font-family:monospace;color:var(--ink);}
-.row-salary.high{color:var(--gold);}
+.row-name{font-size:15px;font-weight:700;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);}
+.row-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+
+.row-right{text-align:right;flex-shrink:0;min-width:80px;}
+.row-salary{font-size:17px;font-weight:800;color:var(--gold);letter-spacing:-0.02em;}
 .row-tenure{font-size:11px;color:var(--gray);margin-top:3px;}
+
 .badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.05em;}
 .b-IT{background:rgba(74,123,247,0.15);color:#7BA7FF;}
 .b-제조{background:rgba(251,146,60,0.15);color:#FFA070;}
@@ -98,12 +115,25 @@ nav.desktop a.active{color:var(--gold);background:rgba(201,168,76,0.1);}
 .b-기타{background:rgba(255,255,255,0.06);color:var(--gray);}
 .emp-text{font-size:11px;color:var(--gray);}
 
-/* 페이지네이션 */
-.pagination{display:flex;justify-content:center;gap:6px;padding:16px;flex-wrap:wrap;}
-.page-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--card-border);background:transparent;font-size:12px;font-weight:600;cursor:pointer;color:var(--gray);}
+.pagination{
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  padding:16px 0;
+  flex-wrap:wrap;
+}
+.page-btn{
+  width:34px;height:34px;
+  border-radius:8px;
+  border:1px solid var(--card-border);
+  background:transparent;
+  font-size:12px;font-weight:600;
+  cursor:pointer;color:var(--gray);
+  transition:all .15s;
+}
+.page-btn:hover{border-color:var(--gold);color:var(--gold);}
 .page-btn.active{background:var(--gold);color:#0A0F1E;border-color:var(--gold);font-weight:800;}
 
-/* 모달 */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
 .modal{position:absolute;bottom:0;left:0;right:0;background:#0F1628;border:1px solid var(--card-border);border-radius:24px 24px 0 0;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto;}
@@ -120,7 +150,6 @@ nav.desktop a.active{color:var(--gold);background:rgba(201,168,76,0.1);}
 .modal-item .msub{font-size:11px;color:var(--gray);margin-top:4px;}
 .modal-note{font-size:11px;color:var(--gray);line-height:1.7;background:rgba(255,255,255,0.03);border-radius:10px;padding:12px 14px;border:1px solid var(--card-border);}
 
-/* 골드 구분선 */
 .gold-divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:24px 0;opacity:0.3;}
 
 footer{text-align:center;padding:28px 16px;font-size:11px;color:var(--gray);border-top:1px solid var(--card-border);letter-spacing:0.05em;position:relative;z-index:1;}
@@ -196,24 +225,25 @@ footer b{color:var(--gold);}
     <p style="color:var(--gray);font-size:13px">데이터를 불러오는 중...</p>
   </div>
 
-  <div class="company-list" id="mobileWrap" style="display:none">
-    <div class="list-head">
-      <h2>연봉 현황</h2>
-      <span style="font-size:12px;color:var(--gray)" id="tcountM">—</span>
+  <div id="listWrap" style="display:none">
+    <div class="company-list" id="companyList">
+      <div class="list-head">
+        <h2>연봉 현황</h2>
+        <span style="font-size:12px;color:var(--gray)" id="tcount">—</span>
+      </div>
+      <div class="sort-tabs">
+        <button class="sort-tab active" onclick="setSortTab(this,'salary_desc')">연봉↓</button>
+        <button class="sort-tab" onclick="setSortTab(this,'salary_asc')">연봉↑</button>
+        <button class="sort-tab" onclick="setSortTab(this,'emp_desc')">직원수↓</button>
+        <button class="sort-tab" onclick="setSortTab(this,'name_asc')">가나다</button>
+      </div>
+      <div id="rowsContainer"></div>
     </div>
-    <div class="sort-tabs">
-      <button class="sort-tab active" onclick="setSortTab(this,'salary_desc')">연봉↓</button>
-      <button class="sort-tab" onclick="setSortTab(this,'salary_asc')">연봉↑</button>
-      <button class="sort-tab" onclick="setSortTab(this,'emp_desc')">직원수↓</button>
-      <button class="sort-tab" onclick="setSortTab(this,'name_asc')">가나다</button>
-    </div>
-    <div id="mobileList"></div>
-    <div class="pagination" id="paginationM"></div>
+    <div class="pagination" id="pagination"></div>
   </div>
 </div>
 
 <div class="gold-divider" style="position:relative;z-index:1;margin:0 16px;"></div>
-
 <footer><b>인사브리핑</b> · DART 사업보고서 공시 기준<br>등기임원 제외 직원 평균급여 · 참고용으로만 활용하세요</footer>
 
 <div class="modal-overlay" id="modalOverlay" onclick="handleModalClick(event)">
@@ -230,16 +260,24 @@ footer b{color:var(--gold);}
 const SUPABASE_URL='https://ylsneyixrbgssfljvpaj.supabase.co';
 const SUPABASE_KEY='sb_publishable_MLvTQx0gxmhwsG533vkpqg_E-YKN6lU';
 const H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+
 let allData=[],filtered=[],curPage=1;
 const PER=20;
-const fmt=w=>{if(!w)return'미공개';if(w>=10000)return(w/10000).toFixed(2)+'억';return w.toLocaleString()+'만원';};
-const fmtEmp=n=>{if(!n)return'';return n.toLocaleString()+'명';};
+
+const fmt=w=>{
+  if(!w||w===0)return'미공개';
+  if(w>=10000)return(w/10000).toFixed(2)+'억';
+  return w.toLocaleString()+'만원';
+};
+const fmtEmp=n=>n?n.toLocaleString()+'명':'';
+
 const getBadge=ind=>{
   if(!ind)return'<span class="badge b-기타">기타</span>';
   const map={IT:'b-IT',제조:'b-제조',금융:'b-금융',바이오:'b-바이오',유통:'b-유통',건설:'b-건설',에너지:'b-에너지'};
   const key=Object.keys(map).find(k=>ind.includes(k))||'기타';
   return`<span class="badge ${map[key]||'b-기타'}">${ind}</span>`;
 };
+
 async function loadData(){
   try{
     const[cRes,sRes]=await Promise.all([
@@ -250,38 +288,64 @@ async function loadData(){
     const salaries=await sRes.json();
     const salMap={};
     if(Array.isArray(salaries))salaries.forEach(s=>{if(!salMap[s.company_id])salMap[s.company_id]=s;});
-    allData=Array.isArray(companies)?companies.map(c=>({...c,
+    allData=Array.isArray(companies)?companies.map(c=>({
+      ...c,
       salary:salMap[c.id]?.avg_salary_wan||null,
       emp:salMap[c.id]?.employee_count||null,
       tenure:salMap[c.id]?.avg_tenure||null
     })):[];
     allData.sort((a,b)=>(b.salary||0)-(a.salary||0));
     document.getElementById('loadingBox').style.display='none';
-    document.getElementById('mobileWrap').style.display='flex';
+    document.getElementById('listWrap').style.display='block';
     applyFilter();
   }catch(e){
     document.getElementById('loadingBox').querySelector('p').textContent='오류: '+e.message;
   }
 }
+
 function applyFilter(){
   const q=document.getElementById('searchInput').value.trim();
   const ind=document.getElementById('indFilter').value;
   const size=document.getElementById('sizeFilter').value;
   const srt=document.getElementById('sortFilter').value;
-  filtered=allData.filter(d=>(!q||d.company_name.includes(q))&&(!ind||(d.industry||'').includes(ind))&&(!size||d.company_size===size));
-  doSort(srt);curPage=1;updateStats();renderMobile();
+  filtered=allData.filter(d=>{
+    if(q&&!d.company_name.includes(q))return false;
+    if(ind&&!(d.industry||'').includes(ind))return false;
+    if(size&&d.company_size!==size)return false;
+    return true;
+  });
+  doSort(srt);
+  curPage=1;
+  updateStats();
+  renderList();
 }
+
 function doSort(srt){
   if(srt==='salary_desc')filtered.sort((a,b)=>(b.salary||0)-(a.salary||0));
   else if(srt==='salary_asc')filtered.sort((a,b)=>(a.salary||0)-(b.salary||0));
   else if(srt==='emp_desc')filtered.sort((a,b)=>(b.emp||0)-(a.emp||0));
-  else if(srt==='name_asc')filtered.sort((a,b)=>a.company_name.localeCompare(b.company_name));
+  else if(srt==='name_asc')filtered.sort((a,b)=>a.company_name.localeCompare(b.company_name,'ko'));
 }
-function setSortTab(el,v){document.querySelectorAll('.sort-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('sortFilter').value=v;applyFilter();}
-function resetFilter(){document.getElementById('searchInput').value='';document.getElementById('indFilter').value='';document.getElementById('sizeFilter').value='';document.getElementById('sortFilter').value='salary_desc';applyFilter();}
+
+function setSortTab(el,v){
+  document.querySelectorAll('.sort-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('sortFilter').value=v;
+  applyFilter();
+}
+
+function resetFilter(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('indFilter').value='';
+  document.getElementById('sizeFilter').value='';
+  document.getElementById('sortFilter').value='salary_desc';
+  applyFilter();
+}
+
 function updateStats(){
   document.getElementById('statCount').textContent=filtered.length+'개';
-  const w=filtered.filter(d=>d.salary);if(!w.length)return;
+  const w=filtered.filter(d=>d.salary);
+  if(!w.length)return;
   const s=[...w].sort((a,b)=>a.salary-b.salary);
   const mx=w.reduce((a,b)=>a.salary>b.salary?a:b);
   document.getElementById('statMedian').textContent=fmt(s[Math.floor(s.length/2)].salary);
@@ -290,49 +354,94 @@ function updateStats(){
   const ta=w.filter(d=>d.tenure);
   if(ta.length)document.getElementById('statTenure').textContent=(ta.reduce((s,d)=>s+d.tenure,0)/ta.length).toFixed(1)+'년';
 }
-function renderMobile(){
-  const start=(curPage-1)*PER,page=filtered.slice(start,start+PER);
-  document.getElementById('tcountM').textContent='총 '+filtered.length+'개';
-  const el=document.getElementById('mobileList');
-  if(!filtered.length){el.innerHTML='<div style="padding:48px;text-align:center;color:var(--gray)">검색 결과가 없어요</div>';document.getElementById('paginationM').innerHTML='';return;}
-  el.innerHTML=page.map((d,i)=>{
-    const r=start+i+1,rc=r===1?'t1':r===2?'t2':r===3?'t3':'';
+
+function renderList(){
+  const start=(curPage-1)*PER;
+  const page=filtered.slice(start,start+PER);
+  document.getElementById('tcount').textContent='총 '+filtered.length+'개';
+  const rows=document.getElementById('rowsContainer');
+
+  if(!filtered.length){
+    rows.innerHTML='<div style="padding:48px;text-align:center;color:var(--gray);font-size:13px">검색 결과가 없어요</div>';
+    document.getElementById('pagination').innerHTML='';
+    return;
+  }
+
+  rows.innerHTML=page.map((d,i)=>{
+    const r=start+i+1;
+    const rc=r===1?'t1':r===2?'t2':r===3?'t3':'';
     return`<div class="company-row" onclick="openModal(${d.id})">
       <div class="row-rank ${rc}">${r}</div>
       <div class="row-main">
         <div class="row-name">${d.company_name}</div>
-        <div class="row-meta">${getBadge(d.industry)}${d.emp?`<span class="emp-text">· ${fmtEmp(d.emp)}</span>`:''}</div>
+        <div class="row-meta">
+          ${getBadge(d.industry)}
+          ${d.emp?`<span class="emp-text">· ${fmtEmp(d.emp)}</span>`:''}
+        </div>
       </div>
       <div class="row-right">
-        <div class="row-salary ${d.salary>=12000?'high':''}">${d.salary?fmt(d.salary):'미공개'}</div>
-        ${d.tenure?`<div class="row-tenure">근속 ${d.tenure}년</div>`:''}
+        <div class="row-salary">${d.salary?fmt(d.salary):'미공개'}</div>
+        ${d.tenure?`<div class="row-tenure">근속 ${Number(d.tenure).toFixed(1)}년</div>`:''}
       </div>
     </div>`;
   }).join('');
-  renderPg('paginationM');
+
+  renderPagination();
 }
-function renderPg(id){
-  const total=Math.ceil(filtered.length/PER),pg=document.getElementById(id);
+
+function renderPagination(){
+  const total=Math.ceil(filtered.length/PER);
+  const pg=document.getElementById('pagination');
   if(total<=1){pg.innerHTML='';return;}
-  pg.innerHTML=Array.from({length:total},(_,i)=>`<button class="page-btn ${i+1===curPage?'active':''}" onclick="goPage(${i+1})">${i+1}</button>`).join('');
+
+  const pages=[];
+  const start=Math.max(1,curPage-2);
+  const end=Math.min(total,curPage+2);
+  if(start>1){pages.push(1);if(start>2)pages.push('…');}
+  for(let i=start;i<=end;i++)pages.push(i);
+  if(end<total){if(end<total-1)pages.push('…');pages.push(total);}
+
+  pg.innerHTML=pages.map(p=>
+    p==='…'
+      ?`<span style="color:var(--gray);padding:0 4px;line-height:34px">…</span>`
+      :`<button class="page-btn ${p===curPage?'active':''}" onclick="goPage(${p})">${p}</button>`
+  ).join('');
 }
-function goPage(n){curPage=n;renderMobile();window.scrollTo({top:200,behavior:'smooth'});}
+
+function goPage(n){
+  curPage=n;
+  renderList();
+  window.scrollTo({top:300,behavior:'smooth'});
+}
+
 function openModal(id){
-  const d=allData.find(x=>x.id===id);if(!d)return;
+  const d=allData.find(x=>x.id===id);
+  if(!d)return;
   document.getElementById('mTitle').textContent=d.company_name;
   document.getElementById('mInd').innerHTML=getBadge(d.industry);
   document.getElementById('mGrid').innerHTML=`
-    <div class="modal-item"><div class="mlabel">평균연봉</div><div class="mvalue gold">${d.salary?fmt(d.salary):'미공개'}</div><div class="msub">DART 기준</div></div>
+    <div class="modal-item"><div class="mlabel">평균연봉</div><div class="mvalue gold">${d.salary?fmt(d.salary):'미공개'}</div><div class="msub">DART 기준 (만원)</div></div>
     <div class="modal-item"><div class="mlabel">직원 수</div><div class="mvalue">${d.emp?fmtEmp(d.emp):'—'}</div><div class="msub">등기임원 제외</div></div>
-    <div class="modal-item"><div class="mlabel">평균 근속</div><div class="mvalue">${d.tenure?d.tenure+'년':'—'}</div><div class="msub">전체 직원 평균</div></div>
+    <div class="modal-item"><div class="mlabel">평균 근속</div><div class="mvalue">${d.tenure?Number(d.tenure).toFixed(1)+'년':'—'}</div><div class="msub">전체 직원 평균</div></div>
     <div class="modal-item"><div class="mlabel">기업 규모</div><div class="mvalue" style="font-size:16px">${d.company_size||'—'}</div><div class="msub">${d.is_listed?'상장':'비상장'}</div></div>`;
   document.getElementById('mNote').innerHTML='※ DART 사업보고서 직원현황 공시 기준. 성과급·스톡옵션 미포함 가능.';
   document.getElementById('modalOverlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
-function closeModal(){document.getElementById('modalOverlay').classList.remove('open');document.body.style.overflow='';}
-function handleModalClick(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
-document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')applyFilter();});
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function handleModalClick(e){
+  if(e.target===document.getElementById('modalOverlay'))closeModal();
+}
+
+document.getElementById('searchInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter')applyFilter();
+});
+
 loadData();
 </script>
 </body>
