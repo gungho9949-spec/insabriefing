@@ -175,7 +175,7 @@ const dotM=()=>new THREE.SpriteMaterial({map:dotT,sizeAttenuation:false,transpar
 const selM=()=>new THREE.SpriteMaterial({map:selT,sizeAttenuation:false,transparent:true,depthTest:false});
 const sprites=[];
 for(const city of CITIES){
-  const sg=new THREE.SphereGeometry(0.012,8,8);
+  const sg=new THREE.SphereGeometry(0.018,8,8);
   const sm=new THREE.MeshBasicMaterial({color:0x4dff91,transparent:true,opacity:0.85});
   const s=new THREE.Mesh(sg,sm);
   s.position.copy(ll2v3(city.lat,city.lon));
