@@ -852,16 +852,28 @@ document.getElementById('mute-btn').onclick=()=>{muted=!muted;aud.muted=muted;do
 // ══════════════════════════════════════════
 setTimeout(()=>{
   document.getElementById('splash').classList.add('hide');
-  // 지구본 먼저 보여주기
   document.getElementById('loading').classList.add('hide');
-  // GPS 줌인 먼저 시작
-  camera.position.z=8; zDist=8;
+  camera.position.z=10; zDist=10;
   navigator.geolocation&&navigator.geolocation.getCurrentPosition(
-    pos=>{flyTo(pos.coords.latitude,pos.coords.longitude,1.8);},
+    pos=>{
+      const lat=pos.coords.latitude,lon=pos.coords.longitude;
+      flyTo(lat,lon,1.6);
+      setTimeout(()=>{
+        const nearby=allStations.filter(s=>{
+          if(!s.geo_lat||!s.geo_long)return false;
+          return Math.hypot(s.geo_lat-lat,s.geo_long-lon)<5;
+        });
+        if(nearby.length){
+          const s=nearby[0];
+          document.getElementById('city-name').textContent=s.country||'';
+          playStation(s);
+          updateLocalTime(lat,lon);
+        }
+      },3000);
+    },
     ()=>{flyTo(37.57,126.98,2.2);},
     {timeout:3000}
   );
-  // 방송국은 뒤에서 조용히 로딩
   loadAllStations();
 },2500);
 </script>
