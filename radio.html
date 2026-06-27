@@ -476,7 +476,7 @@ async function loadAllStations(){
   document.getElementById('ld-txt').textContent='전 세계 방송국 불러오는 중…';
   document.getElementById('ld-fill').style.width='20%';
   try{
-    const r=await fetch('https://de1.api.radio-browser.info/json/stations?limit=5000&hidebroken=true&has_geo_info=true&order=votes&reverse=true',
+    const r=await fetch('https://de1.api.radio-browser.info/json/stations?limit=2000&hidebroken=true&has_geo_info=true&order=votes&reverse=true',
       {headers:{'User-Agent':'WildPeaksRadio/1.0'}});
     const data=await r.json();
     allStations=data.filter(s=>s.geo_lat&&s.geo_long&&s.url_resolved);
