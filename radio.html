@@ -309,7 +309,33 @@ let frame=0;
   if(ring.visible){ringMat.opacity=0.75+0.25*Math.sin(frame*0.09);ring.scale.setScalar(1+0.07*Math.sin(frame*0.07));}
   renderer.render(scene,camera);
 })();
-
+// 내 위치로 카메라 이동
+function flyToLocation(lat,lon){
+  const targetY = -(lon+180)*Math.PI/180 + Math.PI;
+  const targetX = -(90-lat)*Math.PI/180 + Math.PI/2;
+  let t=0;
+  const startY=globeGroup.rotation.y;
+  const startX=globeGroup.rotation.x;
+  // 시작시 멀리서 줌인
+  let z=5.0; camera.position.z=z;
+  const startZ=5.0, endZ=2.8;
+  function step(){
+    t+=0.012;
+    if(t>1)t=1;
+    const ease=t<0.5?2*t*t:(1-Math.pow(-2*t+2,2)/2);
+    globeGroup.rotation.y=startY+(targetY-startY)*ease;
+    globeGroup.rotation.x=startX+(targetX-startX)*ease;
+    camera.position.z=startZ+(endZ-startZ)*ease;
+    if(t<1)requestAnimationFrame(step);
+  }
+  step();
+}
+// 접속시 내 위치 자동 감지
+navigator.geolocation&&navigator.geolocation.getCurrentPosition(pos=>{
+  flyToLocation(pos.coords.latitude,pos.coords.longitude);
+},()=>{
+  flyToLocation(37.57,126.98); // 실패시 서울
+},{timeout:5000});
 // 시계
 function tick(){const n=new Date();document.getElementById('clock').textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');}
 tick();setInterval(tick,10000);
