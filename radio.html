@@ -243,7 +243,7 @@ function hitSprite(ex,ey){const r=canvas.getBoundingClientRect();mouse.x=((ex-r.
 canvas.addEventListener('mouseup',e=>{if(!didMove)handleClick(e.clientX,e.clientY);});
 canvas.addEventListener('touchend',e=>{if(!didMove&&e.changedTouches.length===1)handleClick(e.changedTouches[0].clientX,e.changedTouches[0].clientY);});
 let selSprite=null;
-function handleClick(ex,ey){const hit=hitSprite(ex,ey);if(!hit)return;if(selSprite&&selSprite!==hit)selSprite.material=dotM();selSprite=hit;hit.material=selM();ring.position.copy(hit.position);ring.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),hit.position.clone().normalize());ring.visible=true;selectCity(hit.userData.city);}
+function handleClick(ex,ey){const hit=hitSprite(ex,ey);if(!hit)return;if(selSprite&&selSprite!==hit)selSprite.material=dotM();selSprite=hit;hit.material=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:1});ring.position.copy(hit.position);ring.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),hit.position.clone().normalize());ring.visible=true;selectCity(hit.userData.city);}
 const tip=document.getElementById('tip');
 canvas.addEventListener('mousemove',e=>{if(drag){tip.style.display='none';return;}const hit=hitSprite(e.clientX,e.clientY);if(hit){document.getElementById('tip-n').textContent=hit.userData.city.name;document.getElementById('tip-c').textContent=hit.userData.city.country;tip.style.display='block';tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-38)+'px';canvas.style.cursor='pointer';}else{tip.style.display='none';canvas.style.cursor='grab';}});
 
