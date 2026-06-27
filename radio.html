@@ -602,7 +602,7 @@ function flyTo(lat,lon,targetZ=2.2){
   const startZ=camera.position.z;
   let t=0;
   function step(){
-    t+=0.015;if(t>1)t=1;
+    t+=0.006;if(t>1)t=1;
     const e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
     globeGroup.rotation.y=startY+(tY-startY)*e;
     globeGroup.rotation.x=startX+(tX-startX)*e;
