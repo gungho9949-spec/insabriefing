@@ -618,17 +618,29 @@ function flyTo(lat,lon,targetZ=2.2){
   step();
 }
 
-// 접속시 GPS
-navigator.geolocation&&navigator.geolocation.getCurrentPosition(
-  pos=>flyTo(pos.coords.latitude,pos.coords.longitude,1.8),
-  ()=>flyTo(37.57,126.98,2.2),
-  {timeout:5000}
-);
+// 접속시 무조건 줌인 시작 (GPS 있으면 내 위치, 없으면 서울)
+camera.position.z=10; zDist=10;
+flyTo(37.57,126.98,1.15); // 일단 서울로 먼저 시작
 
+navigator.geolocation&&navigator.geolocation.getCurrentPosition(
+  pos=>{
+    const lat=pos.coords.latitude,lon=pos.coords.longitude;
+    setTimeout(()=>flyTo(lat,lon,1.15),500);
+    setTimeout(()=>{
+      const nearby=allStations.filter(s=>{
+        if(!s.geo_lat||!s.geo_long)return false;
+        return Math.hypot(s.geo_lat-lat,s.geo_long-lon)<5;
+      });
+      if(nearby.length){playStation(nearby[0]);document.getElementById('city-name').textContent=nearby[0].country||'';}
+    },4000);
+  },
+  ()=>flyTo(37.57,126.98,1.15),
+  {timeout:3000}
+);
 document.getElementById('btn-myloc').onclick=()=>{
   navigator.geolocation&&navigator.geolocation.getCurrentPosition(
-    pos=>flyTo(pos.coords.latitude,pos.coords.longitude,1.8),
-    ()=>flyTo(37.57,126.98,2.2)
+    pos=>flyTo(pos.coords.latitude,pos.coords.longitude,1.15),
+    ()=>flyTo(37.57,126.98,1.15)
   );
 };
 
