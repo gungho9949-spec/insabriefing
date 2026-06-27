@@ -191,7 +191,7 @@ function ll2v3(lat,lon,r=1.02){
 // 도시 점 — Mesh로 만들어서 지구와 함께 회전
 const dotMat=new THREE.MeshBasicMaterial({color:0x4dff91,transparent:true,opacity:0.9});
 const dotSelMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:1.0});
-const dotGeo=new THREE.SphereGeometry(0.015,8,8);
+const dotGeo=new THREE.SphereGeometry(0.008,8,8);
 
 const meshes=[];
 for(const city of CITIES){
