@@ -452,7 +452,7 @@ function buildDots(stations){
   meshes.forEach(m=>globeGroup.remove(m));
   meshes=[];
   const r=getDotRadius();
-  const geo=new THREE.SphereGeometry(r,6,6);
+  const geo=new THREE.SphereGeometry(r,16,16);
   const mat=new THREE.MeshBasicMaterial({color:0x4dff91,transparent:true,opacity:0.85});
   // 위치별로 그룹핑 (같은 위치 방송국 하나의 점으로)
   const clusters={};
