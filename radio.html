@@ -301,11 +301,11 @@ let frame=0;
     else{vx*=FRICTION;vy*=FRICTION;globeGroup.rotation.y+=vy;globeGroup.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globeGroup.rotation.x+vx));}
   }
   // 점 크기를 줌에 따라 조정
-  const dotSize=0.015*(zDist/2.8);
-  meshes.forEach(m=>{
-    if(m!==selMesh)m.scale.setScalar(dotSize/0.015);
-  });
-  if(selMesh)selMesh.scale.setScalar(dotSize/0.015*1.5);
+  const dotSize=zDist/2.8;
+meshes.forEach(m=>{
+  if(m!==selMesh)m.scale.setScalar(dotSize);
+});
+if(selMesh)selMesh.scale.setScalar(dotSize*1.8);
   if(ring.visible){ringMat.opacity=0.75+0.25*Math.sin(frame*0.09);ring.scale.setScalar(1+0.07*Math.sin(frame*0.07));}
   renderer.render(scene,camera);
 })();
