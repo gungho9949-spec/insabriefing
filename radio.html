@@ -857,7 +857,7 @@ setTimeout(()=>{
   navigator.geolocation&&navigator.geolocation.getCurrentPosition(
     pos=>{
       const lat=pos.coords.latitude,lon=pos.coords.longitude;
-      flyTo(lat,lon,1.6);
+      flyTo(lat,lon,1.15)
       setTimeout(()=>{
         const nearby=allStations.filter(s=>{
           if(!s.geo_lat||!s.geo_long)return false;
