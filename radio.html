@@ -146,22 +146,11 @@ const earth=new THREE.Mesh(earthGeo,earthMat);
 const TL=new THREE.TextureLoader();
 TL.crossOrigin='anonymous';
 onLoad('고화질 지구 텍스처 불러오는 중…',10);
-TL.load(
-  'https://insabriefing-s2uw.vercel.app/earth.jpg',
-  t=>{
-    t.anisotropy=renderer.capabilities.getMaxAnisotropy();
-    t.minFilter=THREE.LinearMipmapLinearFilter;
-    earthMat.map=t;
-    earthMat.color=new THREE.Color(0xffffff);
-    earthMat.needsUpdate=true;
-    onLoad('완료 ✓',100);
-  },
+TL.load('https://insabriefing-s2uw.vercel.app/earth.jpg',
+  t=>{t.anisotropy=renderer.capabilities.getMaxAnisotropy();t.minFilter=THREE.LinearMipmapLinearFilter;earthMat.map=t;earthMat.color=new THREE.Color(0xffffff);earthMat.needsUpdate=true;onLoad('완료 ✓',100);},
   xhr=>{if(xhr.total)onLoad('불러오는 중… '+Math.round(xhr.loaded/xhr.total*100)+'%',Math.min(90,xhr.loaded/xhr.total*90));},
   ()=>onLoad('로드 실패',100)
 );
-const cloudGeo=new THREE.SphereGeometry(1.007,48,48);
-const cloudMat=new THREE.MeshPhongMaterial({transparent:true,opacity:0.20,depthWrite:false,color:0xffffff});
-const clouds=new THREE.Mesh(cloudGeo,cloudMat);
 const atmMat=new THREE.ShaderMaterial({side:THREE.FrontSide,transparent:true,depthWrite:false,uniforms:{},
 vertexShader:`varying vec3 vN,vV;void main(){vN=normalize(normalMatrix*normal);vV=normalize(-(modelViewMatrix*vec4(position,1.0)).xyz);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
 fragmentShader:`varying vec3 vN,vV;void main(){float f=pow(1.0-dot(vN,vV),4.5);gl_FragColor=vec4(0.18,0.5,1.0,f*0.6);}`});
@@ -171,31 +160,84 @@ const starGeo=new THREE.BufferGeometry();starGeo.setAttribute('position',new THR
 scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xffffff,size:0.16,transparent:true,opacity:0.8,sizeAttenuation:true})));
 const sun=new THREE.DirectionalLight(0xfff8f0,1.4);sun.position.set(5,2,4);scene.add(sun);
 scene.add(new THREE.AmbientLight(0x0a1828,1.1));
-const globeGroup=new THREE.Group();globeGroup.add(earth,clouds,atm);scene.add(globeGroup);
-globeGroup.rotation.y=-2.2;globeGroup.rotation.x=-0.25;
+
+// ── 그룹: 지구 + 도시점 모두 함께 ──────────────
+const globeGroup=new THREE.Group();
+globeGroup.add(earth,atm);
+scene.add(globeGroup);
+globeGroup.rotation.y=-2.2;
+globeGroup.rotation.x=-0.25;
+
 function ll2v3(lat,lon,r=1.015){const phi=(90-lat)*Math.PI/180,th=(lon+180)*Math.PI/180;return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(th),r*Math.cos(phi),r*Math.sin(phi)*Math.sin(th));}
 function mkTex(size,col,glow){const c=document.createElement('canvas');c.width=size;c.height=size;const x=c.getContext('2d');if(glow){const g=x.createRadialGradient(size/2,size/2,1,size/2,size/2,size/2);g.addColorStop(0,col);g.addColorStop(0.4,col+'77');g.addColorStop(1,'transparent');x.fillStyle=g;x.fillRect(0,0,size,size);}x.beginPath();x.arc(size/2,size/2,glow?size/5.5:size/3.5,0,Math.PI*2);x.fillStyle=col;x.fill();return new THREE.CanvasTexture(c);}
 const dotT=mkTex(64,'#4dff91',true),selT=mkTex(128,'#ffffff',true);
 const dotM=()=>new THREE.SpriteMaterial({map:dotT,sizeAttenuation:false,transparent:true,depthTest:false});
 const selM=()=>new THREE.SpriteMaterial({map:selT,sizeAttenuation:false,transparent:true,depthTest:false});
 const sprites=[];
-for(const city of CITIES){const s=new THREE.Sprite(dotM());s.scale.set(0.030,0.030,1);s.position.copy(ll2v3(city.lat,city.lon));s.userData.city=city;globeGroup.add(s);sprites.push(s);}
+for(const city of CITIES){
+  const s=new THREE.Sprite(dotM());
+  s.scale.set(0.030,0.030,1);
+  s.position.copy(ll2v3(city.lat,city.lon));
+  s.userData.city=city;
+  globeGroup.add(s); // ← 지구 그룹에 추가! 함께 회전
+  sprites.push(s);
+}
 const ringMat=new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide,transparent:true,opacity:0.9,depthTest:false});
-const ring=new THREE.Mesh(new THREE.RingGeometry(0.020,0.030,64),ringMat);ring.visible=false;globeGroup.add(ring);
+const ring=new THREE.Mesh(new THREE.RingGeometry(0.020,0.030,64),ringMat);
+ring.visible=false;
+globeGroup.add(ring); // ← 링도 함께 회전
+
 function onResize(){const w=wrap.clientWidth,h=wrap.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
 onResize();window.addEventListener('resize',onResize);
-let drag=false,didMove=false,lx=0,ly=0,vx=0,vy=0,autoSpin=true,zDist=2.8,pinching=false,pinchD0=0,zDist0=0;
+
+// ── 회전 & 줌 ──────────────────────────────────
+let drag=false,didMove=false,lx=0,ly=0;
+let vx=0,vy=0; // 관성 속도
+let autoSpin=true,zDist=2.8,pinching=false,pinchD0=0,zDist0=0;
+const DRAG_SPEED=0.004;   // 드래그 속도
+const FRICTION=0.94;      // 관성 감속 (1에 가까울수록 오래 돌아감)
+const AUTO_SPIN=0.0003;   // 자동 회전 속도 (아주 느리게)
+
 function pdist(t){return Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);}
+
 canvas.addEventListener('mousedown',e=>{drag=true;didMove=false;lx=e.clientX;ly=e.clientY;vx=vy=0;autoSpin=false;},{passive:true});
-window.addEventListener('mouseup',()=>drag=false);
-window.addEventListener('mousemove',e=>{if(!drag)return;const dx=e.clientX-lx,dy=e.clientY-ly;if(Math.abs(dx)+Math.abs(dy)>2)didMove=true;vy=dx*0.006;vx=dy*0.006;globeGroup.rotation.y+=vy;globeGroup.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globeGroup.rotation.x+vx));lx=e.clientX;ly=e.clientY;});
-canvas.addEventListener('touchstart',e=>{e.preventDefault();if(e.touches.length===1){drag=true;didMove=false;lx=e.touches[0].clientX;ly=e.touches[0].clientY;vx=vy=0;autoSpin=false;}else if(e.touches.length===2){drag=false;pinching=true;pinchD0=pdist(e.touches);zDist0=zDist;}},{passive:false});
+window.addEventListener('mouseup',()=>{drag=false;});
+window.addEventListener('mousemove',e=>{
+  if(!drag)return;
+  const dx=e.clientX-lx,dy=e.clientY-ly;
+  if(Math.abs(dx)+Math.abs(dy)>2)didMove=true;
+  vy=dx*DRAG_SPEED; vx=dy*DRAG_SPEED;
+  globeGroup.rotation.y+=vy;
+  globeGroup.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globeGroup.rotation.x+vx));
+  lx=e.clientX;ly=e.clientY;
+});
+canvas.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  if(e.touches.length===1){drag=true;didMove=false;lx=e.touches[0].clientX;ly=e.touches[0].clientY;vx=vy=0;autoSpin=false;}
+  else if(e.touches.length===2){drag=false;pinching=true;pinchD0=pdist(e.touches);zDist0=zDist;}
+},{passive:false});
 window.addEventListener('touchend',e=>{drag=false;if(e.touches.length<2)pinching=false;},{passive:true});
-window.addEventListener('touchmove',e=>{e.preventDefault();if(pinching&&e.touches.length===2){const d=pdist(e.touches);zDist=Math.max(1.2,Math.min(6,zDist0*(pinchD0/d)));camera.position.z=zDist;return;}if(!drag||e.touches.length!==1)return;const dx=e.touches[0].clientX-lx,dy=e.touches[0].clientY-ly;if(Math.abs(dx)+Math.abs(dy)>2)didMove=true;const spd=0.006*(zDist/2.8);vy=dx*spd;vx=dy*spd;globeGroup.rotation.y+=vy;globeGroup.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globeGroup.rotation.x+vx));lx=e.touches[0].clientX;ly=e.touches[0].clientY;},{passive:false});
+window.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  if(pinching&&e.touches.length===2){
+    const d=pdist(e.touches);zDist=Math.max(1.2,Math.min(6,zDist0*(pinchD0/d)));camera.position.z=zDist;return;
+  }
+  if(!drag||e.touches.length!==1)return;
+  const dx=e.touches[0].clientX-lx,dy=e.touches[0].clientY-ly;
+  if(Math.abs(dx)+Math.abs(dy)>2)didMove=true;
+  const spd=DRAG_SPEED*(zDist/2.8);
+  vy=dx*spd; vx=dy*spd;
+  globeGroup.rotation.y+=vy;
+  globeGroup.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globeGroup.rotation.x+vx));
+  lx=e.touches[0].clientX;ly=e.touches[0].clientY;
+},{passive:false});
 canvas.addEventListener('wheel',e=>{e.preventDefault();zDist*=e.deltaY<0?0.92:1.09;zDist=Math.max(1.2,Math.min(6,zDist));camera.position.z=zDist;},{passive:false});
 document.getElementById('zin').onclick=()=>{zDist=Math.max(1.2,zDist*0.82);camera.position.z=zDist;};
 document.getElementById('zout').onclick=()=>{zDist=Math.min(6,zDist*1.22);camera.position.z=zDist;};
-const ray=new THREE.Raycaster();ray.params.Sprite={threshold:0.035};const mouse=new THREE.Vector2();
+
+// ── 레이캐스트 ─────────────────────────────────
+const ray=new THREE.Raycaster();ray.params.Sprite={threshold:0.035};
+const mouse=new THREE.Vector2();
 function hitSprite(ex,ey){const r=canvas.getBoundingClientRect();mouse.x=((ex-r.left)/r.width)*2-1;mouse.y=-((ey-r.top)/r.height)*2+1;ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(sprites);return hits.length?hits[0].object:null;}
 canvas.addEventListener('mouseup',e=>{if(!didMove)handleClick(e.clientX,e.clientY);});
 canvas.addEventListener('touchend',e=>{if(!didMove&&e.changedTouches.length===1)handleClick(e.changedTouches[0].clientX,e.changedTouches[0].clientY);});
@@ -203,10 +245,33 @@ let selSprite=null;
 function handleClick(ex,ey){const hit=hitSprite(ex,ey);if(!hit)return;if(selSprite&&selSprite!==hit)selSprite.material=dotM();selSprite=hit;hit.material=selM();ring.position.copy(hit.position);ring.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),hit.position.clone().normalize());ring.visible=true;selectCity(hit.userData.city);}
 const tip=document.getElementById('tip');
 canvas.addEventListener('mousemove',e=>{if(drag){tip.style.display='none';return;}const hit=hitSprite(e.clientX,e.clientY);if(hit){document.getElementById('tip-n').textContent=hit.userData.city.name;document.getElementById('tip-c').textContent=hit.userData.city.country;tip.style.display='block';tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-38)+'px';canvas.style.cursor='pointer';}else{tip.style.display='none';canvas.style.cursor='grab';}});
+
+// ── 렌더 루프 ──────────────────────────────────
 let frame=0;
-(function animate(){requestAnimationFrame(animate);frame++;if(!drag&&!pinching){if(autoSpin){globeGroup.rotation.y+=0.0008;}else{vx*=0.92;vy*=0.92;globeGroup.rotation.y+=vy;globeGroup.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globeGroup.rotation.x+vx));}}clouds.rotation.y+=0.00006;if(ring.visible){ringMat.opacity=0.75+0.25*Math.sin(frame*0.09);ring.scale.setScalar(1+0.07*Math.sin(frame*0.07));}const sf=0.026*(zDist/2.8);sprites.forEach(s=>{if(s!==selSprite)s.scale.setScalar(sf);});if(selSprite)selSprite.scale.setScalar(sf*1.8);renderer.render(scene,camera);})();
+(function animate(){
+  requestAnimationFrame(animate);frame++;
+  if(!drag&&!pinching){
+    if(autoSpin){
+      globeGroup.rotation.y+=AUTO_SPIN; // 아주 느린 자동회전
+    } else {
+      // 관성: 손 뗀 후 서서히 감속
+      vx*=FRICTION; vy*=FRICTION;
+      globeGroup.rotation.y+=vy;
+      globeGroup.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globeGroup.rotation.x+vx));
+    }
+  }
+  if(ring.visible){ringMat.opacity=0.75+0.25*Math.sin(frame*0.09);ring.scale.setScalar(1+0.07*Math.sin(frame*0.07));}
+  const sf=0.026*(zDist/2.8);
+  sprites.forEach(s=>{if(s!==selSprite)s.scale.setScalar(sf);});
+  if(selSprite)selSprite.scale.setScalar(sf*1.8);
+  renderer.render(scene,camera);
+})();
+
+// ── 시계 ──────────────────────────────────────
 function tick(){const n=new Date();document.getElementById('clock').textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');}
 tick();setInterval(tick,10000);
+
+// ── 오디오 ─────────────────────────────────────
 const aud=document.getElementById('aud');
 let playing=false,muted=false,stations=[],stIdx=0;
 function setStatus(m,c=''){const el=document.getElementById('status');el.textContent=m;el.className=c;}
