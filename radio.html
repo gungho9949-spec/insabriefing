@@ -12,8 +12,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'He
 #splash{position:fixed;inset:0;background:#000;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity 1s;}
 #splash.hide{opacity:0;pointer-events:none;}
 #splash img{width:220px;height:220px;object-fit:contain;animation:splashIn 1s ease;}
-#splash-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:2px;animation:splashIn 1.2s ease;}
-#splash-sub{font-size:13px;color:#888;animation:splashIn 1.4s ease;}
+#splash-title{
+  font-size:28px;font-weight:900;
+  background:linear-gradient(135deg,#ff6b00,#ffd700,#ff6b00);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:4px;text-shadow:none;
+  font-family:Georgia,serif;
+  animation:splashIn 1.2s ease;
+}
+#splash-sub{font-size:13px;color:#aaa;letter-spacing:1px;animation:splashIn 1.4s ease;}
 @keyframes splashIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
 
 /* 지구본 */
