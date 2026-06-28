@@ -10,8 +10,6 @@
 html,body{height:100%;overflow:hidden;background:var(--bg);}
 body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;user-select:none;-webkit-user-select:none;}
 #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
-
-/* SPLASH */
 #splash{position:fixed;inset:0;z-index:1000;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:opacity 1s ease;}
 #splash.out{opacity:0;pointer-events:none;}
 .sp-logo-img{width:80px;height:80px;object-fit:contain;}
@@ -20,57 +18,23 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .sp-bar{width:120px;height:2px;background:rgba(255,255,255,0.06);border-radius:1px;margin-top:28px;overflow:hidden;}
 .sp-bar-fill{height:100%;width:0;background:var(--green);border-radius:1px;animation:spLoad 2s 0.3s ease forwards;}
 @keyframes spLoad{to{width:100%}}
-
-/* APP */
 #app{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;}
 #globe-wrap{flex:1;position:relative;overflow:hidden;cursor:grab;touch-action:none;}
 #globe-wrap:active{cursor:grabbing;}
 #globe-canvas{display:block;width:100%;height:100%;}
-
-/* SIDE BUTTONS */
 #side-btns{position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:9px;z-index:10;}
 .sbtn{width:42px;height:42px;border-radius:50%;background:rgba(12,19,32,0.82);border:1px solid var(--border);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;transition:all 0.18s;}
 .sbtn:hover{background:var(--green-dim);border-color:rgba(77,255,145,0.4);}
-
-/* LOCK BADGE */
 #lock-badge{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:rgba(12,19,32,0.88);border:1px solid rgba(77,255,145,0.35);border-radius:20px;padding:4px 14px;font-size:10px;color:var(--green);letter-spacing:2px;pointer-events:none;z-index:10;display:none;}
 #lock-badge.show{display:block;}
-
-/* CENTER RING - 항상 화면 중앙에 고정 */
-#center-ring{
-  position:absolute;
-  top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  width:56px;height:56px;
-  border:2px dashed rgba(255,255,255,0.7);
-  border-radius:50%;
-  pointer-events:none;
-  z-index:8;
-  animation:ringPulse 1.8s ease-in-out infinite;
-}
-#center-ring-dot{
-  position:absolute;
-  top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  width:6px;height:6px;
-  background:#fff;
-  border-radius:50%;
-  pointer-events:none;
-  z-index:8;
-}
-@keyframes ringPulse{
-  0%,100%{opacity:0.8;transform:translate(-50%,-50%) scale(1);}
-  50%{opacity:0.4;transform:translate(-50%,-50%) scale(1.1);}
-}
-
-/* LOADING */
-#loading-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:none;z-index:5;text-align:center;}
+#center-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:56px;height:56px;border:2px dashed rgba(255,255,255,0.7);border-radius:50%;pointer-events:none;z-index:8;animation:ringPulse 1.8s ease-in-out infinite;}
+#center-ring-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;background:#fff;border-radius:50%;pointer-events:none;z-index:8;}
+@keyframes ringPulse{0%,100%{opacity:0.8;transform:translate(-50%,-50%) scale(1);}50%{opacity:0.4;transform:translate(-50%,-50%) scale(1.1);}}
+#loading-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:none;z-index:9;text-align:center;}
 #loading-ring.show{display:block;}
 .ring{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.9s linear infinite;margin:0 auto 8px;}
 .ring-txt{font-size:10px;letter-spacing:2px;color:var(--sub);}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* PLAYER */
 #player{background:var(--panel);border-top:1px solid var(--border);padding:11px 16px 8px;flex-shrink:0;cursor:pointer;}
 .p-brand{font-size:8px;letter-spacing:3.5px;color:var(--sub);text-transform:uppercase;margin-bottom:8px;}
 .p-info{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
@@ -92,14 +56,10 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .cbtn{width:38px;height:38px;border-radius:50%;background:none;border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.18s;flex-shrink:0;}
 .cbtn:hover{border-color:rgba(77,255,145,0.4);color:var(--green);}
 .cbtn.play-btn{background:var(--green);color:#000;border-color:var(--green);font-size:17px;}
-
-/* NAV */
 #nav{background:var(--panel);border-top:1px solid var(--border);display:flex;flex-shrink:0;}
 .nbtn{flex:1;padding:9px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:var(--sub);cursor:pointer;font-size:9.5px;transition:color 0.18s;}
 .nbtn .ni{font-size:20px;line-height:1;}
 .nbtn.on{color:var(--green);}
-
-/* SHEET */
 #sheet{position:fixed;bottom:0;left:0;right:0;z-index:80;background:var(--panel);border-radius:20px 20px 0 0;border-top:1px solid var(--border);transform:translateY(100%);transition:transform 0.36s cubic-bezier(0.32,0.72,0,1);max-height:75vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,0.6);}
 #sheet.open{transform:translateY(0);}
 .sh-handle{width:38px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:10px auto 0;flex-shrink:0;cursor:pointer;}
@@ -111,8 +71,6 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .sh-list{overflow-y:auto;flex:1;padding-bottom:16px;}
 .sh-section{padding:12px 16px 6px;font-size:11px;letter-spacing:1px;color:var(--sub);text-transform:uppercase;}
 .sh-see-all{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;color:var(--green);font-size:13px;cursor:pointer;border-top:1px solid var(--border);}
-
-/* STATION ITEM */
 .si{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.13s;gap:12px;}
 .si:active,.si:hover{background:var(--green-dim);}
 .si.playing{background:rgba(77,255,145,0.07);}
@@ -123,8 +81,6 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .si-meta{font-size:10px;color:var(--sub);margin-top:2px;}
 .si-heart{font-size:19px;cursor:pointer;flex-shrink:0;color:var(--sub);transition:all 0.18s;padding:4px;}
 .si-heart.on{color:var(--red);}
-
-/* TABS */
 .tab{position:fixed;inset:0;z-index:60;background:var(--bg);flex-direction:column;display:none;}
 .tab.open{display:flex;}
 .tab-hd{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;background:var(--panel);}
@@ -151,8 +107,6 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .live-cnt h2{font-size:20px;font-weight:700;color:var(--text);}
 .live-cnt p{font-size:13px;text-align:center;line-height:1.7;max-width:240px;}
 .yt-btn{padding:11px 22px;border-radius:22px;background:var(--green);color:#000;font-size:13px;font-weight:700;border:none;cursor:pointer;text-decoration:none;display:inline-block;}
-
-/* TOAST */
 #toast{position:fixed;bottom:150px;left:50%;transform:translateX(-50%) translateY(12px);background:rgba(12,19,32,0.94);border:1px solid var(--border);border-radius:22px;padding:9px 20px;font-size:12px;color:var(--text);pointer-events:none;opacity:0;transition:all 0.28s;z-index:500;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 ::-webkit-scrollbar{width:2px;}
@@ -194,7 +148,7 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
         <div class="p-station" id="p-station">방송국 없음</div>
       </div>
     </div>
-    <div class="p-controls" onclick="function(e){e.stopPropagation()}" style="pointer-events:auto">
+    <div class="p-controls">
       <button class="cbtn" id="btn-mute" onclick="event.stopPropagation();toggleMute()">🔊</button>
       <div class="eq paused" id="eq">
         <div class="eq-b"></div><div class="eq-b"></div><div class="eq-b"></div><div class="eq-b"></div><div class="eq-b"></div>
@@ -211,15 +165,10 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
     <button class="nbtn" data-t="settings" onclick="switchTab('settings')"><span class="ni">☰</span>설정</button>
   </div>
 </div>
-
-<!-- SHEET -->
 <div id="sheet">
   <div class="sh-handle" onclick="closeSheet()"></div>
   <div class="sh-head">
-    <div>
-      <div class="sh-city" id="sh-city">방송국</div>
-      <div class="sh-meta" id="sh-meta"></div>
-    </div>
+    <div><div class="sh-city" id="sh-city">방송국</div><div class="sh-meta" id="sh-meta"></div></div>
     <div style="display:flex;align-items:center;gap:12px;">
       <div class="sh-time" id="sh-time"></div>
       <div class="sh-close" onclick="closeSheet()">✕</div>
@@ -227,8 +176,6 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
   </div>
   <div class="sh-list" id="sh-list"></div>
 </div>
-
-<!-- TABS -->
 <div class="tab" id="tab-fav">
   <div class="tab-hd"><button class="tab-back" onclick="closeTab('fav')">‹</button><div class="tab-ttl">즐겨찾기</div></div>
   <div class="tab-body" id="fav-body"></div>
@@ -266,17 +213,19 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
     </div>
   </div>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 var ST={
-  stations:[],clusters:[],dots:[],current:null,currentCluster:null,sheetList:[],nearbyList:[],
+  stations:[],clusters:[],dots:[],
+  current:null,currentCluster:null,sheetList:[],
   favs:JSON.parse(localStorage.getItem('wp_favs')||'[]'),
   playing:false,muted:false,locked:false,
   dotSize:localStorage.getItem('wp_dotsize')||'md',
   lang:localStorage.getItem('wp_lang')||'auto',
-  myLat:37.5665,myLon:126.9780,hasGPS:false,timerId:null,sheetTimerId:null,
-  selectedDot:null
+  myLat:0,myLon:0,hasGPS:false,
+  stationsReady:false,
+  timerId:null,sheetTimerId:null,
+  _lastRingCluster:null
 };
 
 /* STARS */
@@ -285,7 +234,7 @@ var ST={
   function resize(){c.width=innerWidth;c.height=innerHeight;}
   resize();window.addEventListener('resize',resize);
   for(var i=0;i<180;i++)stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.1+0.2,a:Math.random(),da:(Math.random()-0.5)*0.006});
-  function draw(){
+  (function draw(){
     ctx.clearRect(0,0,c.width,c.height);
     for(var i=0;i<stars.length;i++){
       var s=stars[i];s.a+=s.da;if(s.a<0||s.a>1)s.da*=-1;
@@ -293,11 +242,10 @@ var ST={
       ctx.fillStyle='rgba(255,255,255,'+(0.2+s.a*0.55)+')';ctx.fill();
     }
     requestAnimationFrame(draw);
-  }
-  draw();
+  })();
 })();
 
-/* THREE */
+/* THREE.JS */
 var scene,cam,ren,globe,atmo;
 var drag=false,dragMoved=false,pMouse={x:0,y:0};
 var vel={x:0,y:0},autoRot=true,zoomTarget=null,pinch0=null;
@@ -311,13 +259,9 @@ function initGlobe(){
   cam.position.z=3.8;
   ren=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
   ren.setPixelRatio(Math.min(devicePixelRatio,2));
-  ren.setSize(W,H);
-  ren.setClearColor(0x000000,0);
+  ren.setSize(W,H);ren.setClearColor(0x000000,0);
   var tex=new THREE.TextureLoader().load('/earth.jpg');
-  globe=new THREE.Mesh(
-    new THREE.SphereGeometry(1,64,64),
-    new THREE.MeshPhongMaterial({map:tex,specular:new THREE.Color(0x1a2244),shininess:6})
-  );
+  globe=new THREE.Mesh(new THREE.SphereGeometry(1,64,64),new THREE.MeshPhongMaterial({map:tex,specular:new THREE.Color(0x1a2244),shininess:6}));
   scene.add(globe);
   atmo=new THREE.Mesh(new THREE.SphereGeometry(1.045,64,64),new THREE.ShaderMaterial({
     vertexShader:'varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
@@ -327,10 +271,7 @@ function initGlobe(){
   scene.add(atmo);
   scene.add(new THREE.AmbientLight(0xffffff,0.45));
   var sun=new THREE.DirectionalLight(0xffffff,1.0);sun.position.set(5,3,5);scene.add(sun);
-  window.addEventListener('resize',function(){
-    var W2=wrap.clientWidth,H2=wrap.clientHeight;
-    cam.aspect=W2/H2;cam.updateProjectionMatrix();ren.setSize(W2,H2);
-  });
+  window.addEventListener('resize',function(){var W2=wrap.clientWidth,H2=wrap.clientHeight;cam.aspect=W2/H2;cam.updateProjectionMatrix();ren.setSize(W2,H2);});
   cv.addEventListener('mousedown',onMD);
   window.addEventListener('mousemove',onMM);
   window.addEventListener('mouseup',onMU);
@@ -351,9 +292,9 @@ function loop(){
   }
   if(zoomTarget!==null){
     var diff=cam.position.z-zoomTarget;
-var speed=Math.abs(diff)>3?0.008:Math.abs(diff)>1?0.018:0.06;
-cam.position.z+=( zoomTarget-cam.position.z)*speed;
-if(Math.abs(diff)<0.005){cam.position.z=zoomTarget;zoomTarget=null;}
+    var spd=Math.abs(diff)>3?0.008:Math.abs(diff)>1?0.02:0.06;
+    cam.position.z+=(zoomTarget-cam.position.z)*spd;
+    if(Math.abs(diff)<0.005){cam.position.z=zoomTarget;zoomTarget=null;}
   }
   checkCenterRing();
   ren.render(scene,cam);
@@ -372,7 +313,7 @@ function onMM(e){
 function onMU(e){if(!dragMoved)handleTap(e.clientX,e.clientY);drag=false;}
 function onWH(e){e.preventDefault();cam.position.z=Math.max(1.2,Math.min(8,cam.position.z+e.deltaY*0.003));}
 function onTS(e){
-  if(e.touches.length===2){pinch0=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}
+  if(e.touches.length===2)pinch0=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
   else{drag=true;dragMoved=false;pMouse={x:e.touches[0].clientX,y:e.touches[0].clientY};autoRot=false;vel={x:0,y:0};}
 }
 function onTM(e){
@@ -404,52 +345,33 @@ function handleTap(cx,cy){
   var hits=ray.intersectObjects(ST.dots);
   if(hits.length){
     var cl=hits[0].object.userData.cluster;
-    if(ST.locked){
-      openSheet(cl);
-    } else {
-      openSheet(cl);
-      if(cl.stations.length>0)play(cl.stations[0]);
-    }
+    openSheet(cl);
+    if(!ST.locked&&cl.stations.length>0)play(cl.stations[0]);
   }
 }
 
-/* CENTER RING - 지구 회전할때마다 중앙에 있는 녹색점 감지 */
-var lastRingCheck=0;
+/* CENTER RING */
+var _ringLast=0;
 function checkCenterRing(){
   var now=Date.now();
-  if(now-lastRingCheck<300)return; // 300ms마다 체크
-  lastRingCheck=now;
+  if(now-_ringLast<400)return;
+  _ringLast=now;
   if(!ST.dots.length)return;
-
-  var wrap=document.getElementById('globe-wrap');
-  var cx=wrap.clientWidth/2;
-  var cy=wrap.clientHeight/2;
-  var RING_R=28; // 픽셀 반경
-
-  mXY.x=0; mXY.y=0; // 정중앙
+  mXY.x=0;mXY.y=0;
   ray.setFromCamera(mXY,cam);
   var hits=ray.intersectObjects(ST.dots);
-
   if(hits.length){
     var cl=hits[0].object.userData.cluster;
-    // 이미 같은 클러스터면 스킵
     if(ST._lastRingCluster===cl)return;
     ST._lastRingCluster=cl;
-
-    if(!ST.locked){
-      // 잠금 해제 상태: 자동으로 방송 변경
-      if(cl.stations.length>0){
-        play(cl.stations[0]);
-        document.getElementById('p-city').textContent=cl.country||'Unknown';
-        updateClock(cl.lat,cl.lon);
-        showToast('📻 '+cl.stations[0].name);
-      }
-    } else {
-      // 잠금 상태: 방송은 유지, 위치 정보만 업데이트
-      document.getElementById('p-city').textContent=cl.country||'Unknown';
+    if(!ST.locked&&cl.stations.length>0){
+      play(cl.stations[0]);
+      showToast('📻 '+cl.stations[0].name);
+    }else{
+      document.getElementById('p-city').textContent=cl.country||'';
       updateClock(cl.lat,cl.lon);
     }
-  } else {
+  }else{
     ST._lastRingCluster=null;
   }
 }
@@ -458,17 +380,29 @@ function checkCenterRing(){
 function ll2v(lat,lon,r){
   r=r||1.0;
   var phi=(90-lat)*Math.PI/180,th=(lon+180)*Math.PI/180;
-  return new THREE.Vector3(
-    -r*Math.sin(phi)*Math.cos(th),
-    r*Math.cos(phi),
-    r*Math.sin(phi)*Math.sin(th)
-  );
+  return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(th),r*Math.cos(phi),r*Math.sin(phi)*Math.sin(th));
 }
 
-function latLonToRotation(lat,lon){
-  var rotY=lon*Math.PI/180;
-  var rotX=-lat*Math.PI/180*0.4;
-  return {x:rotX, y:rotY};
+function flyTo(lat,lon,zoom){
+  zoom=zoom||2.0;
+  /* ll2v 좌표계 역산:
+     점의 z = sin(phi)*sin(th), 카메라는 z+ 방향
+     z를 최대로 만들려면 th=PI/2 → lon+180=90 → lon=-90이 초기 정면
+     globe.rotation.y를 돌리면 정면이 바뀜
+     원하는 lon을 정면으로: rotY = -(lon+90)*PI/180 */
+  var rotY=-(lon+90)*Math.PI/180;
+  var rotX=-lat*Math.PI/180*0.5;
+  var sy=globe.rotation.y,sx=globe.rotation.x,t=0;
+  autoRot=false;
+  (function step(){
+    t+=0.025;
+    var e=1-Math.pow(1-Math.min(t,1),3);
+    globe.rotation.y=sy+(rotY-sy)*e;
+    globe.rotation.x=sx+(rotX-sx)*e;
+    atmo.rotation.copy(globe.rotation);
+    if(t<1)requestAnimationFrame(step);
+  })();
+  zoomTarget=zoom;
 }
 
 function buildDots(){
@@ -477,32 +411,12 @@ function buildDots(){
   var dotR={sm:0.003,md:0.005,lg:0.008}[ST.dotSize]||0.005;
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
-    var geo=new THREE.SphereGeometry(dotR,5,5);
-    var mat=new THREE.MeshBasicMaterial({color:0x4dff91});
-    var m=new THREE.Mesh(geo,mat);
+    var m=new THREE.Mesh(new THREE.SphereGeometry(dotR,5,5),new THREE.MeshBasicMaterial({color:0x4dff91}));
     var pos=ll2v(cl.lat,cl.lon,1.018);
     m.position.set(pos.x,pos.y,pos.z);
     m.userData={cluster:cl};
-    globe.add(m);
-    ST.dots.push(m);
+    globe.add(m);ST.dots.push(m);
   }
-}
-
-function flyTo(lat,lon,zoom){
-  zoom=zoom||2.0;
-  var r=latLonToRotation(lat,lon);
-  var targetY=r.y,targetX=r.x;
-  var sy=globe.rotation.y,sx=globe.rotation.x,t=0;
-  autoRot=false;
-  function step(){
-    t+=0.03;var e=1-Math.pow(1-Math.min(t,1),3);
-    globe.rotation.y=sy+(targetY-sy)*e;
-    globe.rotation.x=sx+(targetX-sx)*e;
-    atmo.rotation.copy(globe.rotation);
-    if(t<1)requestAnimationFrame(step);
-  }
-  step();
-  zoomTarget=zoom;
 }
 
 function clusterStations(stations){
@@ -520,24 +434,23 @@ function clusterStations(stations){
 
 /* API */
 var apiBase='https://de1.api.radio-browser.info';
-
 function loadStations(){
   setLoading(true);
-  var controller=new AbortController();
-  var tid=setTimeout(function(){controller.abort();},25000);
-  fetch(apiBase+'/json/stations?limit=3000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true',{signal:controller.signal})
-  .then(function(res){clearTimeout(tid);if(!res.ok)throw new Error();return res.json();})
-  .then(function(data){onStationsLoaded(data);})
+  var ctrl=new AbortController();
+  var tid=setTimeout(function(){ctrl.abort();},25000);
+  fetch(apiBase+'/json/stations?limit=5000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true',{signal:ctrl.signal})
+  .then(function(r){clearTimeout(tid);return r.json();})
+  .then(function(data){onLoaded(data);})
   .catch(function(){
     clearTimeout(tid);
-    fetch('https://nl1.api.radio-browser.info/json/stations?limit=3000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true')
+    fetch('https://nl1.api.radio-browser.info/json/stations?limit=5000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true')
     .then(function(r){return r.json();})
-    .then(function(data){onStationsLoaded(data);})
+    .then(function(data){onLoaded(data);})
     .catch(function(){setLoading(false);showToast('⚠️ API 연결 실패');});
   });
 }
 
-function onStationsLoaded(data){
+function onLoaded(data){
   ST.stations=[];
   for(var i=0;i<data.length;i++){
     var s=data[i];
@@ -553,46 +466,22 @@ function onStationsLoaded(data){
   buildDots();setLoading(false);
   showToast('🌍 '+ST.stations.length.toLocaleString()+'개 방송국 로드 완료');
   ST.stationsReady=true;
-  // GPS가 이미 와있으면 바로 실행, 아니면 GPS 콜백에서 실행
-  if(ST.hasGPS){
-    autoPlayNearby();
-  }
-}
-  ST.clusters=clusterStations(ST.stations);
-  buildDots();setLoading(false);
-  showToast('🌍 '+ST.stations.length.toLocaleString()+'개 방송국 로드 완료');
-  autoPlayNearby();
+  if(ST.hasGPS)autoPlayNearby();
 }
 
 function autoPlayNearby(){
-  if(!ST.hasGPS)return;
-  // GPS 좌표 검증 - 한국 범위(위도 33~38, 경도 124~132) 체크
-  var isKorea=(ST.myLat>=33&&ST.myLat<=38.5&&ST.myLon>=124&&ST.myLon<=132);
-  // 좌표가 이상하면 서울로 강제 설정
-  if(ST.myLat<10||ST.myLat>70||ST.myLon<100||ST.myLon>145){
-    console.warn('GPS 좌표 이상, 서울로 기본값 설정');
-    ST.myLat=37.5665;ST.myLon=126.9780;
-  }
-  // 1순위: 같은 나라 방송국 찾기 (나라명으로 비교)
-  // GPS 위치로 나라 추정 후 같은 나라 클러스터 중 가장 가까운 것
-  var best=null,bestD=999;
-  var bestSameCountry=null,bestDSameCountry=999;
-
+  if(!ST.hasGPS||!ST.stationsReady)return;
+  var best=null,bestD=9999;
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
+    // 위도/경도 보정 거리 계산
     var dLat=cl.lat-ST.myLat;
     var dLon=(cl.lon-ST.myLon)*Math.cos(ST.myLat*Math.PI/180);
     var d=Math.sqrt(dLat*dLat+dLon*dLon);
-
-    // 북한 제외
-    var c=(cl.country||'').toLowerCase();
-    if(c.indexOf('democratic people')>=0||c.indexOf('north korea')>=0||c==='kp')continue;
-
     if(d<bestD){bestD=d;best=cl;}
   }
-
   if(best&&best.stations.length>0){
-    console.log('자동재생 클러스터:',best.country,best.lat,best.lon,'거리:',bestD);
+    console.log('자동재생:',best.country,best.lat,best.lon,'거리(도):',bestD.toFixed(2));
     ST.currentCluster=best;
     play(best.stations[0]);
     openSheet(best);
@@ -602,163 +491,102 @@ function autoPlayNearby(){
 function setLoading(v){document.getElementById('loading-ring').classList.toggle('show',v);}
 
 /* SHEET */
-function onPlayerTap(){
-  if(ST.currentCluster)openSheet(ST.currentCluster);
-}
+function onPlayerTap(){if(ST.currentCluster)openSheet(ST.currentCluster);}
 
 function openSheet(cl){
-  ST.currentCluster=cl;
-  ST.sheetList=cl.stations;
-
-  document.getElementById('sh-city').textContent=cl.country||(cl.stations[0]&&cl.stations[0].state)||'방송국';
+  ST.currentCluster=cl;ST.sheetList=cl.stations;
+  document.getElementById('sh-city').textContent=cl.country||'방송국';
   document.getElementById('sh-meta').textContent=cl.stations.length+'개 방송국';
-
   var off=Math.round(cl.lon/15);
   clearInterval(ST.sheetTimerId);
   ST.sheetTimerId=setInterval(function(){
     var now=new Date(),utc=now.getTime()+now.getTimezoneOffset()*60000,lc=new Date(utc+off*3600000);
-    document.getElementById('sh-time').textContent=
-      String(lc.getHours()).padStart(2,'0')+':'+String(lc.getMinutes()).padStart(2,'0');
+    document.getElementById('sh-time').textContent=String(lc.getHours()).padStart(2,'0')+':'+String(lc.getMinutes()).padStart(2,'0');
   },1000);
-
   updateClock(cl.lat,cl.lon);
   renderSheetList(cl);
   document.getElementById('sheet').classList.add('open');
   document.getElementById('p-city').textContent=cl.country||'Unknown';
-  document.getElementById('p-country').textContent=cl.stations[0]&&cl.stations[0].state||cl.stations.length+'개 방송국';
+  document.getElementById('p-country').textContent=(cl.stations[0]&&cl.stations[0].state)||cl.stations.length+'개 방송국';
 }
-
-function closeSheet(){
-  document.getElementById('sheet').classList.remove('open');
-  clearInterval(ST.sheetTimerId);
-}
+function closeSheet(){document.getElementById('sheet').classList.remove('open');clearInterval(ST.sheetTimerId);}
 
 function renderSheetList(cl){
-  var ul=document.getElementById('sh-list');
-  ul.innerHTML='';
-
-  /* 해당 도시 방송국 */
-  var secA=document.createElement('div');
-  secA.className='sh-section';
-  secA.textContent=(cl.country||'방송국')+' 방송국';
-  ul.appendChild(secA);
-
-  var showAll=false;
-  var list=cl.stations;
-  var maxShow=showAll?list.length:Math.min(5,list.length);
-  for(var i=0;i<maxShow;i++)ul.appendChild(makeItem(list[i],i,'sheet'));
-
+  var ul=document.getElementById('sh-list');ul.innerHTML='';
+  var sec=document.createElement('div');sec.className='sh-section';sec.textContent=(cl.country||'방송국')+' 방송국';ul.appendChild(sec);
+  var list=cl.stations,max=Math.min(5,list.length);
+  for(var i=0;i<max;i++)ul.appendChild(makeItem(list[i],i,'sheet'));
   if(list.length>5){
-    var seeAll=document.createElement('div');
-    seeAll.className='sh-see-all';
-    seeAll.innerHTML='전체 '+list.length+'개 방송국 보기 <span>›</span>';
-    (function(l){
-      seeAll.onclick=function(){
-        ul.innerHTML='';
-        var secA2=document.createElement('div');secA2.className='sh-section';
-        secA2.textContent=(cl.country||'방송국')+' 방송국';ul.appendChild(secA2);
-        for(var i=0;i<l.length;i++)ul.appendChild(makeItem(l[i],i,'sheet'));
-        renderNearby(cl,ul);
-      };
-    })(list);
-    ul.appendChild(seeAll);
+    var sa=document.createElement('div');sa.className='sh-see-all';
+    sa.innerHTML='전체 '+list.length+'개 방송국 보기 <span>›</span>';
+    (function(l){sa.onclick=function(){ul.innerHTML='';var s2=document.createElement('div');s2.className='sh-section';s2.textContent=(cl.country||'방송국')+' 방송국';ul.appendChild(s2);for(var i=0;i<l.length;i++)ul.appendChild(makeItem(l[i],i,'sheet'));renderNearby(cl,ul);};})(list);
+    ul.appendChild(sa);
   }
-
   renderNearby(cl,ul);
 }
 
 function renderNearby(cl,ul){
-  /* 주변 방송국 */
   var nearby=[];
   for(var i=0;i<ST.clusters.length;i++){
-    var c=ST.clusters[i];
-    if(c===cl)continue;
+    var c=ST.clusters[i];if(c===cl)continue;
     var d=Math.hypot(c.lat-cl.lat,c.lon-cl.lon);
     if(d<15)nearby.push({cl:c,d:d});
   }
   nearby.sort(function(a,b){return a.d-b.d;});
   nearby=nearby.slice(0,8);
   if(!nearby.length)return;
-
-  var secB=document.createElement('div');
-  secB.className='sh-section';
-  secB.textContent='주변 지역 방송국';
-  ul.appendChild(secB);
-
+  var sec=document.createElement('div');sec.className='sh-section';sec.textContent='주변 지역 방송국';ul.appendChild(sec);
   for(var i=0;i<nearby.length;i++){
-    var nc=nearby[i].cl;
-    if(nc.stations.length>0){
-      var s=nc.stations[0];
-      var div=document.createElement('div');
-      div.className='si';
-      var isFav=ST.favs.some(function(f){return f.uuid===s.uuid;});
-      div.innerHTML='<div class="si-dot'+(ST.current&&ST.current.uuid===s.uuid?' on':'')+'"></div>'+
-        '<div class="si-body"><div class="si-name">'+esc(s.name)+'</div>'+
-        '<div class="si-meta">'+(nc.country||'')+' · '+nc.stations.length+'개 방송국</div></div>'+
-        '<div class="si-heart'+(isFav?' on':'')+'" onclick="tapHeartDirect(event,\''+s.uuid+'\')">'+(isFav?'♥':'♡')+'</div>';
-      (function(cluster,station){
-        div.addEventListener('click',function(e){
-          if(e.target.classList.contains('si-heart'))return;
-          openSheet(cluster);
-          play(station);
-        });
-      })(nc,s);
-      ul.appendChild(div);
-    }
+    var nc=nearby[i].cl;if(!nc.stations.length)continue;
+    var s=nc.stations[0];
+    var div=document.createElement('div');div.className='si';
+    var isFav=ST.favs.some(function(f){return f.uuid===s.uuid;});
+    div.innerHTML='<div class="si-dot'+(ST.current&&ST.current.uuid===s.uuid?' on':'')+'"></div>'+
+      '<div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+(nc.country||'')+' · '+nc.stations.length+'개 방송국</div></div>'+
+      '<div class="si-heart'+(isFav?' on':'')+'" onclick="tapHeartUUID(event,\''+s.uuid+'\')">'+(isFav?'♥':'♡')+'</div>';
+    (function(cluster,station){div.addEventListener('click',function(e){if(e.target.classList.contains('si-heart'))return;openSheet(cluster);play(station);});})(nc,s);
+    ul.appendChild(div);
   }
 }
 
-function tapHeartDirect(e,uuid){
+function tapHeartUUID(e,uuid){
   e.stopPropagation();
-  var s=null;
-  for(var i=0;i<ST.stations.length;i++){if(ST.stations[i].uuid===uuid){s=ST.stations[i];break;}}
+  var s=null;for(var i=0;i<ST.stations.length;i++){if(ST.stations[i].uuid===uuid){s=ST.stations[i];break;}}
   if(!s)return;
   var fi=ST.favs.findIndex(function(f){return f.uuid===uuid;});
-  if(fi>=0){ST.favs.splice(fi,1);showToast('즐겨찾기 삭제');}
-  else{ST.favs.push(s);showToast('♥ 즐겨찾기 추가');}
+  if(fi>=0){ST.favs.splice(fi,1);showToast('즐겨찾기 삭제');}else{ST.favs.push(s);showToast('♥ 즐겨찾기 추가');}
   localStorage.setItem('wp_favs',JSON.stringify(ST.favs));
-  if(ST.currentCluster)renderSheetList(ST.currentCluster);
-  renderFav();
+  if(ST.currentCluster)renderSheetList(ST.currentCluster);renderFav();
 }
 
 function makeItem(s,i,ctx){
   var div=document.createElement('div');
   div.className='si'+(ST.current&&ST.current.uuid===s.uuid?' playing':'');
-  var isFav=false;for(var j=0;j<ST.favs.length;j++){if(ST.favs[j].uuid===s.uuid){isFav=true;break;}}
+  var isFav=ST.favs.some(function(f){return f.uuid===s.uuid;});
   var isPlay=ST.current&&ST.current.uuid===s.uuid;
   div.innerHTML='<div class="si-dot'+(isPlay?' on':'')+'"></div>'+
-    '<div class="si-body"><div class="si-name">'+esc(s.name)+'</div>'+
-    '<div class="si-meta">'+(s.codec||'MP3')+(s.bitrate?' · '+s.bitrate+'kbps':'')+' · '+s.country+'</div></div>'+
+    '<div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+(s.codec||'MP3')+(s.bitrate?' · '+s.bitrate+'kbps':'')+' · '+s.country+'</div></div>'+
     '<div class="si-heart'+(isFav?' on':'')+'" onclick="tapHeart(event,'+i+',\''+ctx+'\')">'+(isFav?'♥':'♡')+'</div>';
   div.addEventListener('click',function(e){
     if(e.target.classList.contains('si-heart'))return;
-    play(s);
-    if(ST.currentCluster)renderSheetList(ST.currentCluster);
-    renderFav();
+    play(s);if(ST.currentCluster)renderSheetList(ST.currentCluster);renderFav();
   });
   return div;
 }
 
 function tapHeart(e,idx,ctx){
   e.stopPropagation();
-  var list=ctx==='fav'?ST.favs:ST.sheetList;
-  var s=list[idx];if(!s)return;
-  var fi=-1;for(var j=0;j<ST.favs.length;j++){if(ST.favs[j].uuid===s.uuid){fi=j;break;}}
-  if(fi>=0){ST.favs.splice(fi,1);showToast('즐겨찾기 삭제');}
-  else{ST.favs.push(s);showToast('♥ 즐겨찾기 추가');}
+  var list=ctx==='fav'?ST.favs:ST.sheetList;var s=list[idx];if(!s)return;
+  var fi=ST.favs.findIndex(function(f){return f.uuid===s.uuid;});
+  if(fi>=0){ST.favs.splice(fi,1);showToast('즐겨찾기 삭제');}else{ST.favs.push(s);showToast('♥ 즐겨찾기 추가');}
   localStorage.setItem('wp_favs',JSON.stringify(ST.favs));
-  if(ST.currentCluster)renderSheetList(ST.currentCluster);
-  renderFav();
+  if(ST.currentCluster)renderSheetList(ST.currentCluster);renderFav();
 }
 
 function renderFav(){
   var el=document.getElementById('fav-body');
-  if(!ST.favs.length){
-    el.innerHTML='<div class="fav-empty"><div class="icon">♡</div><div style="font-size:14px;font-weight:600;">즐겨찾기가 없습니다</div><div style="font-size:12px;margin-top:4px;">방송국 옆 ♡를 눌러 추가하세요</div></div>';
-    return;
-  }
-  el.innerHTML='';
-  for(var i=0;i<ST.favs.length;i++)el.appendChild(makeItem(ST.favs[i],i,'fav'));
+  if(!ST.favs.length){el.innerHTML='<div class="fav-empty"><div class="icon">♡</div><div style="font-size:14px;font-weight:600;">즐겨찾기가 없습니다</div><div style="font-size:12px;margin-top:4px;">방송국 옆 ♡를 눌러 추가하세요</div></div>';return;}
+  el.innerHTML='';for(var i=0;i<ST.favs.length;i++)el.appendChild(makeItem(ST.favs[i],i,'fav'));
 }
 
 /* AUDIO */
@@ -775,30 +603,16 @@ function play(s){
   if(s.lat&&s.lon)flyTo(s.lat,s.lon,1.8);
 }
 function togglePlay(){
-  if(!ST.current){
-    if(ST.sheetList.length)play(ST.sheetList[0]);
-    else if(ST.clusters.length)play(ST.clusters[0].stations[0]);
-    return;
-  }
-  if(ST.playing){
-    audio.pause();ST.playing=false;
-    document.getElementById('btn-play').textContent='▶';
-    document.getElementById('eq').classList.add('paused');
-  }else{
-    audio.play().catch(function(){});ST.playing=true;
-    document.getElementById('btn-play').textContent='⏸';
-    document.getElementById('eq').classList.remove('paused');
-  }
+  if(!ST.current){if(ST.sheetList.length)play(ST.sheetList[0]);else if(ST.clusters.length)play(ST.clusters[0].stations[0]);return;}
+  if(ST.playing){audio.pause();ST.playing=false;document.getElementById('btn-play').textContent='▶';document.getElementById('eq').classList.add('paused');}
+  else{audio.play().catch(function(){});ST.playing=true;document.getElementById('btn-play').textContent='⏸';document.getElementById('eq').classList.remove('paused');}
 }
 function nextStation(){
   if(!ST.sheetList.length){if(ST.clusters.length)play(ST.clusters[0].stations[0]);return;}
-  var idx=-1;for(var i=0;i<ST.sheetList.length;i++){if(ST.current&&ST.sheetList[i].uuid===ST.current.uuid){idx=i;break;}}
+  var idx=ST.sheetList.findIndex(function(s){return ST.current&&s.uuid===ST.current.uuid;});
   play(ST.sheetList[(idx+1)%ST.sheetList.length]);
 }
-function toggleMute(){
-  ST.muted=!ST.muted;audio.muted=ST.muted;
-  document.getElementById('btn-mute').textContent=ST.muted?'🔇':'🔊';
-}
+function toggleMute(){ST.muted=!ST.muted;audio.muted=ST.muted;document.getElementById('btn-mute').textContent=ST.muted?'🔇':'🔊';}
 
 /* CLOCK */
 function updateClock(lat,lon){
@@ -806,8 +620,7 @@ function updateClock(lat,lon){
   var off=Math.round(lon/15);
   ST.timerId=setInterval(function(){
     var now=new Date(),utc=now.getTime()+now.getTimezoneOffset()*60000,lc=new Date(utc+off*3600000);
-    document.getElementById('p-time').textContent=
-      String(lc.getHours()).padStart(2,'0')+':'+String(lc.getMinutes()).padStart(2,'0');
+    document.getElementById('p-time').textContent=String(lc.getHours()).padStart(2,'0')+':'+String(lc.getMinutes()).padStart(2,'0');
   },1000);
 }
 
@@ -815,24 +628,23 @@ function updateClock(lat,lon){
 function gotoMyLocation(){
   if(ST.hasGPS){flyTo(ST.myLat,ST.myLon,1.8);return;}
   showToast('📍 위치 확인 중…');
-  navigator.geolocation&&navigator.geolocation.getCurrentPosition(function(pos){
+  if(navigator.geolocation)navigator.geolocation.getCurrentPosition(function(pos){
     ST.myLat=pos.coords.latitude;ST.myLon=pos.coords.longitude;ST.hasGPS=true;
     flyTo(ST.myLat,ST.myLon,1.8);showToast('📍 내 위치로 이동');
   },function(){showToast('위치 권한을 허용해 주세요');});
 }
 
-/* LOCK — 잠금=방송유지, 열림=자동재생 */
+/* LOCK */
 function toggleLock(){
   ST.locked=!ST.locked;
   document.getElementById('btn-lock').textContent=ST.locked?'🔒':'🔓';
   document.getElementById('lock-badge').classList.toggle('show',ST.locked);
-  showToast(ST.locked?'🔒 잠김 — 방송 유지':'🔓 열림 — 점 탭하면 자동 재생');
+  showToast(ST.locked?'🔒 잠김 — 방송 유지':'🔓 열림 — 자동 재생');
 }
 
 /* SHARE */
 function shareStation(){
-  var s=ST.current;
-  var text=s?'🎵 '+s.name+' — Wild Peaks Radio\n'+location.href:'Wild Peaks Radio\n'+location.href;
+  var s=ST.current,text=s?'🎵 '+s.name+' — Wild Peaks Radio\n'+location.href:'Wild Peaks Radio\n'+location.href;
   if(navigator.share)navigator.share({title:'Wild Peaks Radio',text:text,url:location.href}).catch(function(){});
   else if(navigator.clipboard)navigator.clipboard.writeText(text).then(function(){showToast('🔗 링크 복사 완료');});
 }
@@ -850,18 +662,13 @@ function doSearch(q){
     .then(function(data){
       el.innerHTML='';
       if(!data.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;padding:8px 0;">결과 없음</div>';return;}
-      for(var i=0;i<data.length;i++){
-        (function(raw){
-          var s={name:(raw.name||'').trim()||'Unknown',url:raw.url_resolved||raw.url,
-            lat:parseFloat(raw.geo_lat)||0,lon:parseFloat(raw.geo_long)||0,
-            country:raw.country||'',state:raw.state||'',codec:raw.codec||'',
-            bitrate:parseInt(raw.bitrate)||0,uuid:raw.stationuuid||''};
-          var div=document.createElement('div');div.className='si';
-          div.innerHTML='<div class="si-dot"></div><div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+s.country+(s.state?' · '+s.state:'')+'</div></div>';
-          div.onclick=function(){play(s);ST.sheetList=[s];closeTab('search');showToast('▶ '+s.name);};
-          el.appendChild(div);
-        })(data[i]);
-      }
+      for(var i=0;i<data.length;i++){(function(raw){
+        var s={name:(raw.name||'').trim()||'Unknown',url:raw.url_resolved||raw.url,lat:parseFloat(raw.geo_lat)||0,lon:parseFloat(raw.geo_long)||0,country:raw.country||'',state:raw.state||'',codec:raw.codec||'',bitrate:parseInt(raw.bitrate)||0,uuid:raw.stationuuid||''};
+        var div=document.createElement('div');div.className='si';
+        div.innerHTML='<div class="si-dot"></div><div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+s.country+(s.state?' · '+s.state:'')+'</div></div>';
+        div.onclick=function(){play(s);ST.sheetList=[s];closeTab('search');showToast('▶ '+s.name);};
+        el.appendChild(div);
+      })(data[i]);}
     })
     .catch(function(){el.innerHTML='<div style="color:var(--sub);font-size:12px;">오류 발생</div>';});
   },380);
@@ -871,29 +678,19 @@ function doSearch(q){
 var LANGS=[['auto','자동'],['ko','한국어'],['en','English'],['ja','日本語'],['zh-TW','繁體中文'],['zh-CN','简体中文'],['es','Español'],['fr','français'],['de','Deutsch'],['pt','Português'],['it','Italiano'],['ru','русский'],['ar','العربية'],['tr','Türkçe'],['id','Bahasa Indonesia'],['th','ภาษาไทย'],['vi','Tiếng Việt'],['hi','हिन्दी']];
 function initSettings(){
   var g=document.getElementById('lang-grid');
-  for(var i=0;i<LANGS.length;i++){
-    (function(code,label){
-      var b=document.createElement('button');
-      b.className='lbtn'+(ST.lang===code?' on':'');b.dataset.code=code;
-      b.textContent=(ST.lang===code?'✓ ':'')+label;
-      b.onclick=function(){
-        ST.lang=code;localStorage.setItem('wp_lang',code);
-        document.querySelectorAll('.lbtn').forEach(function(x){
-          var c=x.dataset.code,found=LANGS.find(function(l){return l[0]===c;});
-          x.className='lbtn'+(c===code?' on':'');
-          x.textContent=(c===code?'✓ ':'')+found[1];
-        });
-      };
-      g.appendChild(b);
-    })(LANGS[i][0],LANGS[i][1]);
-  }
+  for(var i=0;i<LANGS.length;i++){(function(code,label){
+    var b=document.createElement('button');
+    b.className='lbtn'+(ST.lang===code?' on':'');b.dataset.code=code;
+    b.textContent=(ST.lang===code?'✓ ':'')+label;
+    b.onclick=function(){
+      ST.lang=code;localStorage.setItem('wp_lang',code);
+      document.querySelectorAll('.lbtn').forEach(function(x){var c=x.dataset.code,f=LANGS.find(function(l){return l[0]===c;});x.className='lbtn'+(c===code?' on':'');x.textContent=(c===code?'✓ ':'')+f[1];});
+    };
+    g.appendChild(b);
+  })(LANGS[i][0],LANGS[i][1]);}
   document.querySelectorAll('.szbtn').forEach(function(b){b.classList.toggle('on',b.dataset.s===ST.dotSize);});
 }
-function setDotSize(s){
-  ST.dotSize=s;localStorage.setItem('wp_dotsize',s);
-  document.querySelectorAll('.szbtn').forEach(function(b){b.classList.toggle('on',b.dataset.s===s);});
-  buildDots();
-}
+function setDotSize(s){ST.dotSize=s;localStorage.setItem('wp_dotsize',s);document.querySelectorAll('.szbtn').forEach(function(b){b.classList.toggle('on',b.dataset.s===s);});buildDots();}
 
 /* TABS */
 function switchTab(t){
@@ -911,13 +708,9 @@ function closeTab(t){
 
 /* TOAST */
 var toastT=null;
-function showToast(msg){
-  var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
-  clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove('show');},2600);
-}
+function showToast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove('show');},2600);}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-/* INIT — 스플래시 후 GPS로 줌인 */
 /* INIT */
 initSettings();
 initGlobe();
@@ -930,27 +723,21 @@ setTimeout(function(){
   setTimeout(function(){sp.style.display='none';},1000);
 
   if(navigator.geolocation){
-navigator.geolocation.getCurrentPosition(function(pos){
+    navigator.geolocation.getCurrentPosition(function(pos){
       ST.myLat=pos.coords.latitude;
       ST.myLon=pos.coords.longitude;
       ST.hasGPS=true;
-      console.log('GPS:', ST.myLat, ST.myLon, '정확도:', pos.coords.accuracy+'m');
-      flyTo(ST.myLat, ST.myLon, 1.8);
-      // 방송국 데이터가 이미 로드됐으면 바로 자동재생
-      if(ST.stationsReady){
-        autoPlayNearby();
-      }
+      console.log('GPS:',ST.myLat,ST.myLon,'정확도:',pos.coords.accuracy+'m');
+      flyTo(ST.myLat,ST.myLon,1.8);
+      if(ST.stationsReady)autoPlayNearby();
     },function(err){
-      console.warn('GPS 실패:', err.message);
+      console.warn('GPS 실패:',err.message);
       ST.hasGPS=true;
-      flyTo(ST.myLat, ST.myLon, 1.8);
-      if(ST.stationsReady){
-        autoPlayNearby();
-      }
-    },{enableHighAccuracy:true, timeout:8000, maximumAge:0});
+      zoomTarget=3.0;
+      if(ST.stationsReady)autoPlayNearby();
+    },{enableHighAccuracy:true,timeout:8000,maximumAge:0});
   } else {
-    ST.myLat=37.5665; ST.myLon=126.9780; ST.hasGPS=true;
-    flyTo(37.5665, 126.9780, 1.8);
+    zoomTarget=3.0;
   }
 
   loadStations();
