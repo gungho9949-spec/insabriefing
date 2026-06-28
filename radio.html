@@ -409,13 +409,50 @@ function clusterStations(stations){
 /* ── API ── */
 const MIRRORS=[
   'https://de1.api.radio-browser.info',
-  'https://nl1.api.radio-browser.info',
-  'https://at1.api.radio-browser.info',
-  'https://fr1.api.radio-browser.info',
 ];
 let apiBase=MIRRORS[0];
 
 async function loadStations(mi=0){
+  if(mi>=MIRRORS.length){
+    setLoading(false);
+    showToast('⚠️ API 연결 실패 — 새로고침 해보세요');
+    return;
+  }
+  apiBase=MIRRORS[mi];
+  setLoading(true);
+  try{
+    const controller=new AbortController();
+    const tid=setTimeout(()=>controller.abort(),25000);
+    const res=await fetch(
+      `${apiBase}/json/stations?limit=3000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true&offset=0`,
+      {
+        signal:controller.signal,
+        headers:{'Content-Type':'application/json'}
+      }
+    );
+    clearTimeout(tid);
+    if(!res.ok)throw new Error('status '+res.status);
+    const data=await res.json();
+    if(!Array.isArray(data)||data.length===0)throw new Error('empty data');
+    ST.stations=data.filter(s=>s.geo_lat&&s.geo_long).map(s=>({
+      name:(s.name||'').trim()||'Unknown',url:s.url_resolved||s.url,
+      lat:parseFloat(s.geo_lat),lon:parseFloat(s.geo_long),
+      country:s.country||'',state:s.state||'',
+      codec:s.codec||'',bitrate:parseInt(s.bitrate)||0,uuid:s.stationuuid||''
+    }));
+    ST.clusters=clusterStations(ST.stations);
+    buildDots();setLoading(false);
+    showToast(`🌍 ${ST.stations.length.toLocaleString()}개 방송국 로드 완료`);
+  }catch(e){
+    console.warn('failed:',e.message);
+    if(mi+1<MIRRORS.length){
+      loadStations(mi+1);
+    }else{
+      setLoading(false);
+      showToast('⚠️ 연결 실패 — 새로고침 해보세요');
+    }
+  }
+}
   if(mi>=MIRRORS.length){
     setLoading(false);
     showToast('⚠️ API 연결 실패 — 새로고침 해보세요');
