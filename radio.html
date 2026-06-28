@@ -355,6 +355,7 @@ var speed=Math.abs(diff)>3?0.008:Math.abs(diff)>1?0.018:0.06;
 cam.position.z+=( zoomTarget-cam.position.z)*speed;
 if(Math.abs(diff)<0.005){cam.position.z=zoomTarget;zoomTarget=null;}
   }
+  checkCenterRing();
   ren.render(scene,cam);
 }
 
