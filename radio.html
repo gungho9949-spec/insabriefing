@@ -861,33 +861,32 @@ function showToast(msg){
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 /* INIT — 스플래시 후 GPS로 줌인 */
+/* INIT */
 initSettings();
 initGlobe();
-
-/* 처음엔 멀리서 지구 전체 보이기 */
 cam.position.z=12;
 zoomTarget=null;
 
 setTimeout(function(){
-  /* 스플래시 숨기기 */
   var sp=document.getElementById('splash');
   sp.classList.add('out');
   setTimeout(function(){sp.style.display='none';},1000);
 
-  /* GPS 받으면 → 줌인 */
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(function(pos){
       ST.myLat=pos.coords.latitude;
       ST.myLon=pos.coords.longitude;
       ST.hasGPS=true;
-      /* 지구 전체 보이다가 GPS 위치로 날아가서 줌인 */
-      flyTo(ST.myLat,ST.myLon,1.8);
-    },function(){
-      /* GPS 실패시 기본 줌 */
-      zoomTarget=3.0;
-    },{timeout:5000});
+      console.log('GPS:', ST.myLat, ST.myLon, '정확도:', pos.coords.accuracy+'m');
+      flyTo(ST.myLat, ST.myLon, 1.8);
+    },function(err){
+      console.warn('GPS 실패, 서울 기본값:', err.message);
+      ST.myLat=37.5665; ST.myLon=126.9780; ST.hasGPS=true;
+      flyTo(37.5665, 126.9780, 1.8);
+    },{enableHighAccuracy:true, timeout:8000, maximumAge:0});
   } else {
-    zoomTarget=3.0;
+    ST.myLat=37.5665; ST.myLon=126.9780; ST.hasGPS=true;
+    flyTo(37.5665, 126.9780, 1.8);
   }
 
   loadStations();
