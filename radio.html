@@ -326,23 +326,25 @@ function handleTap(cx,cy){
 }
 
 function ll2v(lat,lon,r){
-  r=r||1.008;
+  r=r||1.0;
   var phi=(90-lat)*Math.PI/180,th=(lon+180)*Math.PI/180;
-  return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(th),r*Math.cos(phi),r*Math.sin(phi)*Math.sin(th));
+  return new THREE.Vector3(
+    -r*Math.sin(phi)*Math.cos(th),
+    r*Math.cos(phi),
+    r*Math.sin(phi)*Math.sin(th)
+  );
 }
 function buildDots(){
   for(var i=0;i<ST.dots.length;i++)globe.remove(ST.dots[i]);
   ST.dots=[];
-  var r={sm:0.007,md:0.011,lg:0.017}[ST.dotSize]||0.011;
+  var dotR={sm:0.012,md:0.018,lg:0.026}[ST.dotSize]||0.018;
+  var geo=new THREE.SphereGeometry(dotR,6,6);
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
-    var geo=new THREE.CircleGeometry(r,8);
-    var mat=new THREE.MeshBasicMaterial({color:0x4dff91,side:THREE.DoubleSide,transparent:true,opacity:0.9});
+    var mat=new THREE.MeshBasicMaterial({color:0x4dff91});
     var m=new THREE.Mesh(geo,mat);
-    var pos=ll2v(cl.lat,cl.lon);
+    var pos=ll2v(cl.lat,cl.lon,1.02);
     m.position.copy(pos);
-    var lookTarget=new THREE.Vector3(pos.x*2,pos.y*2,pos.z*2);
-    m.lookAt(lookTarget);
     m.userData={cluster:cl};
     globe.add(m);
     ST.dots.push(m);
