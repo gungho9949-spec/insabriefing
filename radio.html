@@ -404,7 +404,6 @@ function handleTap(cx,cy){
   var hits=ray.intersectObjects(ST.dots);
   if(hits.length){
     var cl=hits[0].object.userData.cluster;
-    showSelectorRing(cx,cy);
     if(ST.locked){
       openSheet(cl);
     } else {
