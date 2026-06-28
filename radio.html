@@ -337,14 +337,14 @@ function ll2v(lat,lon,r){
 function buildDots(){
   for(var i=0;i<ST.dots.length;i++)globe.remove(ST.dots[i]);
   ST.dots=[];
-  var dotR={sm:0.012,md:0.018,lg:0.026}[ST.dotSize]||0.018;
-  var geo=new THREE.SphereGeometry(dotR,6,6);
+  var dotR={sm:0.015,md:0.022,lg:0.032}[ST.dotSize]||0.022;
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
+    var geo=new THREE.SphereGeometry(dotR,5,5);
     var mat=new THREE.MeshBasicMaterial({color:0x4dff91});
     var m=new THREE.Mesh(geo,mat);
     var pos=ll2v(cl.lat,cl.lon,1.02);
-    m.position.copy(pos);
+    m.position.set(pos.x,pos.y,pos.z);
     m.userData={cluster:cl};
     globe.add(m);
     ST.dots.push(m);
