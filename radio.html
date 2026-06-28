@@ -513,9 +513,13 @@ function autoPlayNearby(){
   var best=null,bestD=999;
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
-    var d=Math.hypot(cl.lat-ST.myLat,cl.lon-ST.myLon);
+    // 정확한 거리 계산 (위도/경도 보정)
+    var dLat=cl.lat-ST.myLat;
+    var dLon=(cl.lon-ST.myLon)*Math.cos(ST.myLat*Math.PI/180);
+    var d=Math.sqrt(dLat*dLat+dLon*dLon);
     if(d<bestD){bestD=d;best=cl;}
   }
+  console.log('가장 가까운 클러스터:',best&&best.country,best&&best.lat,best&&best.lon,'거리:',bestD);
   if(best&&best.stations.length>0){
     ST.currentCluster=best;
     play(best.stations[0]);
