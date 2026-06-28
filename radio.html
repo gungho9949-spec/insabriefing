@@ -413,14 +413,45 @@ function handleTap(cx,cy){
   }
 }
 
-/* SELECTOR RING */
-function showSelectorRing(cx,cy){
-  var ring=document.getElementById('selector-ring');
-  ring.style.left=cx+'px';
-  ring.style.top=cy+'px';
-  ring.classList.add('show');
-  clearTimeout(ST._ringTimer);
-  ST._ringTimer=setTimeout(function(){ring.classList.remove('show');},3000);
+/* CENTER RING - 지구 회전할때마다 중앙에 있는 녹색점 감지 */
+var lastRingCheck=0;
+function checkCenterRing(){
+  var now=Date.now();
+  if(now-lastRingCheck<300)return; // 300ms마다 체크
+  lastRingCheck=now;
+  if(!ST.dots.length)return;
+
+  var wrap=document.getElementById('globe-wrap');
+  var cx=wrap.clientWidth/2;
+  var cy=wrap.clientHeight/2;
+  var RING_R=28; // 픽셀 반경
+
+  mXY.x=0; mXY.y=0; // 정중앙
+  ray.setFromCamera(mXY,cam);
+  var hits=ray.intersectObjects(ST.dots);
+
+  if(hits.length){
+    var cl=hits[0].object.userData.cluster;
+    // 이미 같은 클러스터면 스킵
+    if(ST._lastRingCluster===cl)return;
+    ST._lastRingCluster=cl;
+
+    if(!ST.locked){
+      // 잠금 해제 상태: 자동으로 방송 변경
+      if(cl.stations.length>0){
+        play(cl.stations[0]);
+        document.getElementById('p-city').textContent=cl.country||'Unknown';
+        updateClock(cl.lat,cl.lon);
+        showToast('📻 '+cl.stations[0].name);
+      }
+    } else {
+      // 잠금 상태: 방송은 유지, 위치 정보만 업데이트
+      document.getElementById('p-city').textContent=cl.country||'Unknown';
+      updateClock(cl.lat,cl.lon);
+    }
+  } else {
+    ST._lastRingCluster=null;
+  }
 }
 
 /* GLOBE UTILS */
