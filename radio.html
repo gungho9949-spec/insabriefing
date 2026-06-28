@@ -552,6 +552,15 @@ function onStationsLoaded(data){
   ST.clusters=clusterStations(ST.stations);
   buildDots();setLoading(false);
   showToast('🌍 '+ST.stations.length.toLocaleString()+'개 방송국 로드 완료');
+  ST.stationsReady=true;
+  // GPS가 이미 와있으면 바로 실행, 아니면 GPS 콜백에서 실행
+  if(ST.hasGPS){
+    autoPlayNearby();
+  }
+}
+  ST.clusters=clusterStations(ST.stations);
+  buildDots();setLoading(false);
+  showToast('🌍 '+ST.stations.length.toLocaleString()+'개 방송국 로드 완료');
   autoPlayNearby();
 }
 
