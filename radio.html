@@ -2,896 +2,647 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Wild Peaks Radio</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Helvetica Neue',Arial,sans-serif;color:#fff;touch-action:none;}
-
-/* 스플래시 */
-#splash{position:fixed;inset:0;background:#000;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity 1s;}
-#splash.hide{opacity:0;pointer-events:none;}
-#splash img{width:220px;height:220px;object-fit:contain;animation:splashIn 1s ease;}
-#splash-title{
-  font-size:28px;font-weight:900;
-  background:linear-gradient(135deg,#ff6b00,#ffd700,#ff6b00);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  letter-spacing:4px;text-shadow:none;
-  font-family:Georgia,serif;
-  animation:splashIn 1.2s ease;
+:root{
+  --bg:#05080f;--green:#4dff91;--green-dim:rgba(77,255,145,0.12);
+  --green-glow:rgba(77,255,145,0.3);--panel:#0c1320;--panel2:#111b2b;
+  --text:#e8f0fe;--sub:#5a6e8a;--border:rgba(77,255,145,0.1);
+  --red:#ff4d7e;
 }
-#splash-sub{font-size:13px;color:#aaa;letter-spacing:1px;animation:splashIn 1.4s ease;}
-@keyframes splashIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
-
-/* 지구본 */
-#globe-wrap{position:fixed;inset:0;bottom:130px;}
-#c{width:100%;height:100%;display:block;cursor:grab;}
-#c:active{cursor:grabbing;}
-
-/* 로딩 */
-#loading{position:fixed;inset:0;bottom:130px;background:#000;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .6s;}
-#loading.hide{opacity:0;pointer-events:none;}
-#ld-bar{width:200px;height:3px;background:#111;border-radius:2px;overflow:hidden;}
-#ld-fill{height:100%;width:0%;background:#4dff91;border-radius:2px;transition:width .3s;}
-#ld-txt{font-size:12px;color:#4dff91;}
-
-/* 오른쪽 사이드 버튼 */
-#side-btns{position:fixed;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:40;}
-.side-btn{width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:background .2s;}
-.side-btn:hover{background:rgba(77,255,145,.3);}
-.side-btn.active{background:rgba(77,255,145,.4);border-color:#4dff91;}
-
-/* 줌 버튼 */
-#zoom-wrap{position:fixed;right:14px;bottom:160px;display:flex;flex-direction:column;gap:6px;z-index:40;}
-.zbtn{width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-
-/* 하단 패널 */
-#panel{position:fixed;left:0;right:0;bottom:52px;height:78px;background:rgba(6,6,16,.97);border-top:1px solid #1a1a30;padding:8px 14px 6px;display:flex;flex-direction:column;z-index:50;}
-#row1{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
-#badge{width:32px;height:32px;border-radius:50%;background:#1a1a30;border:1.5px solid #2a2a50;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#4dff91;flex-shrink:0;}
-#city-name{font-size:19px;font-weight:700;line-height:1;}
-#city-country{font-size:11px;color:#666;margin-top:1px;}
-#local-time{margin-left:auto;font-size:14px;color:#555;font-variant-numeric:tabular-nums;}
-#row2{display:flex;align-items:center;gap:8px;border-top:1px solid #111;padding-top:5px;}
-#freq-box{flex:1;min-width:0;}
-#freq-name{color:#4dff91;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-#freq-loc{font-size:10px;color:#444;}
-#status{font-size:10px;color:#444;min-height:11px;}
-#status.on{color:#4dff91;}#status.er{color:#ff5566;}
-#eq{display:none;align-items:flex-end;gap:2px;height:13px;margin-left:4px;}
-#eq.on{display:flex;}
-.eb{width:3px;background:#4dff91;border-radius:1px;animation:eqb .45s ease-in-out infinite alternate;}
-.eb:nth-child(1){animation-delay:0s}.eb:nth-child(2){animation-delay:.1s}.eb:nth-child(3){animation-delay:.18s}.eb:nth-child(4){animation-delay:.05s}
-@keyframes eqb{from{height:2px}to{height:12px}}
-.cbtn{background:none;border:none;color:#aaa;cursor:pointer;font-size:17px;padding:3px 5px;transition:color .15s;}
-.cbtn:hover{color:#fff;}
-#play-btn{font-size:20px;color:#fff;}
-
-/* 하단 네비 */
-#nav{position:fixed;left:0;right:0;bottom:0;height:52px;background:#060610;border-top:1px solid #111;display:flex;justify-content:space-around;align-items:center;z-index:60;}
-.ni{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;color:#333;cursor:pointer;padding:4px 8px;transition:color .15s;}
-.ni.active{color:#4dff91;}
-.ni svg{width:20px;height:20px;}
-
-/* 방송국 시트 */
-#sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:flex-end;}
-#sheet-overlay.open{display:flex;}
-#sheet{width:100%;max-height:65vh;overflow-y:auto;background:#0a0a18;border-radius:16px 16px 0 0;padding-bottom:20px;}
-#sh-head{position:sticky;top:0;background:#0a0a18;padding:12px 16px 10px;border-bottom:1px solid #1a1a2a;display:flex;justify-content:space-between;align-items:center;}
-#sh-city{font-size:14px;font-weight:700;color:#4dff91;}
-#sh-close{background:none;border:none;color:#555;font-size:20px;cursor:pointer;}
-.sitem{padding:12px 16px;border-bottom:1px solid #0f0f1e;cursor:pointer;display:flex;align-items:center;gap:10px;transition:background .12s;}
-.sitem:hover,.sitem.playing{background:#141428;}
-.sitem.playing{border-left:3px solid #4dff91;}
-.si-info{flex:1;min-width:0;}
+html,body{height:100%;overflow:hidden;background:var(--bg);}
+body{
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;
+  user-select:none;-webkit-user-select:none;
+}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+#splash{
+  position:fixed;inset:0;z-index:1000;background:#000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  transition:opacity 0.9s ease;
+}
+#splash.out{opacity:0;pointer-events:none;}
+.sp-logo-img{width:80px;height:80px;object-fit:contain;animation:spUp 0.7s ease both;}
+.sp-brand{font-size:32px;font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(135deg,#fff 0%,var(--green) 70%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:spUp 0.7s 0.15s ease both;}
+.sp-tag{font-size:11px;letter-spacing:5px;color:var(--sub);text-transform:uppercase;
+  animation:spUp 0.7s 0.3s ease both;}
+.sp-bar{width:120px;height:2px;background:rgba(255,255,255,0.06);border-radius:1px;margin-top:28px;overflow:hidden;animation:spUp 0.7s 0.45s ease both;}
+.sp-bar-fill{height:100%;width:0;background:var(--green);border-radius:1px;animation:spLoad 2s 0.6s ease forwards;}
+@keyframes spUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes spLoad{to{width:100%}}
+#app{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);}
+#globe-wrap{flex:1;position:relative;overflow:hidden;cursor:grab;touch-action:none;}
+#globe-wrap:active{cursor:grabbing;}
+#globe-canvas{display:block;width:100%;height:100%;}
+#side-btns{position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:9px;z-index:10;}
+.sbtn{width:42px;height:42px;border-radius:50%;background:rgba(12,19,32,0.82);border:1px solid var(--border);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;transition:all 0.18s;}
+.sbtn:hover,.sbtn.on{background:var(--green-dim);border-color:rgba(77,255,145,0.4);}
+#lock-badge{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:rgba(12,19,32,0.88);border:1px solid rgba(77,255,145,0.35);border-radius:20px;padding:4px 14px;font-size:10px;color:var(--green);letter-spacing:2px;pointer-events:none;z-index:10;display:none;backdrop-filter:blur(8px);}
+#lock-badge.show{display:block;}
+#loading-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:none;z-index:5;text-align:center;}
+#loading-ring.show{display:block;}
+.ring{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.9s linear infinite;margin:0 auto 8px;}
+.ring-txt{font-size:10px;letter-spacing:2px;color:var(--sub);}
+@keyframes spin{to{transform:rotate(360deg)}}
+#player{background:var(--panel);border-top:1px solid var(--border);padding:11px 16px 8px;flex-shrink:0;}
+.p-brand{font-size:8px;letter-spacing:3.5px;color:var(--sub);text-transform:uppercase;margin-bottom:8px;}
+.p-info{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.p-left .p-city{font-size:15px;font-weight:700;}
+.p-left .p-country{font-size:10px;color:var(--sub);margin-top:2px;}
+.p-right{text-align:right;}
+.p-time{font-size:14px;font-weight:600;color:var(--green);font-variant-numeric:tabular-nums;letter-spacing:0.5px;}
+.p-station{font-size:11px;color:var(--sub);margin-top:2px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.p-controls{display:flex;align-items:center;gap:8px;}
+.eq{display:flex;align-items:flex-end;gap:2px;height:18px;flex:1;}
+.eq-b{width:3px;background:var(--green);border-radius:2px;animation:eq 0.55s infinite alternate ease-in-out;}
+.eq-b:nth-child(1){animation-duration:0.5s;}
+.eq-b:nth-child(2){animation-duration:0.7s;animation-delay:0.1s;}
+.eq-b:nth-child(3){animation-duration:0.45s;animation-delay:0.05s;}
+.eq-b:nth-child(4){animation-duration:0.65s;animation-delay:0.15s;}
+.eq-b:nth-child(5){animation-duration:0.6s;animation-delay:0.2s;}
+.eq.paused .eq-b{animation-play-state:paused;height:4px;opacity:0.3;}
+@keyframes eq{from{height:3px}to{height:17px}}
+.cbtn{width:38px;height:38px;border-radius:50%;background:none;border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.18s;flex-shrink:0;}
+.cbtn:hover{border-color:rgba(77,255,145,0.4);color:var(--green);}
+.cbtn.play-btn{background:var(--green);color:#000;border-color:var(--green);font-size:17px;}
+.cbtn.play-btn:hover{background:#3de07a;}
+#nav{background:var(--panel);border-top:1px solid var(--border);display:flex;flex-shrink:0;}
+.nbtn{flex:1;padding:9px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:var(--sub);cursor:pointer;font-size:9.5px;letter-spacing:0.3px;transition:color 0.18s;}
+.nbtn .ni{font-size:20px;line-height:1;}
+.nbtn.on{color:var(--green);}
+#sheet{position:fixed;bottom:0;left:0;right:0;z-index:80;background:var(--panel);border-radius:20px 20px 0 0;border-top:1px solid var(--border);transform:translateY(100%);transition:transform 0.36s cubic-bezier(0.32,0.72,0,1);max-height:72vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,0.6);padding-bottom:env(safe-area-inset-bottom);}
+#sheet.open{transform:translateY(0);}
+.sh-handle{width:38px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:10px auto 0;flex-shrink:0;cursor:pointer;}
+.sh-head{padding:10px 16px 12px;flex-shrink:0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sh-title{font-size:14px;font-weight:700;}
+.sh-close{font-size:20px;color:var(--sub);cursor:pointer;line-height:1;padding:4px;transition:color 0.15s;}
+.sh-close:hover{color:var(--text);}
+.sh-list{overflow-y:auto;flex:1;}
+.si{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.13s;gap:12px;}
+.si:active,.si:hover{background:var(--green-dim);}
+.si.playing{background:rgba(77,255,145,0.07);}
+.si-dot{width:9px;height:9px;border-radius:50%;background:var(--sub);flex-shrink:0;transition:all 0.2s;}
+.si-dot.on{background:var(--green);box-shadow:0 0 7px var(--green);}
+.si-body{flex:1;min-width:0;}
 .si-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.si-meta{font-size:10px;color:#444;margin-top:2px;}
-.si-heart{font-size:18px;color:#333;cursor:pointer;padding:4px;transition:color .15s;}
-.si-heart.loved{color:#ff4466;}
-#sh-nearby{padding:12px 16px 6px;font-size:12px;font-weight:700;color:#555;}
-
-/* 즐겨찾기 패널 */
-#fav-panel{display:none;position:fixed;inset:0;bottom:52px;background:#060610;z-index:100;overflow-y:auto;}
-#fav-panel.open{display:block;}
-#fav-head{padding:16px;border-bottom:1px solid #111;font-size:18px;font-weight:700;}
-.fitem{padding:12px 16px;border-bottom:1px solid #0f0f1e;cursor:pointer;display:flex;align-items:center;gap:10px;}
-.fitem:hover{background:#0f0f1e;}
-.fi-info{flex:1;}
-.fi-name{font-size:13px;font-weight:600;}
-.fi-loc{font-size:10px;color:#444;margin-top:2px;}
-.fi-del{color:#333;font-size:16px;cursor:pointer;padding:4px;}
-.fi-del:hover{color:#ff4466;}
-#fav-empty{padding:40px;text-align:center;color:#333;font-size:13px;}
-
-/* 검색 패널 */
-#search-panel{display:none;position:fixed;inset:0;bottom:52px;background:#060610;z-index:100;}
-#search-panel.open{display:block;}
-#search-head{padding:16px 16px 10px;border-bottom:1px solid #111;}
-#search-input{width:100%;background:#111;border:1px solid #222;border-radius:10px;color:#fff;font-size:14px;padding:10px 14px;outline:none;}
-#search-input:focus{border-color:#4dff91;}
-#search-results{overflow-y:auto;height:calc(100% - 80px);}
-.sritem{padding:12px 16px;border-bottom:1px solid #0f0f1e;cursor:pointer;display:flex;align-items:center;gap:10px;}
-.sritem:hover{background:#0f0f1e;}
-.sr-dot{width:10px;height:10px;border-radius:50%;background:#4dff91;flex-shrink:0;}
-.sr-info{flex:1;}
-.sr-name{font-size:13px;font-weight:600;}
-.sr-loc{font-size:10px;color:#444;margin-top:2px;}
-
-/* 설정 패널 */
-#settings-panel{display:none;position:fixed;inset:0;bottom:52px;background:#060610;z-index:100;overflow-y:auto;}
-#settings-panel.open{display:block;}
-#set-head{padding:16px;border-bottom:1px solid #111;font-size:18px;font-weight:700;}
-.set-section{padding:12px 16px 6px;font-size:11px;font-weight:700;color:#444;text-transform:uppercase;}
-.set-item{padding:14px 16px;border-bottom:1px solid #0f0f1e;display:flex;align-items:center;cursor:pointer;}
-.set-item:hover{background:#0f0f1e;}
-.set-label{flex:1;font-size:14px;}
-.set-value{font-size:13px;color:#555;}
-.set-arrow{color:#333;margin-left:8px;}
-
-/* 언어 서브패널 */
-#lang-panel{display:none;position:fixed;inset:0;bottom:52px;background:#060610;z-index:110;overflow-y:auto;}
-#lang-panel.open{display:block;}
-#lang-head{padding:16px;border-bottom:1px solid #111;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;}
-#lang-back{background:none;border:none;color:#4dff91;font-size:14px;cursor:pointer;}
-.lang-item{padding:14px 16px;border-bottom:1px solid #0f0f1e;cursor:pointer;display:flex;align-items:center;}
-.lang-item:hover{background:#0f0f1e;}
-.lang-item.selected{color:#4dff91;}
-.lang-name{flex:1;font-size:14px;}
-.lang-native{font-size:11px;color:#555;margin-top:2px;}
-.lang-check{color:#4dff91;font-size:16px;}
-
-/* 점크기 서브패널 */
-#dotsize-panel{display:none;position:fixed;inset:0;bottom:52px;background:#060610;z-index:110;overflow-y:auto;}
-#dotsize-panel.open{display:block;}
-#ds-head{padding:16px;border-bottom:1px solid #111;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;}
-#ds-back{background:none;border:none;color:#4dff91;font-size:14px;cursor:pointer;}
-.ds-item{padding:16px;border-bottom:1px solid #0f0f1e;cursor:pointer;display:flex;align-items:center;gap:12px;}
-.ds-item:hover{background:#0f0f1e;}
-.ds-item.selected{color:#4dff91;}
-.ds-dot{border-radius:50%;background:#4dff91;flex-shrink:0;}
-
-/* 툴팁 */
-#tip{position:fixed;pointer-events:none;background:rgba(0,0,10,.9);border:1px solid #4dff91;border-radius:7px;padding:6px 10px;font-size:11px;display:none;z-index:300;white-space:nowrap;}
-#tip-n{font-weight:700;color:#4dff91;font-size:12px;}
-#tip-c{color:#888;font-size:10px;}
-
-/* 라이브 준비중 */
-#live-panel{display:none;position:fixed;inset:0;bottom:52px;background:#060610;z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
-#live-panel.open{display:flex;}
+.si-meta{font-size:10px;color:var(--sub);margin-top:2px;}
+.si-heart{font-size:19px;cursor:pointer;flex-shrink:0;color:var(--sub);transition:all 0.18s;padding:4px;}
+.si-heart.on{color:var(--red);}
+.si-heart:active{transform:scale(1.25);}
+.tab{position:fixed;inset:0;z-index:60;background:var(--bg);flex-direction:column;display:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);}
+.tab.open{display:flex;}
+.tab-hd{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;background:var(--panel);}
+.tab-back{background:none;border:none;color:var(--green);font-size:26px;cursor:pointer;line-height:1;padding:0;}
+.tab-ttl{font-size:17px;font-weight:700;}
+.tab-body{flex:1;overflow-y:auto;padding:16px;}
+.sinput{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-size:15px;outline:none;margin-bottom:14px;}
+.sinput::placeholder{color:var(--sub);}
+.sinput:focus{border-color:rgba(77,255,145,0.4);}
+.fav-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:10px;color:var(--sub);text-align:center;}
+.fav-empty .icon{font-size:52px;margin-bottom:4px;}
+.set-sec{margin-bottom:22px;}
+.set-lbl{font-size:10px;letter-spacing:2px;color:var(--sub);text-transform:uppercase;margin-bottom:10px;}
+.lang-grid{display:flex;flex-wrap:wrap;gap:7px;}
+.lbtn{padding:6px 12px;border-radius:20px;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-size:12px;cursor:pointer;transition:all 0.15s;}
+.lbtn.on{background:var(--green-dim);border-color:rgba(77,255,145,0.4);color:var(--green);}
+.szrow{display:flex;gap:8px;}
+.szbtn{flex:1;padding:10px;border-radius:10px;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-size:12px;cursor:pointer;text-align:center;transition:all 0.15s;}
+.szbtn.on{background:var(--green-dim);border-color:rgba(77,255,145,0.4);color:var(--green);}
+.about{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:12px;color:var(--sub);line-height:1.8;}
+.about strong{color:var(--text);}
+.live-cnt{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--sub);padding:20px;}
+.live-cnt .big{font-size:60px;}
+.live-cnt h2{font-size:20px;font-weight:700;color:var(--text);}
+.live-cnt p{font-size:13px;text-align:center;line-height:1.7;max-width:240px;}
+.yt-btn{margin-top:6px;padding:11px 22px;border-radius:22px;background:var(--green);color:#000;font-size:13px;font-weight:700;border:none;cursor:pointer;text-decoration:none;display:inline-block;}
+#toast{position:fixed;bottom:150px;left:50%;transform:translateX(-50%) translateY(12px);background:rgba(12,19,32,0.94);border:1px solid var(--border);border-radius:22px;padding:9px 20px;font-size:12px;color:var(--text);pointer-events:none;opacity:0;transition:all 0.28s;z-index:500;backdrop-filter:blur(12px);white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.4);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+::-webkit-scrollbar{width:2px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:1px;}
+@media(min-width:520px){
+  #sheet{max-width:460px;left:50%;transform:translateX(-50%) translateY(100%);}
+  #sheet.open{transform:translateX(-50%) translateY(0);}
+}
 </style>
 </head>
 <body>
-
-<!-- 스플래시 -->
+<canvas id="stars"></canvas>
 <div id="splash">
-  <img src="https://insabriefing-s2uw.vercel.app/logo.png" alt="Wild Peaks">
-  <div id="splash-title">WILD PEAKS RADIO</div>
-  <div id="splash-sub"></div></div>
-
-<!-- 로딩 -->
-<div id="loading">
-  <div id="ld-txt">방송국 불러오는 중…</div>
-  <div id="ld-bar"><div id="ld-fill"></div></div>
+  <img class="sp-logo-img" src="/logo.png" alt="Wild Peaks" onerror="this.style.display='none'">
+  <div class="sp-brand">Wild Peaks</div>
+  <div class="sp-tag">Radio</div>
+  <div class="sp-bar"><div class="sp-bar-fill"></div></div>
 </div>
-
-<div id="globe-wrap"><canvas id="c"></canvas></div>
-
-<!-- 사이드 버튼 -->
-<div id="side-btns">
-  <button class="side-btn" id="btn-myloc" title="내 위치">📍</button>
-  <button class="side-btn" id="btn-share" title="공유">🔗</button>
-  <button class="side-btn" id="btn-lock" title="잠금">🔓</button>
-</div>
-
-<!-- 줌 -->
-<div id="zoom-wrap">
-  <button class="zbtn" id="zin">+</button>
-  <button class="zbtn" id="zout">−</button>
-</div>
-
-<!-- 하단 패널 -->
-<div id="panel">
-  <div id="row1">
-    <div id="badge">WP</div>
-    <div>
-      <div id="city-name">지구를 클릭하세요</div>
-      <div id="city-country">Wild Peaks Radio</div>
+<div id="toast"></div>
+<div id="lock-badge">🔒 LOCKED</div>
+<div id="app">
+  <div id="globe-wrap">
+    <canvas id="globe-canvas"></canvas>
+    <div id="loading-ring">
+      <div class="ring"></div>
+      <div class="ring-txt">Loading</div>
     </div>
-    <div id="local-time">--:--</div>
+    <div id="side-btns">
+      <div class="sbtn" id="btn-gps" onclick="gotoMyLocation()">📍</div>
+      <div class="sbtn" id="btn-share" onclick="shareStation()">🔗</div>
+      <div class="sbtn" id="btn-lock" onclick="toggleLock()">🔒</div>
+    </div>
   </div>
-  <div id="row2">
-    <div id="freq-box">
-      <div style="display:flex;align-items:center">
-        <div id="freq-name">방송국을 선택하세요</div>
-        <div id="eq"><div class="eb"></div><div class="eb"></div><div class="eb"></div><div class="eb"></div></div>
+  <div id="player">
+    <div class="p-brand">Wild Peaks Radio</div>
+    <div class="p-info">
+      <div class="p-left">
+        <div class="p-city" id="p-city">지구를 탐색하세요</div>
+        <div class="p-country" id="p-country">녹색 점을 탭하면 방송국 목록이 열립니다</div>
       </div>
-      <div id="freq-loc"></div>
-      <div id="status"></div>
+      <div class="p-right">
+        <div class="p-time" id="p-time">--:--</div>
+        <div class="p-station" id="p-station">방송국 없음</div>
+      </div>
     </div>
-    <button class="cbtn" id="mute-btn">🔊</button>
-    <button class="cbtn" id="play-btn">▶</button>
-    <button class="cbtn" id="next-btn">⏭</button>
-  </div>
-</div>
-
-<!-- 네비 -->
-<div id="nav">
-  <div class="ni active" id="nav-explore">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/></svg>탐색
-  </div>
-  <div class="ni" id="nav-fav">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>즐겨찾기
-  </div>
-  <div class="ni" id="nav-live">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>라이브
-  </div>
-  <div class="ni" id="nav-search">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>검색
-  </div>
-  <div class="ni" id="nav-settings">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>설정
-  </div>
-</div>
-
-<!-- 방송국 시트 -->
-<div id="sheet-overlay">
-  <div id="sheet">
-    <div id="sh-head">
-      <span id="sh-city">방송국 선택</span>
-      <button id="sh-close">✕</button>
+    <div class="p-controls">
+      <button class="cbtn" id="btn-mute" onclick="toggleMute()">🔊</button>
+      <div class="eq paused" id="eq">
+        <div class="eq-b"></div><div class="eq-b"></div>
+        <div class="eq-b"></div><div class="eq-b"></div>
+        <div class="eq-b"></div>
+      </div>
+      <button class="cbtn play-btn" id="btn-play" onclick="togglePlay()">▶</button>
+      <button class="cbtn" id="btn-next" onclick="nextStation()">⏭</button>
     </div>
-    <div id="sh-body"></div>
+  </div>
+  <div id="nav">
+    <button class="nbtn on" data-t="globe" onclick="switchTab('globe')"><span class="ni">🌍</span>탐색</button>
+    <button class="nbtn" data-t="fav" onclick="switchTab('fav')"><span class="ni">♡</span>즐겨찾기</button>
+    <button class="nbtn" data-t="live" onclick="switchTab('live')"><span class="ni">🔴</span>라이브</button>
+    <button class="nbtn" data-t="search" onclick="switchTab('search')"><span class="ni">🔍</span>검색</button>
+    <button class="nbtn" data-t="settings" onclick="switchTab('settings')"><span class="ni">☰</span>설정</button>
   </div>
 </div>
-
-<!-- 즐겨찾기 패널 -->
-<div id="fav-panel">
-  <div id="fav-head">❤️ 즐겨찾기</div>
-  <div id="fav-body"></div>
+<div id="sheet">
+  <div class="sh-handle" onclick="closeSheet()"></div>
+  <div class="sh-head">
+    <div class="sh-title" id="sh-title">방송국</div>
+    <div class="sh-close" onclick="closeSheet()">✕</div>
+  </div>
+  <div class="sh-list" id="sh-list"></div>
 </div>
-
-<!-- 검색 패널 -->
-<div id="search-panel">
-  <div id="search-head">
-    <input id="search-input" type="text" placeholder="🔍 도시 또는 방송국 검색…">
+<div class="tab" id="tab-fav">
+  <div class="tab-hd">
+    <button class="tab-back" onclick="closeTab('fav')">‹</button>
+    <div class="tab-ttl">즐겨찾기</div>
   </div>
-  <div id="search-results"></div>
+  <div class="tab-body" id="fav-body"></div>
 </div>
-
-<!-- 라이브 패널 -->
-<div id="live-panel">
-  <div style="font-size:40px">📺</div>
-  <div style="font-size:18px;font-weight:700">라이브 준비중</div>
-  <div style="font-size:13px;color:#555;text-align:center">YouTube 라이브 기능이<br>곧 추가될 예정이에요!</div>
-  <a href="https://youtube.com/@wildpeaks-wp" target="_blank"
-     style="margin-top:10px;padding:10px 20px;background:#ff0000;border-radius:20px;color:#fff;text-decoration:none;font-size:13px;font-weight:700;">
-    ▶ Wild Peaks YouTube 보기
-  </a>
-</div>
-
-<!-- 설정 패널 -->
-<div id="settings-panel">
-  <div id="set-head">⚙️ 설정</div>
-  <div class="set-section">정보</div>
-  <div class="set-item" onclick="window.open('https://youtube.com/@wildpeaks-wp','_blank')">
-    <span class="set-label">🎬 Wild Peaks YouTube</span>
-    <span class="set-value">구독하기</span><span class="set-arrow">›</span>
+<div class="tab" id="tab-live">
+  <div class="tab-hd">
+    <button class="tab-back" onclick="closeTab('live')">‹</button>
+    <div class="tab-ttl">라이브</div>
   </div>
-  <div class="set-item">
-    <span class="set-label">📻 Wild Peaks Radio</span>
-    <span class="set-value">v1.0</span>
-  </div>
-  <div class="set-section">맞춤 설정</div>
-  <div class="set-item" id="set-lang">
-    <span class="set-label">🌐 언어</span>
-    <span class="set-value" id="set-lang-val">한국어</span><span class="set-arrow">›</span>
-  </div>
-  <div class="set-item" id="set-dotsize">
-    <span class="set-label">● 지구본 점 크기</span>
-    <span class="set-value" id="set-ds-val">보통</span><span class="set-arrow">›</span>
+  <div class="live-cnt">
+    <div class="big">📡</div>
+    <h2>Coming Soon</h2>
+    <p>YouTube 라이브 연동이 곧 추가됩니다. 기대해 주세요!</p>
+    <a class="yt-btn" href="https://youtube.com/@wildpeaks-wp" target="_blank">▶ Wild Peaks YouTube</a>
   </div>
 </div>
-
-<!-- 언어 패널 -->
-<div id="lang-panel">
-  <div id="lang-head">
-    <button id="lang-back">‹ 설정</button>
-    <span id="lang-title">언어</span>
+<div class="tab" id="tab-search">
+  <div class="tab-hd">
+    <button class="tab-back" onclick="closeTab('search')">‹</button>
+    <div class="tab-ttl">검색</div>
   </div>
-  <div id="lang-body"></div>
+  <div class="tab-body">
+    <input class="sinput" id="search-input" placeholder="방송국 또는 도시명 검색…" oninput="doSearch(this.value)">
+    <div id="search-results"></div>
+  </div>
 </div>
-
-<!-- 점크기 패널 -->
-<div id="dotsize-panel">
-  <div id="ds-head">
-    <button id="ds-back">‹ 설정</button>
-    <span>지구본 점 크기</span>
+<div class="tab" id="tab-settings">
+  <div class="tab-hd">
+    <button class="tab-back" onclick="closeTab('settings')">‹</button>
+    <div class="tab-ttl">설정</div>
   </div>
-  <div id="ds-body">
-    <div class="ds-item" data-size="small" onclick="setDotSize('small')">
-      <div class="ds-dot" style="width:8px;height:8px;"></div>
-      <span>작게</span>
+  <div class="tab-body">
+    <div class="set-sec">
+      <div class="set-lbl">언어</div>
+      <div class="lang-grid" id="lang-grid"></div>
     </div>
-    <div class="ds-item selected" data-size="medium" onclick="setDotSize('medium')">
-      <div class="ds-dot" style="width:12px;height:12px;"></div>
-      <span>보통</span>
+    <div class="set-sec">
+      <div class="set-lbl">지구본 점 크기</div>
+      <div class="szrow">
+        <button class="szbtn" data-s="sm" onclick="setDotSize('sm')">작게</button>
+        <button class="szbtn on" data-s="md" onclick="setDotSize('md')">보통</button>
+        <button class="szbtn" data-s="lg" onclick="setDotSize('lg')">크게</button>
+      </div>
     </div>
-    <div class="ds-item" data-size="large" onclick="setDotSize('large')">
-      <div class="ds-dot" style="width:18px;height:18px;"></div>
-      <span>크게</span>
+    <div class="set-sec">
+      <div class="set-lbl">정보</div>
+      <div class="about">
+        <strong>Wild Peaks Radio</strong><br>
+        전 세계 라디오 방송국을 지구본에서 탐색하세요.<br><br>
+        방송 데이터: <strong>radio-browser.info</strong><br>
+        3D 엔진: <strong>Three.js r128</strong><br>
+        지구 텍스처: <strong>NASA 8K</strong><br>
+        버전: <strong>v2.0</strong>
+      </div>
     </div>
   </div>
 </div>
-
-<!-- 툴팁 -->
-<div id="tip"><div id="tip-n"></div><div id="tip-c"></div></div>
-<audio id="aud" preload="none"></audio>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ══════════════════════════════════════════
-//  언어 데이터
-// ══════════════════════════════════════════
-const LANGS=[
-  {code:'ko',name:'한국어',native:'한국어'},
-  {code:'en',name:'English',native:'English'},
-  {code:'ja',name:'日本語',native:'日本語'},
-  {code:'zh-TW',name:'繁體中文',native:'繁體中文'},
-  {code:'zh-CN',name:'简体中文',native:'简体中文'},
-  {code:'es',name:'Español',native:'Español'},
-  {code:'es-LA',name:'Español latinoamericano',native:'Español latinoamericano'},
-  {code:'fr',name:'français',native:'français'},
-  {code:'de',name:'Deutsch',native:'Deutsch'},
-  {code:'pt',name:'Português',native:'Português'},
-  {code:'pt-BR',name:'Português (Brasil)',native:'Português (Brasil)'},
-  {code:'it',name:'Italiano',native:'Italiano'},
-  {code:'nl',name:'Nederlands',native:'Nederlands'},
-  {code:'da',name:'dansk',native:'dansk'},
-  {code:'no',name:'norsk',native:'norsk'},
-  {code:'sv',name:'svenska',native:'svenska'},
-  {code:'pl',name:'polski',native:'polski'},
-  {code:'ro',name:'română',native:'română'},
-  {code:'el',name:'Ελληνικά',native:'Ελληνικά'},
-  {code:'he',name:'עברית',native:'עברית'},
-  {code:'ar',name:'العربية',native:'العربية'},
-  {code:'ru',name:'русский',native:'русский'},
-  {code:'tr',name:'Türkçe',native:'Türkçe'},
-  {code:'id',name:'Bahasa Indonesia',native:'Bahasa Indonesia'},
-  {code:'ms',name:'Bahasa Melayu',native:'Bahasa Melayu'},
-  {code:'th',name:'ภาษาไทย',native:'ภาษาไทย'},
-  {code:'vi',name:'Tiếng Việt',native:'Tiếng Việt'},
-  {code:'fil',name:'Filipino',native:'Filipino'},
-  {code:'hi',name:'हिन्दी',native:'हिन्दी'},
-  {code:'bn',name:'বাংলা',native:'বাংলা'},
-  {code:'ta',name:'தமிழ்',native:'தமிழ்'},
-];
-
-let currentLang='ko';
-let dotSizeMode='medium';
-let globeLocked=false;
-let favorites=JSON.parse(localStorage.getItem('wp_favorites')||'[]');
-
-// ══════════════════════════════════════════
-//  Three.js
-// ══════════════════════════════════════════
-const wrap=document.getElementById('globe-wrap');
-const canvas=document.getElementById('c');
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2.5));
-renderer.setClearColor(0x000005,1);
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(40,1,0.01,100);
-camera.position.set(0,0,2.8);
-
-// 지구
-const earthGeo=new THREE.SphereGeometry(1,96,96);
-const earthMat=new THREE.MeshPhongMaterial({color:0x2255aa,shininess:15,specular:new THREE.Color(0x224466)});
-const earth=new THREE.Mesh(earthGeo,earthMat);
-const TL=new THREE.TextureLoader();
-TL.crossOrigin='anonymous';
-TL.load('https://insabriefing-s2uw.vercel.app/earth.jpg',
-  t=>{t.anisotropy=renderer.capabilities.getMaxAnisotropy();earthMat.map=t;earthMat.color=new THREE.Color(0xffffff);earthMat.needsUpdate=true;},
-  undefined,()=>{}
-);
-
-// 대기
-const atmMat=new THREE.ShaderMaterial({side:THREE.FrontSide,transparent:true,depthWrite:false,uniforms:{},
-  vertexShader:`varying vec3 vN,vV;void main(){vN=normalize(normalMatrix*normal);vV=normalize(-(modelViewMatrix*vec4(position,1.0)).xyz);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
-  fragmentShader:`varying vec3 vN,vV;void main(){float f=pow(1.0-dot(vN,vV),4.5);gl_FragColor=vec4(0.18,0.5,1.0,f*0.6);}`
-});
-const atm=new THREE.Mesh(new THREE.SphereGeometry(1.022,48,48),atmMat);
-
-// 별
-const sv=[];
-for(let i=0;i<8000;i++){const r=85,t=Math.random()*Math.PI*2,p=Math.acos(2*Math.random()-1);sv.push(r*Math.sin(p)*Math.cos(t),r*Math.cos(p),r*Math.sin(p)*Math.sin(t));}
-const starGeo=new THREE.BufferGeometry();
-starGeo.setAttribute('position',new THREE.Float32BufferAttribute(sv,3));
-scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xffffff,size:0.16,transparent:true,opacity:0.8,sizeAttenuation:true})));
-
-// 조명
-const sun=new THREE.DirectionalLight(0xfff8f0,1.4);sun.position.set(5,2,4);scene.add(sun);
-scene.add(new THREE.AmbientLight(0x0a1828,1.1));
-
-// 그룹
-const globeGroup=new THREE.Group();
-globeGroup.add(earth,atm);
-scene.add(globeGroup);
-globeGroup.rotation.y=-2.2;
-globeGroup.rotation.x=-0.25;
-
-// 링
-const ringMat=new THREE.MeshBasicMaterial({color:0x4dff91,side:THREE.DoubleSide,transparent:true,opacity:0.9,depthTest:false});
-const ring=new THREE.Mesh(new THREE.RingGeometry(0.018,0.026,48),ringMat);
-ring.visible=false;
-globeGroup.add(ring);
-
-// 리사이즈
-function onResize(){const w=wrap.clientWidth,h=wrap.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
-onResize();window.addEventListener('resize',onResize);
-
-// ══════════════════════════════════════════
-//  방송국 점 (API에서 전 세계 불러오기)
-// ══════════════════════════════════════════
-let allStations=[];
-let meshes=[];
-let selMesh=null;
-let currentCity=null;
-let currentStations=[];
-let stIdx=0;
-
-function ll2v3(lat,lon,r=1.015){
+const ST={
+  stations:[],clusters:[],dots:[],current:null,sheetList:[],
+  favs:JSON.parse(localStorage.getItem('wp_favs')||'[]'),
+  playing:false,muted:false,locked:false,
+  dotSize:localStorage.getItem('wp_dotsize')||'md',
+  lang:localStorage.getItem('wp_lang')||'auto',
+  myLat:37.5665,myLon:126.9780,hasGPS:false,timerId:null,
+};
+(()=>{
+  const c=document.getElementById('stars'),ctx=c.getContext('2d'),stars=[];
+  function resize(){c.width=innerWidth;c.height=innerHeight;}
+  resize();addEventListener('resize',resize);
+  for(let i=0;i<180;i++) stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.1+0.2,a:Math.random(),da:(Math.random()-0.5)*0.006});
+  (function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(s=>{s.a+=s.da;if(s.a<0||s.a>1)s.da*=-1;ctx.beginPath();ctx.arc(s.x*c.width,s.y*c.height,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${0.2+s.a*0.55})`;ctx.fill();});
+    requestAnimationFrame(draw);
+  })();
+})();
+let scene,cam,ren,globe,atmo;
+let drag=false,dragMoved=false,pMouse={x:0,y:0};
+let vel={x:0,y:0},autoRot=true,zoomTarget=null,pinch0=null;
+const ray=new THREE.Raycaster(),mXY=new THREE.Vector2();
+function initGlobe(){
+  const wrap=document.getElementById('globe-wrap'),cv=document.getElementById('globe-canvas');
+  const W=wrap.clientWidth,H=wrap.clientHeight;
+  scene=new THREE.Scene();
+  cam=new THREE.PerspectiveCamera(45,W/H,0.1,1000);
+  cam.position.z=3.8;
+  ren=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  ren.setPixelRatio(Math.min(devicePixelRatio,2));
+  ren.setSize(W,H);
+  ren.setClearColor(0x000000,0);
+  const tex=new THREE.TextureLoader().load('/earth.jpg');
+  const geo=new THREE.SphereGeometry(1,64,64);
+  const mat=new THREE.MeshPhongMaterial({map:tex,specular:new THREE.Color(0x1a2244),shininess:6});
+  globe=new THREE.Mesh(geo,mat);
+  scene.add(globe);
+  const aGeo=new THREE.SphereGeometry(1.045,64,64);
+  const aMat=new THREE.ShaderMaterial({
+    vertexShader:`varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+    fragmentShader:`varying vec3 vN;void main(){float i=pow(0.55-dot(vN,vec3(0,0,1)),2.0);gl_FragColor=vec4(0.15,0.45,1.0,1)*i*0.9;}`,
+    side:THREE.FrontSide,blending:THREE.AdditiveBlending,transparent:true
+  });
+  atmo=new THREE.Mesh(aGeo,aMat);
+  scene.add(atmo);
+  scene.add(new THREE.AmbientLight(0xffffff,0.45));
+  const sun=new THREE.DirectionalLight(0xffffff,1.0);
+  sun.position.set(5,3,5);scene.add(sun);
+  addEventListener('resize',()=>{
+    const W2=wrap.clientWidth,H2=wrap.clientHeight;
+    cam.aspect=W2/H2;cam.updateProjectionMatrix();ren.setSize(W2,H2);
+  });
+  cv.addEventListener('mousedown',onMD);
+  addEventListener('mousemove',onMM);
+  addEventListener('mouseup',onMU);
+  cv.addEventListener('wheel',onWH,{passive:false});
+  cv.addEventListener('touchstart',onTS,{passive:false});
+  cv.addEventListener('touchmove',onTM,{passive:false});
+  cv.addEventListener('touchend',onTE,{passive:false});
+  loop();
+}
+function loop(){
+  requestAnimationFrame(loop);
+  if(!drag){
+    globe.rotation.x+=vel.x;globe.rotation.y+=vel.y;
+    vel.x*=0.93;vel.y*=0.93;
+    if(autoRot)globe.rotation.y+=0.0007;
+    atmo.rotation.copy(globe.rotation);
+  }
+  if(zoomTarget!==null){
+    cam.position.z+=(zoomTarget-cam.position.z)*0.06;
+    if(Math.abs(cam.position.z-zoomTarget)<0.005){cam.position.z=zoomTarget;zoomTarget=null;}
+  }
+  ren.render(scene,cam);
+}
+function onMD(e){drag=true;dragMoved=false;pMouse={x:e.clientX,y:e.clientY};autoRot=false;vel={x:0,y:0};}
+function onMM(e){
+  if(!drag||ST.locked)return;
+  const dx=e.clientX-pMouse.x,dy=e.clientY-pMouse.y;
+  if(Math.abs(dx)>2||Math.abs(dy)>2)dragMoved=true;
+  globe.rotation.y+=dx*0.005;globe.rotation.x+=dy*0.005;
+  atmo.rotation.copy(globe.rotation);
+  vel.x=dy*0.005;vel.y=dx*0.005;
+  pMouse={x:e.clientX,y:e.clientY};
+}
+function onMU(e){if(!dragMoved)handleTap(e.clientX,e.clientY);drag=false;}
+function onWH(e){e.preventDefault();cam.position.z=Math.max(1.5,Math.min(6,cam.position.z+e.deltaY*0.003));}
+function onTS(e){
+  if(e.touches.length===2){
+    pinch0=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+  } else {
+    drag=true;dragMoved=false;pMouse={x:e.touches[0].clientX,y:e.touches[0].clientY};autoRot=false;vel={x:0,y:0};
+  }
+}
+function onTM(e){
+  e.preventDefault();
+  if(e.touches.length===2&&pinch0!==null){
+    const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    cam.position.z=Math.max(1.5,Math.min(6,cam.position.z-(d-pinch0)*0.01));
+    pinch0=d;
+  } else if(drag&&!ST.locked){
+    const dx=e.touches[0].clientX-pMouse.x,dy=e.touches[0].clientY-pMouse.y;
+    if(Math.abs(dx)>3||Math.abs(dy)>3)dragMoved=true;
+    globe.rotation.y+=dx*0.005;globe.rotation.x+=dy*0.005;
+    atmo.rotation.copy(globe.rotation);
+    vel.x=dy*0.005;vel.y=dx*0.005;
+    pMouse={x:e.touches[0].clientX,y:e.touches[0].clientY};
+  }
+}
+function onTE(e){
+  if(e.touches.length<2)pinch0=null;
+  drag=false;
+  if(!dragMoved){const t=e.changedTouches[0];handleTap(t.clientX,t.clientY);}
+}
+function handleTap(cx,cy){
+  const sheet=document.getElementById('sheet');
+  if(sheet.classList.contains('open')){closeSheet();return;}
+  const rect=ren.domElement.getBoundingClientRect();
+  mXY.x=((cx-rect.left)/rect.width)*2-1;
+  mXY.y=-((cy-rect.top)/rect.height)*2+1;
+  ray.setFromCamera(mXY,cam);
+  const hits=ray.intersectObjects(ST.dots);
+  if(hits.length)openSheet(hits[0].object.userData.cluster);
+}
+function ll2v(lat,lon,r=1.008){
   const phi=(90-lat)*Math.PI/180,th=(lon+180)*Math.PI/180;
   return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(th),r*Math.cos(phi),r*Math.sin(phi)*Math.sin(th));
 }
-
-function getDotRadius(){
-  return dotSizeMode==='small'?0.004:dotSizeMode==='large'?0.008:0.005;
+function buildDots(){
+  ST.dots.forEach(m=>globe.remove(m));ST.dots=[];
+  const r={sm:0.007,md:0.011,lg:0.017}[ST.dotSize]||0.011;
+  const geo=new THREE.CircleGeometry(r,8);
+  ST.clusters.forEach(cl=>{
+    const mat=new THREE.MeshBasicMaterial({color:0x4dff91,side:THREE.DoubleSide,transparent:true,opacity:0.9});
+    const m=new THREE.Mesh(geo,mat);
+    const pos=ll2v(cl.lat,cl.lon);
+    m.position.copy(pos);m.lookAt(pos.clone().multiplyScalar(2));
+    m.userData={cluster:cl};globe.add(m);ST.dots.push(m);
+  });
 }
-
-function buildDots(stations){
-  // 기존 점 제거
-  meshes.forEach(m=>globeGroup.remove(m));
-  meshes=[];
-  const r=getDotRadius();
-  const geo=new THREE.SphereGeometry(r,32,32);
-  const mat=new THREE.MeshBasicMaterial({color:0x4dff91,transparent:true,opacity:0.85});
-  // 위치별로 그룹핑 (같은 위치 방송국 하나의 점으로)
-  const clusters={};
+function flyTo(lat,lon,zoom=2.3){
+  const targetY=-(lon+180)*Math.PI/180+Math.PI,targetX=lat*Math.PI/180*0.4;
+  const sy=globe.rotation.y,sx=globe.rotation.x;let t=0;
+  (function step(){
+    t+=0.035;const e=1-Math.pow(1-Math.min(t,1),3);
+    globe.rotation.y=sy+(targetY-sy)*e;globe.rotation.x=sx+(targetX-sx)*e;
+    atmo.rotation.copy(globe.rotation);if(t<1)requestAnimationFrame(step);
+  })();
+  zoomTarget=zoom;
+}
+function clusterStations(stations){
+  const THR=1.4,cls=[];
   stations.forEach(s=>{
-    if(!s.geo_lat||!s.geo_long)return;
-    const key=`${Math.round(s.geo_lat*10)/10}_${Math.round(s.geo_long*10)/10}`;
-    if(!clusters[key])clusters[key]={lat:s.geo_lat,lon:s.geo_long,stations:[],name:s.country};
-    clusters[key].stations.push(s);
+    if(isNaN(s.lat)||isNaN(s.lon))return;
+    let found=null;
+    for(const c of cls){if(Math.hypot(c.lat-s.lat,c.lon-s.lon)<THR){found=c;break;}}
+    if(found)found.stations.push(s);
+    else cls.push({lat:s.lat,lon:s.lon,stations:[s],country:s.country});
   });
-  Object.values(clusters).forEach(c=>{
-    const m=new THREE.Mesh(geo,mat.clone());
-    m.position.copy(ll2v3(c.lat,c.lon));
-    m.userData={lat:c.lat,lon:c.lon,name:c.name,stations:c.stations};
-    globeGroup.add(m);
-    meshes.push(m);
-  });
+  return cls;
 }
-
-async function loadAllStations(){
-  document.getElementById('ld-txt').textContent='전 세계 방송국 불러오는 중…';
-  document.getElementById('ld-fill').style.width='20%';
+const MIRRORS=['https://de1.api.radio-browser.info','https://nl1.api.radio-browser.info','https://at1.api.radio-browser.info'];
+let apiBase=MIRRORS[0];
+async function loadStations(mi=0){
+  if(mi>=MIRRORS.length){showToast('⚠️ API 연결 실패');return;}
+  apiBase=MIRRORS[mi];
+  setLoading(true);
   try{
-    const r=await fetch('https://de1.api.radio-browser.info/json/stations?limit=2000&hidebroken=true&has_geo_info=true&order=votes&reverse=true',
-      {headers:{'User-Agent':'WildPeaksRadio/1.0'}});
-    const data=await r.json();
-    allStations=data.filter(s=>s.geo_lat&&s.geo_long&&s.url_resolved);
-    document.getElementById('ld-fill').style.width='80%';
-    buildDots(allStations);
-    document.getElementById('ld-fill').style.width='100%';
-    setTimeout(()=>{
-      document.getElementById('loading').classList.add('hide');
-    },400);
-  }catch(e){
-    document.getElementById('ld-txt').textContent='오류 — 재시도 중…';
-    setTimeout(loadAllStations,3000);
+    const res=await fetch(`${apiBase}/json/stations?limit=10000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true`,{signal:AbortSignal.timeout(12000)});
+    if(!res.ok)throw new Error();
+    const data=await res.json();
+    ST.stations=data.filter(s=>s.geo_lat&&s.geo_long).map(s=>({
+      name:(s.name||'').trim()||'Unknown',url:s.url_resolved||s.url,
+      lat:parseFloat(s.geo_lat),lon:parseFloat(s.geo_long),
+      country:s.country||'',state:s.state||'',
+      codec:s.codec||'',bitrate:parseInt(s.bitrate)||0,uuid:s.stationuuid||''
+    }));
+    ST.clusters=clusterStations(ST.stations);
+    buildDots();setLoading(false);
+    showToast(`🌍 ${ST.stations.length.toLocaleString()}개 방송국 로드 완료`);
+  }catch(e){console.warn('mirror',mi,'failed');loadStations(mi+1);}
+}
+function setLoading(v){document.getElementById('loading-ring').classList.toggle('show',v);}
+function openSheet(cl){
+  ST.sheetList=cl.stations;
+  document.getElementById('sh-title').textContent=`${cl.country||'방송국'} · ${cl.stations.length}개`;
+  renderSheet();
+  document.getElementById('sheet').classList.add('open');
+  document.getElementById('p-city').textContent=cl.country||'Unknown';
+  document.getElementById('p-country').textContent=cl.stations[0]?.state||`${cl.stations.length}개 방송국`;
+  updateClock(cl.lat,cl.lon);
+}
+function closeSheet(){document.getElementById('sheet').classList.remove('open');}
+function renderSheet(){
+  const ul=document.getElementById('sh-list');ul.innerHTML='';
+  ST.sheetList.forEach((s,i)=>ul.appendChild(makeItem(s,i,'sheet')));
+}
+function makeItem(s,i,ctx){
+  const div=document.createElement('div');
+  div.className='si'+(ST.current?.uuid===s.uuid?' playing':'');
+  const isFav=ST.favs.some(f=>f.uuid===s.uuid);
+  const isPlay=ST.current?.uuid===s.uuid;
+  div.innerHTML=`
+    <div class="si-dot${isPlay?' on':''}"></div>
+    <div class="si-body">
+      <div class="si-name">${esc(s.name)}</div>
+      <div class="si-meta">${s.codec||'MP3'}${s.bitrate?` · ${s.bitrate}kbps`:''} · ${s.country}</div>
+    </div>
+    <div class="si-heart${isFav?' on':''}" onclick="tapHeart(event,${i},'${ctx}')">${isFav?'♥':'♡'}</div>`;
+  div.addEventListener('click',function(e){
+    if(e.target.classList.contains('si-heart'))return;
+    play(s);renderSheet();renderFav();
+  });
+  return div;
+}
+function tapHeart(e,idx,ctx){
+  e.stopPropagation();
+  const s=(ctx==='fav'?ST.favs:ST.sheetList)[idx];
+  const fi=ST.favs.findIndex(f=>f.uuid===s.uuid);
+  if(fi>=0){ST.favs.splice(fi,1);showToast('즐겨찾기 삭제');}
+  else{ST.favs.push(s);showToast('♥ 즐겨찾기 추가');}
+  localStorage.setItem('wp_favs',JSON.stringify(ST.favs));
+  renderSheet();renderFav();
+}
+function renderFav(){
+  const el=document.getElementById('fav-body');
+  if(!ST.favs.length){
+    el.innerHTML=`<div class="fav-empty"><div class="icon">♡</div><div style="font-size:14px;font-weight:600;">즐겨찾기가 없습니다</div><div style="font-size:12px;margin-top:4px;">방송국 옆 ♡를 눌러 추가하세요</div></div>`;
+    return;
+  }
+  el.innerHTML='';
+  ST.favs.forEach((s,i)=>el.appendChild(makeItem(s,i,'fav')));
+}
+const audio=new Audio();audio.crossOrigin='anonymous';
+function play(s){
+  ST.current=s;audio.src=s.url;audio.muted=ST.muted;
+  audio.play().catch(()=>{});ST.playing=true;
+  document.getElementById('btn-play').textContent='⏸';
+  document.getElementById('eq').classList.remove('paused');
+  document.getElementById('p-station').textContent=s.name;
+  document.getElementById('p-city').textContent=s.country||'Unknown';
+  document.getElementById('p-country').textContent=s.state||s.codec||'';
+  updateClock(s.lat,s.lon);
+  if(s.lat&&s.lon)flyTo(s.lat,s.lon);
+}
+function togglePlay(){
+  if(!ST.current){
+    if(ST.sheetList.length)play(ST.sheetList[0]);
+    else if(ST.clusters.length)play(ST.clusters[0].stations[0]);
+    return;
+  }
+  if(ST.playing){
+    audio.pause();ST.playing=false;
+    document.getElementById('btn-play').textContent='▶';
+    document.getElementById('eq').classList.add('paused');
+  } else {
+    audio.play().catch(()=>{});ST.playing=true;
+    document.getElementById('btn-play').textContent='⏸';
+    document.getElementById('eq').classList.remove('paused');
   }
 }
-
-// ══════════════════════════════════════════
-//  드래그 & 줌
-// ══════════════════════════════════════════
-let drag=false,didMove=false,lx=0,ly=0,vx=0,vy=0;
-let autoSpin=true,zDist=2.8,pinching=false,pinchD0=0,zDist0=0;
-const DRAG_SPD=0.004,FRICTION=0.92,AUTO_SPD=0.0003;
-
-function pdist(t){return Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);}
-
-canvas.addEventListener('mousedown',e=>{if(globeLocked)return;drag=true;didMove=false;lx=e.clientX;ly=e.clientY;vx=vy=0;autoSpin=false;},{passive:true});
-window.addEventListener('mouseup',()=>drag=false);
-window.addEventListener('mousemove',e=>{
-  if(!drag||globeLocked)return;
-  const dx=e.clientX-lx,dy=e.clientY-ly;
-  if(Math.abs(dx)+Math.abs(dy)>2)didMove=true;
-  vy=dx*DRAG_SPD;vx=dy*DRAG_SPD;
-  globeGroup.rotation.y+=vy;
-  globeGroup.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globeGroup.rotation.x+vx));
-  lx=e.clientX;ly=e.clientY;
-});
-canvas.addEventListener('touchstart',e=>{
-  e.preventDefault();
-  if(e.touches.length===1&&!globeLocked){drag=true;didMove=false;lx=e.touches[0].clientX;ly=e.touches[0].clientY;vx=vy=0;autoSpin=false;}
-  else if(e.touches.length===2){drag=false;pinching=true;pinchD0=pdist(e.touches);zDist0=zDist;}
-},{passive:false});
-window.addEventListener('touchend',e=>{drag=false;if(e.touches.length<2)pinching=false;},{passive:true});
-window.addEventListener('touchmove',e=>{
-  e.preventDefault();
-  if(pinching&&e.touches.length===2){const d=pdist(e.touches);zDist=Math.max(1.2,Math.min(6,zDist0*(pinchD0/d)));camera.position.z=zDist;return;}
-  if(!drag||globeLocked||e.touches.length!==1)return;
-  const dx=e.touches[0].clientX-lx,dy=e.touches[0].clientY-ly;
-  if(Math.abs(dx)+Math.abs(dy)>2)didMove=true;
-  const spd=DRAG_SPD*(zDist/2.8);
-  vy=dx*spd;vx=dy*spd;
-  globeGroup.rotation.y+=vy;
-  globeGroup.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globeGroup.rotation.x+vx));
-  lx=e.touches[0].clientX;ly=e.touches[0].clientY;
-},{passive:false});
-canvas.addEventListener('wheel',e=>{e.preventDefault();zDist*=e.deltaY<0?0.92:1.09;zDist=Math.max(1.2,Math.min(6,zDist));camera.position.z=zDist;},{passive:false});
-document.getElementById('zin').onclick=()=>{zDist=Math.max(1.2,zDist*0.82);camera.position.z=zDist;};
-document.getElementById('zout').onclick=()=>{zDist=Math.min(6,zDist*1.22);camera.position.z=zDist;};
-
-// ══════════════════════════════════════════
-//  레이캐스트
-// ══════════════════════════════════════════
-const ray=new THREE.Raycaster();
-ray.params.Mesh={threshold:0.01};
-const mouse=new THREE.Vector2();
-function hitMesh(ex,ey){
-  const r=canvas.getBoundingClientRect();
-  mouse.x=((ex-r.left)/r.width)*2-1;
-  mouse.y=-((ey-r.top)/r.height)*2+1;
-  ray.setFromCamera(mouse,camera);
-  const hits=ray.intersectObjects(meshes);
-  return hits.length?hits[0].object:null;
+function nextStation(){
+  if(!ST.sheetList.length){if(ST.clusters.length)play(ST.clusters[0].stations[0]);return;}
+  const idx=ST.sheetList.findIndex(s=>s.uuid===ST.current?.uuid);
+  play(ST.sheetList[(idx+1)%ST.sheetList.length]);
 }
-
-canvas.addEventListener('mouseup',e=>{if(!didMove)handleClick(e.clientX,e.clientY);});
-canvas.addEventListener('touchend',e=>{if(!didMove&&e.changedTouches.length===1)handleClick(e.changedTouches[0].clientX,e.changedTouches[0].clientY);});
-
-function handleClick(ex,ey){
-  const hit=hitMesh(ex,ey);
-  if(!hit)return;
-  if(selMesh&&selMesh!==hit)selMesh.material.color.setHex(0x4dff91);
-  selMesh=hit;
-  hit.material.color.setHex(0xffffff);
-  ring.position.copy(hit.position);
-  ring.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),hit.position.clone().normalize());
-  ring.visible=true;
-  showStationSheet(hit.userData);
+function toggleMute(){
+  ST.muted=!ST.muted;audio.muted=ST.muted;
+  document.getElementById('btn-mute').textContent=ST.muted?'🔇':'🔊';
 }
-
-// 호버
-const tip=document.getElementById('tip');
-canvas.addEventListener('mousemove',e=>{
-  if(drag){tip.style.display='none';return;}
-  const hit=hitMesh(e.clientX,e.clientY);
-  if(hit&&hit.userData.name){
-    document.getElementById('tip-n').textContent=hit.userData.stations?hit.userData.stations[0]?.country||'':hit.userData.name;
-    document.getElementById('tip-c').textContent=`방송국 ${hit.userData.stations?.length||1}개`;
-    tip.style.display='block';
-    tip.style.left=(e.clientX+14)+'px';
-    tip.style.top=(e.clientY-38)+'px';
-    canvas.style.cursor='pointer';
-  }else{tip.style.display='none';canvas.style.cursor='grab';}
-});
-
-// ══════════════════════════════════════════
-//  렌더 루프
-// ══════════════════════════════════════════
-let frame=0;
-(function animate(){
-  requestAnimationFrame(animate);frame++;
-  if(!drag&&!pinching){
-    if(autoSpin)globeGroup.rotation.y+=AUTO_SPD;
-    else{vx*=FRICTION;vy*=FRICTION;globeGroup.rotation.y+=vy;globeGroup.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globeGroup.rotation.x+vx));}
-  }
-  if(ring.visible){ringMat.opacity=0.7+0.3*Math.sin(frame*0.1);ring.scale.setScalar(1+0.06*Math.sin(frame*0.08));}
-  const scaleFactor=zDist/2.8;
-meshes.forEach(m=>{
-  if(m!==selMesh)m.scale.setScalar(scaleFactor);
-  else m.scale.setScalar(scaleFactor*1.5);
-});
-  renderer.render(scene,camera);
-})();
-
-// ══════════════════════════════════════════
-//  GPS & 위치 이동
-// ══════════════════════════════════════════
-function flyTo(lat,lon,targetZ=2.2){
-  const tY=-(lon+180)*Math.PI/180+Math.PI;
-  const tX=-(90-lat)*Math.PI/180+Math.PI/2;
-  const startY=globeGroup.rotation.y,startX=globeGroup.rotation.x;
-  const startZ=camera.position.z;
-  let t=0;
-  function step(){
-    t+=0.003;if(t>1)t=1;
-    const e=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
-    globeGroup.rotation.y=startY+(tY-startY)*e;
-    globeGroup.rotation.x=startX+(tX-startX)*e;
-    camera.position.z=startZ+(targetZ-startZ)*e;
-    zDist=camera.position.z;
-    if(t<1)requestAnimationFrame(step);
-  }
-  step();
+function updateClock(lat,lon){
+  clearInterval(ST.timerId);
+  const off=Math.round(lon/15);
+  ST.timerId=setInterval(()=>{
+    const now=new Date(),utc=now.getTime()+now.getTimezoneOffset()*60000,lc=new Date(utc+off*3600000);
+    document.getElementById('p-time').textContent=`${String(lc.getHours()).padStart(2,'0')}:${String(lc.getMinutes()).padStart(2,'0')}`;
+  },1000);
 }
-
-// 접속시 무조건 줌인 시작 (GPS 있으면 내 위치, 없으면 서울)
-camera.position.z=10; zDist=10;
-flyTo(37.57,126.98,1.15); // 일단 서울로 먼저 시작
-
-navigator.geolocation&&navigator.geolocation.getCurrentPosition(
-  pos=>{
-    const lat=pos.coords.latitude,lon=pos.coords.longitude;
-    setTimeout(()=>flyTo(lat,lon,1.15),500);
-    setTimeout(()=>{
-      const nearby=allStations.filter(s=>{
-        if(!s.geo_lat||!s.geo_long)return false;
-        return Math.hypot(s.geo_lat-lat,s.geo_long-lon)<5;
+function gotoMyLocation(){
+  if(ST.hasGPS){flyTo(ST.myLat,ST.myLon);return;}
+  if(!navigator.geolocation){showToast('GPS를 사용할 수 없습니다');return;}
+  showToast('📍 위치 확인 중…');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    ST.myLat=pos.coords.latitude;ST.myLon=pos.coords.longitude;ST.hasGPS=true;
+    flyTo(ST.myLat,ST.myLon);showToast('📍 내 위치로 이동');
+  },()=>showToast('위치 권한을 허용해 주세요'));
+}
+function shareStation(){
+  const s=ST.current;
+  const text=s?`🎵 ${s.name} — Wild Peaks Radio\n${location.href}`:`Wild Peaks Radio\n${location.href}`;
+  if(navigator.share)navigator.share({title:'Wild Peaks Radio',text,url:location.href}).catch(()=>{});
+  else navigator.clipboard?.writeText(text).then(()=>showToast('🔗 링크 복사 완료'));
+}
+function toggleLock(){
+  ST.locked=!ST.locked;
+  document.getElementById('btn-lock').classList.toggle('on',ST.locked);
+  document.getElementById('lock-badge').classList.toggle('show',ST.locked);
+  showToast(ST.locked?'🔒 지구본 잠김':'🔓 잠금 해제');
+}
+let searchTimer=null;
+async function doSearch(q){
+  clearTimeout(searchTimer);
+  const el=document.getElementById('search-results');
+  if(!q.trim()){el.innerHTML='';return;}
+  searchTimer=setTimeout(async()=>{
+    el.innerHTML='<div style="color:var(--sub);font-size:12px;padding:8px 0;">검색 중…</div>';
+    try{
+      const res=await fetch(`${apiBase}/json/stations/search?name=${encodeURIComponent(q)}&limit=30&hidebroken=true`);
+      const data=await res.json();
+      el.innerHTML='';
+      if(!data.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;padding:8px 0;">결과 없음</div>';return;}
+      data.forEach(raw=>{
+        const s={name:(raw.name||'').trim()||'Unknown',url:raw.url_resolved||raw.url,lat:parseFloat(raw.geo_lat)||0,lon:parseFloat(raw.geo_long)||0,country:raw.country||'',state:raw.state||'',codec:raw.codec||'',bitrate:parseInt(raw.bitrate)||0,uuid:raw.stationuuid||''};
+        const div=document.createElement('div');div.className='si';
+        div.innerHTML=`<div class="si-dot${ST.current?.uuid===s.uuid?' on':''}"></div><div class="si-body"><div class="si-name">${esc(s.name)}</div><div class="si-meta">${s.country}${s.state?' · '+s.state:''}</div></div>`;
+        div.onclick=()=>{play(s);ST.sheetList=[s];closeTab('search');showToast(`▶ ${s.name}`);};
+        el.appendChild(div);
       });
-      if(nearby.length){playStation(nearby[0]);document.getElementById('city-name').textContent=nearby[0].country||'';}
-    },4000);
-  },
-  ()=>flyTo(37.57,126.98,1.15),
-  {timeout:3000}
-);
-document.getElementById('btn-myloc').onclick=()=>{
-  navigator.geolocation&&navigator.geolocation.getCurrentPosition(
-    pos=>flyTo(pos.coords.latitude,pos.coords.longitude,1.15),
-    ()=>flyTo(37.57,126.98,1.15)
-  );
-};
-
-// ══════════════════════════════════════════
-//  잠금
-// ══════════════════════════════════════════
-document.getElementById('btn-lock').onclick=()=>{
-  globeLocked=!globeLocked;
-  const btn=document.getElementById('btn-lock');
-  btn.textContent=globeLocked?'🔒':'🔓';
-  btn.classList.toggle('active',globeLocked);
-};
-
-// ══════════════════════════════════════════
-//  공유
-// ══════════════════════════════════════════
-document.getElementById('btn-share').onclick=()=>{
-  const freq=document.getElementById('freq-name').textContent;
-  const city=document.getElementById('city-name').textContent;
-  const text=`🌍 Wild Peaks Radio\n지금 ${city}의 "${freq}" 듣는 중!\n${location.href}`;
-  if(navigator.share){navigator.share({title:'Wild Peaks Radio',text,url:location.href});}
-  else{navigator.clipboard.writeText(text);alert('링크가 복사되었어요!');}
-};
-
-// ══════════════════════════════════════════
-//  방송국 시트
-// ══════════════════════════════════════════
-function showStationSheet(data){
-  const stations=data.stations||[];
-  const country=data.name||'';
-  document.getElementById('sh-city').textContent=`${country} 방송국 ${stations.length}개`;
-  currentStations=stations;
-  const body=document.getElementById('sh-body');
-  body.innerHTML='';
-  stations.slice(0,20).forEach((s,i)=>{
-    const isFav=favorites.some(f=>f.url===s.url_resolved);
-    const isPlaying=stIdx===i&&document.getElementById('play-btn').textContent==='⏸';
-    const d=document.createElement('div');
-    d.className='sitem'+(isPlaying?' playing':'');
-    d.innerHTML=`
-      <div class="si-info">
-        <div class="si-name">${s.name}</div>
-        <div class="si-meta">${[s.codec,s.bitrate?s.bitrate+'kbps':'',s.language].filter(Boolean).join(' · ')||'—'}</div>
-      </div>
-      <span class="si-heart${isFav?' loved':''}" data-idx="${i}">${isFav?'❤️':'🤍'}</span>
-    `;
-    d.querySelector('.si-heart').onclick=e=>{e.stopPropagation();toggleFav(s,e.target);};
-    d.onclick=()=>{stIdx=i;closeSheet();playStation(s);
-      // 패널 업데이트
-      document.getElementById('city-name').textContent=country;
-      document.getElementById('city-country').textContent=s.country||'';
-      updateLocalTime(data.lat,data.lon);
+    }catch{el.innerHTML='<div style="color:var(--sub);font-size:12px;">오류 발생</div>';}
+  },380);
+}
+const LANGS=[
+  ['auto','자동'],['ko','한국어'],['en','English'],['ja','日本語'],
+  ['zh-TW','繁體中文'],['zh-CN','简体中文'],['es','Español'],['es-LA','Español lat.'],
+  ['fr','français'],['de','Deutsch'],['pt','Português'],['pt-BR','Português (Brasil)'],
+  ['it','Italiano'],['nl','Nederlands'],['da','dansk'],['no','norsk'],['sv','svenska'],
+  ['pl','polski'],['ro','română'],['el','Ελληνικά'],['he','עברית'],['ar','العربية'],
+  ['ru','русский'],['tr','Türkçe'],['id','Bahasa Indonesia'],['ms','Bahasa Melayu'],
+  ['th','ภาษาไทย'],['vi','Tiếng Việt'],['tl','Filipino'],['hi','हिन्दी'],['bn','বাংলা'],['ta','தமிழ்']
+];
+function initSettings(){
+  const g=document.getElementById('lang-grid');
+  LANGS.forEach(([code,label])=>{
+    const b=document.createElement('button');
+    b.className='lbtn'+(ST.lang===code?' on':'');b.dataset.code=code;
+    b.textContent=(ST.lang===code?'✓ ':'')+label;
+    b.onclick=()=>{
+      ST.lang=code;localStorage.setItem('wp_lang',code);
+      document.querySelectorAll('.lbtn').forEach(x=>{
+        const c=x.dataset.code;x.className='lbtn'+(c===code?' on':'');
+        x.textContent=(c===code?'✓ ':'')+LANGS.find(l=>l[0]===c)[1];
+      });
     };
-    body.appendChild(d);
+    g.appendChild(b);
   });
-  document.getElementById('sheet-overlay').classList.add('open');
+  document.querySelectorAll('.szbtn').forEach(b=>b.classList.toggle('on',b.dataset.s===ST.dotSize));
 }
-
-function closeSheet(){document.getElementById('sheet-overlay').classList.remove('open');}
-document.getElementById('sh-close').onclick=closeSheet;
-document.getElementById('sheet-overlay').onclick=e=>{if(e.target===document.getElementById('sheet-overlay'))closeSheet();};
-
-// ══════════════════════════════════════════
-//  현지 시간
-// ══════════════════════════════════════════
-function updateLocalTime(lat,lon){
-  // 간단한 시간대 추정 (경도 기반)
-  const offsetH=Math.round(lon/15);
-  const now=new Date();
-  const utc=now.getTime()+now.getTimezoneOffset()*60000;
-  const local=new Date(utc+offsetH*3600000);
-  const h=String(local.getHours()).padStart(2,'0');
-  const m=String(local.getMinutes()).padStart(2,'0');
-  document.getElementById('local-time').textContent=h+':'+m;
+function setDotSize(s){
+  ST.dotSize=s;localStorage.setItem('wp_dotsize',s);
+  document.querySelectorAll('.szbtn').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
+  buildDots();
 }
-setInterval(()=>{
-  // 현재 선택된 도시 시간 업데이트
-},60000);
-
-// ══════════════════════════════════════════
-//  즐겨찾기
-// ══════════════════════════════════════════
-function toggleFav(s,el){
-  const idx=favorites.findIndex(f=>f.url===s.url_resolved);
-  if(idx>=0){favorites.splice(idx,1);el.textContent='🤍';el.classList.remove('loved');}
-  else{favorites.push({name:s.name,url:s.url_resolved,country:s.country,city:document.getElementById('city-name').textContent});el.textContent='❤️';el.classList.add('loved');}
-  localStorage.setItem('wp_favorites',JSON.stringify(favorites));
-  renderFavPanel();
+function switchTab(t){
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  if(t==='globe'){document.querySelectorAll('.tab').forEach(p=>p.classList.remove('open'));return;}
+  document.querySelectorAll('.tab').forEach(p=>p.classList.remove('open'));
+  document.getElementById('tab-'+t)?.classList.add('open');
+  if(t==='fav')renderFav();
+  if(t==='search')setTimeout(()=>document.getElementById('search-input')?.focus(),200);
 }
-
-function renderFavPanel(){
-  const body=document.getElementById('fav-body');
-  if(!favorites.length){body.innerHTML='<div id="fav-empty">즐겨찾기한 방송국이 없어요<br>방송국 목록에서 🤍를 눌러보세요!</div>';return;}
-  body.innerHTML='';
-  favorites.forEach((f,i)=>{
-    const d=document.createElement('div');d.className='fitem';
-    d.innerHTML=`<div class="fi-info"><div class="fi-name">${f.name}</div><div class="fi-loc">${f.city||''}, ${f.country||''}</div></div><span class="fi-del" data-i="${i}">✕</span>`;
-    d.querySelector('.fi-del').onclick=e=>{e.stopPropagation();favorites.splice(i,1);localStorage.setItem('wp_favorites',JSON.stringify(favorites));renderFavPanel();};
-    d.onclick=()=>playStation(f);
-    body.appendChild(d);
-  });
+function closeTab(t){
+  document.getElementById('tab-'+t)?.classList.remove('open');
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.toggle('on',b.dataset.t==='globe'));
 }
-
-// ══════════════════════════════════════════
-//  검색
-// ══════════════════════════════════════════
-document.getElementById('search-input').addEventListener('input',e=>{
-  const q=e.target.value.trim().toLowerCase();
-  const res=document.getElementById('search-results');
-  if(!q){res.innerHTML='';return;}
-  const matches=allStations.filter(s=>
-    (s.name&&s.name.toLowerCase().includes(q))||
-    (s.country&&s.country.toLowerCase().includes(q))
-  ).slice(0,30);
-  res.innerHTML='';
-  matches.forEach(s=>{
-    const d=document.createElement('div');d.className='sritem';
-    d.innerHTML=`<div class="sr-dot"></div><div class="sr-info"><div class="sr-name">${s.name}</div><div class="sr-loc">${s.country||''}</div></div>`;
-    d.onclick=()=>{
-      if(s.geo_lat&&s.geo_long)flyTo(s.geo_lat,s.geo_long,1.8);
-      playStation(s);
-      document.getElementById('city-name').textContent=s.country||s.name;
-      showNav('explore');
-    };
-    res.appendChild(d);
-  });
-});
-
-// ══════════════════════════════════════════
-//  언어
-// ══════════════════════════════════════════
-function renderLangPanel(){
-  const body=document.getElementById('lang-body');
-  body.innerHTML='';
-  LANGS.forEach(l=>{
-    const d=document.createElement('div');
-    d.className='lang-item'+(currentLang===l.code?' selected':'');
-    d.innerHTML=`<div class="lang-name">${l.name}<div class="lang-native" style="font-size:11px;color:#555;margin-top:2px;">${l.native}</div></div>${currentLang===l.code?'<span class="lang-check">✓</span>':''}`;
-    d.onclick=()=>{currentLang=l.code;document.getElementById('set-lang-val').textContent=l.name;localStorage.setItem('wp_lang',l.code);renderLangPanel();};
-    body.appendChild(d);
-  });
+let toastT=null;
+function showToast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2600);
 }
-
-document.getElementById('set-lang').onclick=()=>{renderLangPanel();document.getElementById('lang-panel').classList.add('open');};
-document.getElementById('lang-back').onclick=()=>document.getElementById('lang-panel').classList.remove('open');
-
-// ══════════════════════════════════════════
-//  점 크기
-// ══════════════════════════════════════════
-function setDotSize(size){
-  dotSizeMode=size;
-  document.getElementById('set-ds-val').textContent=size==='small'?'작게':size==='large'?'크게':'보통';
-  document.querySelectorAll('.ds-item').forEach(el=>el.classList.toggle('selected',el.dataset.size===size));
-  localStorage.setItem('wp_dotsize',size);
-  buildDots(allStations);
-  document.getElementById('dotsize-panel').classList.remove('open');
-}
-document.getElementById('set-dotsize').onclick=()=>document.getElementById('dotsize-panel').classList.add('open');
-document.getElementById('ds-back').onclick=()=>document.getElementById('dotsize-panel').classList.remove('open');
-
-// 저장된 설정 복원
-const savedLang=localStorage.getItem('wp_lang');
-if(savedLang){currentLang=savedLang;const l=LANGS.find(x=>x.code===savedLang);if(l)document.getElementById('set-lang-val').textContent=l.name;}
-const savedDs=localStorage.getItem('wp_dotsize');
-if(savedDs)setDotSize(savedDs);
-
-// ══════════════════════════════════════════
-//  네비게이션
-// ══════════════════════════════════════════
-function showNav(tab){
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
-  document.getElementById('fav-panel').classList.remove('open');
-  document.getElementById('search-panel').classList.remove('open');
-  document.getElementById('settings-panel').classList.remove('open');
-  document.getElementById('live-panel').classList.remove('open');
-  document.getElementById('nav-'+tab).classList.add('active');
-  if(tab==='fav'){renderFavPanel();document.getElementById('fav-panel').classList.add('open');}
-  else if(tab==='search'){document.getElementById('search-panel').classList.add('open');setTimeout(()=>document.getElementById('search-input').focus(),300);}
-  else if(tab==='settings')document.getElementById('settings-panel').classList.add('open');
-  else if(tab==='live')document.getElementById('live-panel').classList.add('open');
-}
-document.getElementById('nav-explore').onclick=()=>showNav('explore');
-document.getElementById('nav-fav').onclick=()=>showNav('fav');
-document.getElementById('nav-live').onclick=()=>showNav('live');
-document.getElementById('nav-search').onclick=()=>showNav('search');
-document.getElementById('nav-settings').onclick=()=>showNav('settings');
-
-// ══════════════════════════════════════════
-//  오디오
-// ══════════════════════════════════════════
-const aud=document.getElementById('aud');
-let playing=false,muted=false;
-function setStatus(m,c=''){const el=document.getElementById('status');el.textContent=m;el.className=c;}
-function showEq(on){document.getElementById('eq').className=on?'on':'';}
-
-function playStation(s){
-  const url=s.url_resolved||s.url;
-  if(!url)return;
-  aud.pause();aud.src=url;aud.load();
-  document.getElementById('freq-name').textContent=s.name;
-  document.getElementById('freq-loc').textContent=s.country||'';
-  setStatus('연결 중…','on');
-  document.getElementById('play-btn').textContent='⏸';
-  aud.play()
-    .then(()=>{playing=true;setStatus('재생 중 ♪','on');showEq(true);})
-    .catch(()=>{setStatus('오류 — ⏭ 다음 시도','er');document.getElementById('play-btn').textContent='▶';showEq(false);});
-}
-function stopAudio(){aud.pause();aud.src='';playing=false;document.getElementById('play-btn').textContent='▶';showEq(false);setStatus('');}
-aud.addEventListener('error',()=>{setStatus('스트림 오류','er');showEq(false);document.getElementById('play-btn').textContent='▶';playing=false;});
-
-document.getElementById('play-btn').onclick=()=>{
-  if(!aud.src||aud.src===location.href)return;
-  if(playing){aud.pause();playing=false;document.getElementById('play-btn').textContent='▶';showEq(false);setStatus('일시정지');}
-  else{aud.play();playing=true;document.getElementById('play-btn').textContent='⏸';showEq(true);setStatus('재생 중 ♪','on');}
-};
-document.getElementById('next-btn').onclick=()=>{
-  if(!currentStations.length)return;
-  stIdx=(stIdx+1)%currentStations.length;
-  playStation(currentStations[stIdx]);
-};
-document.getElementById('mute-btn').onclick=()=>{muted=!muted;aud.muted=muted;document.getElementById('mute-btn').textContent=muted?'🔇':'🔊';};
-
-// ══════════════════════════════════════════
-//  스플래시 → 지구본
-// ══════════════════════════════════════════
-setTimeout(()=>{
-  document.getElementById('splash').classList.add('hide');
-  document.getElementById('loading').classList.add('hide');
-  camera.position.z=10; zDist=10;
-  navigator.geolocation&&navigator.geolocation.getCurrentPosition(
-    pos=>{
-      const lat=pos.coords.latitude,lon=pos.coords.longitude;
-      flyTo(lat,lon,1.15)
-      setTimeout(()=>{
-        const nearby=allStations.filter(s=>{
-          if(!s.geo_lat||!s.geo_long)return false;
-          return Math.hypot(s.geo_lat-lat,s.geo_long-lon)<5;
-        });
-        if(nearby.length){
-          const s=nearby[0];
-          document.getElementById('city-name').textContent=s.country||'';
-          playStation(s);
-          updateLocalTime(lat,lon);
-        }
-      },3000);
-    },
-    ()=>{flyTo(37.57,126.98,2.2);},
-    {timeout:3000}
-  );
-  loadAllStations();
-},2500);
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+(async function init(){
+  initSettings();initGlobe();
+  cam.position.z=9;zoomTarget=3.0;
+  setTimeout(()=>{
+    document.getElementById('splash').classList.add('out');
+    setTimeout(()=>{document.getElementById('splash').style.display='none';},1000);
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(pos=>{
+        ST.myLat=pos.coords.latitude;ST.myLon=pos.coords.longitude;ST.hasGPS=true;
+        flyTo(ST.myLat,ST.myLon,2.5);
+      });
+    }
+    loadStations();
+  },2600);
+})();
 </script>
 </body>
 </html>
