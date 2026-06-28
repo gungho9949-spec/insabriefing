@@ -930,16 +930,23 @@ setTimeout(function(){
   setTimeout(function(){sp.style.display='none';},1000);
 
   if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(function(pos){
+navigator.geolocation.getCurrentPosition(function(pos){
       ST.myLat=pos.coords.latitude;
       ST.myLon=pos.coords.longitude;
       ST.hasGPS=true;
       console.log('GPS:', ST.myLat, ST.myLon, '정확도:', pos.coords.accuracy+'m');
       flyTo(ST.myLat, ST.myLon, 1.8);
+      // 방송국 데이터가 이미 로드됐으면 바로 자동재생
+      if(ST.stationsReady){
+        autoPlayNearby();
+      }
     },function(err){
-      console.warn('GPS 실패, 서울 기본값:', err.message);
-      ST.myLat=37.5665; ST.myLon=126.9780; ST.hasGPS=true;
-      flyTo(37.5665, 126.9780, 1.8);
+      console.warn('GPS 실패:', err.message);
+      ST.hasGPS=true;
+      flyTo(ST.myLat, ST.myLon, 1.8);
+      if(ST.stationsReady){
+        autoPlayNearby();
+      }
     },{enableHighAccuracy:true, timeout:8000, maximumAge:0});
   } else {
     ST.myLat=37.5665; ST.myLon=126.9780; ST.hasGPS=true;
