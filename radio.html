@@ -10,30 +10,18 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
   --bg:#05080f;--green:#4dff91;--green-dim:rgba(77,255,145,0.12);
-  --green-glow:rgba(77,255,145,0.3);--panel:#0c1320;--panel2:#111b2b;
+  --panel:#0c1320;--panel2:#111b2b;
   --text:#e8f0fe;--sub:#5a6e8a;--border:rgba(77,255,145,0.1);
   --red:#ff4d7e;
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);}
-body{
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;
-  user-select:none;-webkit-user-select:none;
-}
+body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;user-select:none;-webkit-user-select:none;}
 #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
-#splash{
-  position:fixed;inset:0;z-index:1000;background:#000;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  transition:opacity 0.9s ease;
-}
+#splash{position:fixed;inset:0;z-index:1000;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:opacity 0.9s ease;}
 #splash.out{opacity:0;pointer-events:none;}
 .sp-logo-img{width:80px;height:80px;object-fit:contain;animation:spUp 0.7s ease both;}
-.sp-brand{font-size:32px;font-weight:900;letter-spacing:-1px;
-  background:linear-gradient(135deg,#fff 0%,var(--green) 70%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  animation:spUp 0.7s 0.15s ease both;}
-.sp-tag{font-size:11px;letter-spacing:5px;color:var(--sub);text-transform:uppercase;
-  animation:spUp 0.7s 0.3s ease both;}
+.sp-brand{font-size:32px;font-weight:900;letter-spacing:-1px;background:linear-gradient(135deg,#fff 0%,var(--green) 70%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:spUp 0.7s 0.15s ease both;}
+.sp-tag{font-size:11px;letter-spacing:5px;color:var(--sub);text-transform:uppercase;animation:spUp 0.7s 0.3s ease both;}
 .sp-bar{width:120px;height:2px;background:rgba(255,255,255,0.06);border-radius:1px;margin-top:28px;overflow:hidden;animation:spUp 0.7s 0.45s ease both;}
 .sp-bar-fill{height:100%;width:0;background:var(--green);border-radius:1px;animation:spLoad 2s 0.6s ease forwards;}
 @keyframes spUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
@@ -151,8 +139,8 @@ body{
       <div class="ring-txt">Loading</div>
     </div>
     <div id="side-btns">
-      <div class="sbtn" id="btn-gps" onclick="gotoMyLocation()">📍</div>
-      <div class="sbtn" id="btn-share" onclick="shareStation()">🔗</div>
+      <div class="sbtn" onclick="gotoMyLocation()">📍</div>
+      <div class="sbtn" onclick="shareStation()">🔗</div>
       <div class="sbtn" id="btn-lock" onclick="toggleLock()">🔒</div>
     </div>
   </div>
@@ -265,21 +253,26 @@ const ST={
   lang:localStorage.getItem('wp_lang')||'auto',
   myLat:37.5665,myLon:126.9780,hasGPS:false,timerId:null,
 };
+
+/* ── STARS ── */
 (()=>{
   const c=document.getElementById('stars'),ctx=c.getContext('2d'),stars=[];
   function resize(){c.width=innerWidth;c.height=innerHeight;}
   resize();addEventListener('resize',resize);
-  for(let i=0;i<180;i++) stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.1+0.2,a:Math.random(),da:(Math.random()-0.5)*0.006});
+  for(let i=0;i<180;i++)stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.1+0.2,a:Math.random(),da:(Math.random()-0.5)*0.006});
   (function draw(){
     ctx.clearRect(0,0,c.width,c.height);
     stars.forEach(s=>{s.a+=s.da;if(s.a<0||s.a>1)s.da*=-1;ctx.beginPath();ctx.arc(s.x*c.width,s.y*c.height,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${0.2+s.a*0.55})`;ctx.fill();});
     requestAnimationFrame(draw);
   })();
 })();
+
+/* ── THREE.JS ── */
 let scene,cam,ren,globe,atmo;
 let drag=false,dragMoved=false,pMouse={x:0,y:0};
 let vel={x:0,y:0},autoRot=true,zoomTarget=null,pinch0=null;
 const ray=new THREE.Raycaster(),mXY=new THREE.Vector2();
+
 function initGlobe(){
   const wrap=document.getElementById('globe-wrap'),cv=document.getElementById('globe-canvas');
   const W=wrap.clientWidth,H=wrap.clientHeight;
@@ -291,25 +284,18 @@ function initGlobe(){
   ren.setSize(W,H);
   ren.setClearColor(0x000000,0);
   const tex=new THREE.TextureLoader().load('/earth.jpg');
-  const geo=new THREE.SphereGeometry(1,64,64);
-  const mat=new THREE.MeshPhongMaterial({map:tex,specular:new THREE.Color(0x1a2244),shininess:6});
-  globe=new THREE.Mesh(geo,mat);
+  globe=new THREE.Mesh(new THREE.SphereGeometry(1,64,64),new THREE.MeshPhongMaterial({map:tex,specular:new THREE.Color(0x1a2244),shininess:6}));
   scene.add(globe);
-  const aGeo=new THREE.SphereGeometry(1.045,64,64);
-  const aMat=new THREE.ShaderMaterial({
+  atmo=new THREE.Mesh(new THREE.SphereGeometry(1.045,64,64),new THREE.ShaderMaterial({
     vertexShader:`varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
     fragmentShader:`varying vec3 vN;void main(){float i=pow(0.55-dot(vN,vec3(0,0,1)),2.0);gl_FragColor=vec4(0.15,0.45,1.0,1)*i*0.9;}`,
     side:THREE.FrontSide,blending:THREE.AdditiveBlending,transparent:true
-  });
-  atmo=new THREE.Mesh(aGeo,aMat);
+  }));
   scene.add(atmo);
   scene.add(new THREE.AmbientLight(0xffffff,0.45));
   const sun=new THREE.DirectionalLight(0xffffff,1.0);
   sun.position.set(5,3,5);scene.add(sun);
-  addEventListener('resize',()=>{
-    const W2=wrap.clientWidth,H2=wrap.clientHeight;
-    cam.aspect=W2/H2;cam.updateProjectionMatrix();ren.setSize(W2,H2);
-  });
+  addEventListener('resize',()=>{const W2=wrap.clientWidth,H2=wrap.clientHeight;cam.aspect=W2/H2;cam.updateProjectionMatrix();ren.setSize(W2,H2);});
   cv.addEventListener('mousedown',onMD);
   addEventListener('mousemove',onMM);
   addEventListener('mouseup',onMU);
@@ -319,6 +305,7 @@ function initGlobe(){
   cv.addEventListener('touchend',onTE,{passive:false});
   loop();
 }
+
 function loop(){
   requestAnimationFrame(loop);
   if(!drag){
@@ -333,6 +320,7 @@ function loop(){
   }
   ren.render(scene,cam);
 }
+
 function onMD(e){drag=true;dragMoved=false;pMouse={x:e.clientX,y:e.clientY};autoRot=false;vel={x:0,y:0};}
 function onMM(e){
   if(!drag||ST.locked)return;
@@ -346,19 +334,15 @@ function onMM(e){
 function onMU(e){if(!dragMoved)handleTap(e.clientX,e.clientY);drag=false;}
 function onWH(e){e.preventDefault();cam.position.z=Math.max(1.5,Math.min(6,cam.position.z+e.deltaY*0.003));}
 function onTS(e){
-  if(e.touches.length===2){
-    pinch0=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-  } else {
-    drag=true;dragMoved=false;pMouse={x:e.touches[0].clientX,y:e.touches[0].clientY};autoRot=false;vel={x:0,y:0};
-  }
+  if(e.touches.length===2){pinch0=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}
+  else{drag=true;dragMoved=false;pMouse={x:e.touches[0].clientX,y:e.touches[0].clientY};autoRot=false;vel={x:0,y:0};}
 }
 function onTM(e){
   e.preventDefault();
   if(e.touches.length===2&&pinch0!==null){
     const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-    cam.position.z=Math.max(1.5,Math.min(6,cam.position.z-(d-pinch0)*0.01));
-    pinch0=d;
-  } else if(drag&&!ST.locked){
+    cam.position.z=Math.max(1.5,Math.min(6,cam.position.z-(d-pinch0)*0.01));pinch0=d;
+  }else if(drag&&!ST.locked){
     const dx=e.touches[0].clientX-pMouse.x,dy=e.touches[0].clientY-pMouse.y;
     if(Math.abs(dx)>3||Math.abs(dy)>3)dragMoved=true;
     globe.rotation.y+=dx*0.005;globe.rotation.x+=dy*0.005;
@@ -382,6 +366,8 @@ function handleTap(cx,cy){
   const hits=ray.intersectObjects(ST.dots);
   if(hits.length)openSheet(hits[0].object.userData.cluster);
 }
+
+/* ── GLOBE UTILS ── */
 function ll2v(lat,lon,r=1.008){
   const phi=(90-lat)*Math.PI/180,th=(lon+180)*Math.PI/180;
   return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(th),r*Math.cos(phi),r*Math.sin(phi)*Math.sin(th));
@@ -419,15 +405,33 @@ function clusterStations(stations){
   });
   return cls;
 }
-const MIRRORS=['https://de1.api.radio-browser.info','https://nl1.api.radio-browser.info','https://at1.api.radio-browser.info'];
+
+/* ── API ── */
+const MIRRORS=[
+  'https://de1.api.radio-browser.info',
+  'https://nl1.api.radio-browser.info',
+  'https://at1.api.radio-browser.info',
+  'https://fr1.api.radio-browser.info',
+];
 let apiBase=MIRRORS[0];
+
 async function loadStations(mi=0){
-  if(mi>=MIRRORS.length){showToast('⚠️ API 연결 실패');return;}
+  if(mi>=MIRRORS.length){
+    setLoading(false);
+    showToast('⚠️ API 연결 실패 — 새로고침 해보세요');
+    return;
+  }
   apiBase=MIRRORS[mi];
   setLoading(true);
   try{
-    const res=await fetch(`${apiBase}/json/stations?limit=10000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true`,{signal:AbortSignal.timeout(12000)});
-    if(!res.ok)throw new Error();
+    const controller=new AbortController();
+    const tid=setTimeout(()=>controller.abort(),20000);
+    const res=await fetch(
+      `${apiBase}/json/stations?limit=5000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true`,
+      {signal:controller.signal}
+    );
+    clearTimeout(tid);
+    if(!res.ok)throw new Error('status '+res.status);
     const data=await res.json();
     ST.stations=data.filter(s=>s.geo_lat&&s.geo_long).map(s=>({
       name:(s.name||'').trim()||'Unknown',url:s.url_resolved||s.url,
@@ -438,9 +442,14 @@ async function loadStations(mi=0){
     ST.clusters=clusterStations(ST.stations);
     buildDots();setLoading(false);
     showToast(`🌍 ${ST.stations.length.toLocaleString()}개 방송국 로드 완료`);
-  }catch(e){console.warn('mirror',mi,'failed');loadStations(mi+1);}
+  }catch(e){
+    console.warn('mirror',mi,'failed:',e.message);
+    loadStations(mi+1);
+  }
 }
 function setLoading(v){document.getElementById('loading-ring').classList.toggle('show',v);}
+
+/* ── SHEET ── */
 function openSheet(cl){
   ST.sheetList=cl.stations;
   document.getElementById('sh-title').textContent=`${cl.country||'방송국'} · ${cl.stations.length}개`;
@@ -491,6 +500,8 @@ function renderFav(){
   el.innerHTML='';
   ST.favs.forEach((s,i)=>el.appendChild(makeItem(s,i,'fav')));
 }
+
+/* ── AUDIO ── */
 const audio=new Audio();audio.crossOrigin='anonymous';
 function play(s){
   ST.current=s;audio.src=s.url;audio.muted=ST.muted;
@@ -513,7 +524,7 @@ function togglePlay(){
     audio.pause();ST.playing=false;
     document.getElementById('btn-play').textContent='▶';
     document.getElementById('eq').classList.add('paused');
-  } else {
+  }else{
     audio.play().catch(()=>{});ST.playing=true;
     document.getElementById('btn-play').textContent='⏸';
     document.getElementById('eq').classList.remove('paused');
@@ -528,6 +539,8 @@ function toggleMute(){
   ST.muted=!ST.muted;audio.muted=ST.muted;
   document.getElementById('btn-mute').textContent=ST.muted?'🔇':'🔊';
 }
+
+/* ── CLOCK ── */
 function updateClock(lat,lon){
   clearInterval(ST.timerId);
   const off=Math.round(lon/15);
@@ -536,6 +549,8 @@ function updateClock(lat,lon){
     document.getElementById('p-time').textContent=`${String(lc.getHours()).padStart(2,'0')}:${String(lc.getMinutes()).padStart(2,'0')}`;
   },1000);
 }
+
+/* ── GPS ── */
 function gotoMyLocation(){
   if(ST.hasGPS){flyTo(ST.myLat,ST.myLon);return;}
   if(!navigator.geolocation){showToast('GPS를 사용할 수 없습니다');return;}
@@ -545,6 +560,8 @@ function gotoMyLocation(){
     flyTo(ST.myLat,ST.myLon);showToast('📍 내 위치로 이동');
   },()=>showToast('위치 권한을 허용해 주세요'));
 }
+
+/* ── SHARE / LOCK ── */
 function shareStation(){
   const s=ST.current;
   const text=s?`🎵 ${s.name} — Wild Peaks Radio\n${location.href}`:`Wild Peaks Radio\n${location.href}`;
@@ -557,6 +574,8 @@ function toggleLock(){
   document.getElementById('lock-badge').classList.toggle('show',ST.locked);
   showToast(ST.locked?'🔒 지구본 잠김':'🔓 잠금 해제');
 }
+
+/* ── SEARCH ── */
 let searchTimer=null;
 async function doSearch(q){
   clearTimeout(searchTimer);
@@ -565,7 +584,10 @@ async function doSearch(q){
   searchTimer=setTimeout(async()=>{
     el.innerHTML='<div style="color:var(--sub);font-size:12px;padding:8px 0;">검색 중…</div>';
     try{
-      const res=await fetch(`${apiBase}/json/stations/search?name=${encodeURIComponent(q)}&limit=30&hidebroken=true`);
+      const controller=new AbortController();
+      const tid=setTimeout(()=>controller.abort(),10000);
+      const res=await fetch(`${apiBase}/json/stations/search?name=${encodeURIComponent(q)}&limit=30&hidebroken=true`,{signal:controller.signal});
+      clearTimeout(tid);
       const data=await res.json();
       el.innerHTML='';
       if(!data.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;padding:8px 0;">결과 없음</div>';return;}
@@ -579,6 +601,8 @@ async function doSearch(q){
     }catch{el.innerHTML='<div style="color:var(--sub);font-size:12px;">오류 발생</div>';}
   },380);
 }
+
+/* ── SETTINGS ── */
 const LANGS=[
   ['auto','자동'],['ko','한국어'],['en','English'],['ja','日本語'],
   ['zh-TW','繁體中文'],['zh-CN','简体中文'],['es','Español'],['es-LA','Español lat.'],
@@ -610,6 +634,8 @@ function setDotSize(s){
   document.querySelectorAll('.szbtn').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
   buildDots();
 }
+
+/* ── TABS ── */
 function switchTab(t){
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
   if(t==='globe'){document.querySelectorAll('.tab').forEach(p=>p.classList.remove('open'));return;}
@@ -622,15 +648,21 @@ function closeTab(t){
   document.getElementById('tab-'+t)?.classList.remove('open');
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.toggle('on',b.dataset.t==='globe'));
 }
+
+/* ── TOAST ── */
 let toastT=null;
 function showToast(msg){
   const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
   clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2600);
 }
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ── INIT ── */
 (async function init(){
-  initSettings();initGlobe();
-  cam.position.z=9;zoomTarget=3.0;
+  initSettings();
+  initGlobe();
+  cam.position.z=9;
+  zoomTarget=3.0;
   setTimeout(()=>{
     document.getElementById('splash').classList.add('out');
     setTimeout(()=>{document.getElementById('splash').style.display='none';},1000);
