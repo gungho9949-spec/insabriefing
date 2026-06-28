@@ -510,17 +510,26 @@ function onStationsLoaded(data){
 
 function autoPlayNearby(){
   if(!ST.hasGPS)return;
+  // 1순위: 같은 나라 방송국 찾기 (나라명으로 비교)
+  // GPS 위치로 나라 추정 후 같은 나라 클러스터 중 가장 가까운 것
   var best=null,bestD=999;
+  var bestSameCountry=null,bestDSameCountry=999;
+
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
-    // 정확한 거리 계산 (위도/경도 보정)
     var dLat=cl.lat-ST.myLat;
     var dLon=(cl.lon-ST.myLon)*Math.cos(ST.myLat*Math.PI/180);
     var d=Math.sqrt(dLat*dLat+dLon*dLon);
+
+    // 북한 제외
+    var c=(cl.country||'').toLowerCase();
+    if(c.indexOf('democratic people')>=0||c.indexOf('north korea')>=0||c==='kp')continue;
+
     if(d<bestD){bestD=d;best=cl;}
   }
-  console.log('가장 가까운 클러스터:',best&&best.country,best&&best.lat,best&&best.lon,'거리:',bestD);
+
   if(best&&best.stations.length>0){
+    console.log('자동재생 클러스터:',best.country,best.lat,best.lon,'거리:',bestD);
     ST.currentCluster=best;
     play(best.stations[0]);
     openSheet(best);
