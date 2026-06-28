@@ -386,20 +386,25 @@ function ll2v(lat,lon,r){
 
 function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
-  /* ll2v 좌표계 역산:
-     점의 z = sin(phi)*sin(th), 카메라는 z+ 방향
-     z를 최대로 만들려면 th=PI/2 → lon+180=90 → lon=-90이 초기 정면
-     globe.rotation.y를 돌리면 정면이 바뀜
-     원하는 lon을 정면으로: rotY = -(lon+90)*PI/180 */
-  var rotY=-(lon+90)*Math.PI/180;
-  var rotX=-lat*Math.PI/180*0.5;
-  var sy=globe.rotation.y,sx=globe.rotation.x,t=0;
   autoRot=false;
+  var targetY=-(lon+90)*Math.PI/180;
+  var targetX=lat*Math.PI/180;        // 0.5 제거, 부호 수정
+  var sy=globe.rotation.y,sx=globe.rotation.x,t=0;
+
+  // 최단경로 보정 (지구가 빙빙 도는 것 방지)
+  var dy=targetY-sy;
+  while(dy>Math.PI)dy-=2*Math.PI;
+  while(dy<-Math.PI)dy+=2*Math.PI;
+  var dx=targetX-sx;
+  while(dx>Math.PI)dx-=2*Math.PI;
+  while(dx<-Math.PI)dx+=2*Math.PI;
+  var ey=sy+dy,ex=sx+dx;
+
   (function step(){
     t+=0.025;
     var e=1-Math.pow(1-Math.min(t,1),3);
-    globe.rotation.y=sy+(rotY-sy)*e;
-    globe.rotation.x=sx+(rotX-sx)*e;
+    globe.rotation.y=sy+(ey-sy)*e;
+    globe.rotation.x=sx+(ex-sx)*e;
     atmo.rotation.copy(globe.rotation);
     if(t<1)requestAnimationFrame(step);
   })();
