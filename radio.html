@@ -262,7 +262,8 @@ function initGlobe(){
   ren.setSize(W,H);ren.setClearColor(0x000000,0);
   var tex=new THREE.TextureLoader().load('/earth.jpg');
   globe=new THREE.Mesh(new THREE.SphereGeometry(1,64,64),new THREE.MeshPhongMaterial({map:tex,specular:new THREE.Color(0x1a2244),shininess:6}));
-  scene.add(globe);
+scene.add(globe);
+globe.rotation.order='YXZ';
   atmo=new THREE.Mesh(new THREE.SphereGeometry(1.045,64,64),new THREE.ShaderMaterial({
     vertexShader:'varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
     fragmentShader:'varying vec3 vN;void main(){float i=pow(0.55-dot(vN,vec3(0,0,1)),2.0);gl_FragColor=vec4(0.15,0.45,1.0,1.0)*i*0.9;}',
