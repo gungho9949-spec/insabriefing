@@ -414,7 +414,7 @@ function ll2v(lat,lon,r){
 function buildDots(){
   for(var i=0;i<ST.dots.length;i++)globe.remove(ST.dots[i]);
   ST.dots=[];
-  var dotR={sm:0.006,md:0.009,lg:0.014}[ST.dotSize]||0.009;
+  var dotR={sm:0.003,md:0.005,lg:0.008}[ST.dotSize]||0.005;
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
     var geo=new THREE.SphereGeometry(dotR,5,5);
