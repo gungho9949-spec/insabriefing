@@ -509,6 +509,13 @@ function onStationsLoaded(data){
 
 function autoPlayNearby(){
   if(!ST.hasGPS)return;
+  // GPS 좌표 검증 - 한국 범위(위도 33~38, 경도 124~132) 체크
+  var isKorea=(ST.myLat>=33&&ST.myLat<=38.5&&ST.myLon>=124&&ST.myLon<=132);
+  // 좌표가 이상하면 서울로 강제 설정
+  if(ST.myLat<10||ST.myLat>70||ST.myLon<100||ST.myLon>145){
+    console.warn('GPS 좌표 이상, 서울로 기본값 설정');
+    ST.myLat=37.5665;ST.myLon=126.9780;
+  }
   // 1순위: 같은 나라 방송국 찾기 (나라명으로 비교)
   // GPS 위치로 나라 추정 후 같은 나라 클러스터 중 가장 가까운 것
   var best=null,bestD=999;
