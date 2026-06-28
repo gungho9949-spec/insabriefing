@@ -432,7 +432,7 @@ function buildDots(){
 
 function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
-  var targetY=-(lon+180)*Math.PI/180+Math.PI,targetX=lat*Math.PI/180*0.4;
+  var targetY=-(lon)*Math.PI/180,targetX=-(lat)*Math.PI/180*0.5;
   var sy=globe.rotation.y,sx=globe.rotation.x,t=0;
   autoRot=false;
   function step(){
