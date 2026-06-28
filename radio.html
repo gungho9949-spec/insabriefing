@@ -333,8 +333,10 @@ function loop(){
     atmo.rotation.copy(globe.rotation);
   }
   if(zoomTarget!==null){
-    cam.position.z+=(zoomTarget-cam.position.z)*0.009;
-    if(Math.abs(cam.position.z-zoomTarget)<0.005){cam.position.z=zoomTarget;zoomTarget=null;}
+    var diff=cam.position.z-zoomTarget;
+var speed=Math.abs(diff)>3?0.008:Math.abs(diff)>1?0.018:0.06;
+cam.position.z+=( zoomTarget-cam.position.z)*speed;
+if(Math.abs(diff)<0.005){cam.position.z=zoomTarget;zoomTarget=null;}
   }
   ren.render(scene,cam);
 }
