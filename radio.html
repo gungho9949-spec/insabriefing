@@ -459,7 +459,7 @@ function flyTo(lat,lon,zoom){
 }
 
 function clusterStations(stations){
-  var THR=1.4,cls=[];
+  var THR=0.8,cls=[];
   for(var i=0;i<stations.length;i++){
     var s=stations[i];
     if(isNaN(s.lat)||isNaN(s.lon))continue;
