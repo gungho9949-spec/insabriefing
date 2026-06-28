@@ -334,15 +334,20 @@ function buildDots(){
   for(var i=0;i<ST.dots.length;i++)globe.remove(ST.dots[i]);
   ST.dots=[];
   var r={sm:0.007,md:0.011,lg:0.017}[ST.dotSize]||0.011;
-  var geo=new THREE.CircleGeometry(r,8);
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
+    var geo=new THREE.CircleGeometry(r,8);
     var mat=new THREE.MeshBasicMaterial({color:0x4dff91,side:THREE.DoubleSide,transparent:true,opacity:0.9});
     var m=new THREE.Mesh(geo,mat);
     var pos=ll2v(cl.lat,cl.lon);
-    m.position.copy(pos);m.lookAt(pos.clone().multiplyScalar(2));
-    m.userData={cluster:cl};globe.add(m);ST.dots.push(m);
+    m.position.copy(pos);
+    var lookTarget=new THREE.Vector3(pos.x*2,pos.y*2,pos.z*2);
+    m.lookAt(lookTarget);
+    m.userData={cluster:cl};
+    globe.add(m);
+    ST.dots.push(m);
   }
+  console.log('dots built:',ST.dots.length);
 }
 function flyTo(lat,lon,zoom){
   zoom=zoom||2.3;
