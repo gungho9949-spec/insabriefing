@@ -696,21 +696,25 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 
 /* ── INIT ── */
 (async function init(){
-  initSettings();
-  initGlobe();
-  cam.position.z=9;
-  zoomTarget=3.0;
+  try{
+    initSettings();
+    initGlobe();
+    cam.position.z=9;
+    zoomTarget=3.0;
+  }catch(e){
+    console.error('init error:',e);
+  }
   setTimeout(()=>{
-    document.getElementById('splash').classList.add('out');
-    setTimeout(()=>{document.getElementById('splash').style.display='none';},1000);
+    const sp=document.getElementById('splash');
+    if(sp){sp.classList.add('out');setTimeout(()=>{sp.style.display='none';},1000);}
     if(navigator.geolocation){
-      navigator.geolocation.getCurrentPosition(pos=>{
-        ST.myLat=pos.coords.latitude;ST.myLon=pos.coords.longitude;ST.hasGPS=true;
-        flyTo(ST.myLat,ST.myLon,2.5);
-      });
+      navigator.geolocation.getCurrentPosition(
+        pos=>{ST.myLat=pos.coords.latitude;ST.myLon=pos.coords.longitude;ST.hasGPS=true;flyTo(ST.myLat,ST.myLon,2.5);},
+        ()=>{}
+      );
     }
     loadStations();
-  },2600);
+  },1500);
 })();
 </script>
 </body>
