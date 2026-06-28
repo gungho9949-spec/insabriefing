@@ -418,9 +418,8 @@ function ll2v(lat,lon,r){
 }
 
 function latLonToRotation(lat,lon){
-  /* ll2v와 동일한 좌표계로 globe rotation 계산 */
-  var rotY=-(lon+180)*Math.PI/180+Math.PI;
-  var rotX=lat*Math.PI/180*0.5;
+  var rotY=-(lon)*Math.PI/180;
+  var rotX=-(lat)*Math.PI/180*0.6;
   return {x:rotX,y:rotY};
 }
 
