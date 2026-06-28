@@ -2,447 +2,183 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>인사브리핑 — 기업 연봉 비교</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Wild Peaks — 산을 사랑하는 사람들을 위한 뉴스레터와 라디오">
+<title>Wild Peaks</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+*{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --bg:#0A0F1E;
-  --bg2:#0F1628;
-  --card:rgba(255,255,255,0.04);
-  --card-border:rgba(255,255,255,0.08);
-  --gold:#C9A84C;
-  --gold2:#E8C97A;
-  --ink:#F0F4FF;
-  --gray:#8892A4;
-  --blue:#4A7BF7;
-  --radius:16px;
-  --shadow:0 8px 32px rgba(0,0,0,0.4);
+  --bg:#05080f;--green:#4dff91;--green-dim:rgba(77,255,145,0.1);
+  --text:#e8f0fe;--sub:#5a6e8a;--border:rgba(77,255,145,0.1);--card:#0c1320;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--ink);font-family:'Pretendard','Noto Sans KR',sans-serif;min-height:100vh;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 0%,rgba(74,123,247,0.12) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(201,168,76,0.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
-
-header{background:rgba(10,15,30,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:0 20px;display:flex;justify-content:space-between;align-items:center;height:60px;position:sticky;top:0;z-index:50;}
-.brand{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--gold);letter-spacing:0.02em;}
-.brand span{color:var(--ink);}
-.hamburger{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
-.hamburger span{width:22px;height:1.5px;background:var(--gray);border-radius:2px;}
-nav.desktop{display:none;gap:2px;}
-nav.desktop a{padding:6px 14px;font-size:13px;font-weight:500;color:var(--gray);text-decoration:none;border-radius:8px;transition:all .2s;}
-nav.desktop a.active{color:var(--gold);background:rgba(201,168,76,0.1);}
-
-.container{max-width:800px;margin:0 auto;padding:28px 16px;position:relative;z-index:1;}
-
-.hero{text-align:center;padding:40px 0 32px;}
-.hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;}
-.hero h1{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;line-height:1.2;color:var(--ink);margin-bottom:10px;}
-.hero h1 em{color:var(--gold);font-style:normal;}
-.hero-sub{font-size:13px;color:var(--gray);letter-spacing:0.03em;}
-
-.stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;}
-.stat-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;backdrop-filter:blur(10px);}
-.stat-card .slabel{font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--gray);text-transform:uppercase;margin-bottom:8px;}
-.stat-card .svalue{font-size:24px;font-weight:800;color:var(--ink);}
-.stat-card .svalue.gold{color:var(--gold);}
-.stat-card .ssub{font-size:11px;color:var(--gray);margin-top:4px;}
-
-.search-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;backdrop-filter:blur(10px);margin-bottom:16px;}
-.search-top{display:flex;gap:10px;margin-bottom:12px;}
-.search-top input{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--card-border);border-radius:10px;padding:11px 16px;font-size:14px;font-family:inherit;outline:none;color:var(--ink);}
-.search-top input::placeholder{color:var(--gray);}
-.search-top input:focus{border-color:rgba(201,168,76,0.4);}
-.btn-search{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0A0F1E;border:none;border-radius:10px;padding:11px 18px;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:0.05em;}
-.filter-row{display:flex;gap:8px;flex-wrap:wrap;}
-.filter-row select{background:rgba(255,255,255,0.05);border:1px solid var(--card-border);border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;color:var(--ink);outline:none;flex:1;min-width:110px;-webkit-appearance:none;appearance:none;}
-.filter-row select option{background:#0F1628;color:var(--ink);}
-.btn-reset{background:transparent;border:1px solid var(--card-border);border-radius:8px;padding:8px 14px;font-size:12px;font-family:inherit;color:var(--gray);cursor:pointer;}
-
-.loading-box{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:60px 20px;text-align:center;}
-.spinner{width:36px;height:36px;border:2px solid var(--card-border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
-@keyframes spin{to{transform:rotate(360deg);}}
-
-.company-list{
-  background:var(--card);
-  border:1px solid var(--card-border);
-  border-radius:var(--radius);
-  backdrop-filter:blur(10px);
-  overflow:hidden;
-  display:block;
-  position:relative;
-}
-.list-head{padding:16px 20px;border-bottom:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;}
-.list-head h2{font-size:13px;font-weight:700;letter-spacing:0.08em;color:var(--gray);text-transform:uppercase;}
-.sort-tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--card-border);padding:0 4px;}
-.sort-tab{padding:11px 14px;font-size:11px;font-weight:700;color:var(--gray);white-space:nowrap;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;letter-spacing:0.05em;}
-.sort-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
-
-.company-row{
-  display:flex;
-  align-items:center;
-  padding:15px 20px;
-  border-bottom:1px solid var(--card-border);
-  cursor:pointer;
-  gap:14px;
-  transition:background .15s;
-  width:100%;
-}
-.company-row:last-child{border-bottom:none;}
-.company-row:hover{background:rgba(255,255,255,0.03);}
-
-.row-rank{font-size:13px;font-weight:800;color:rgba(255,255,255,0.2);width:26px;text-align:center;flex-shrink:0;font-family:monospace;}
-.row-rank.t1{color:#FFD700;}
-.row-rank.t2{color:#C0C0C0;}
-.row-rank.t3{color:#CD7F32;}
-
-.row-main{flex:1;min-width:0;}
-.row-name{font-size:15px;font-weight:700;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);}
-.row-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-
-.row-right{text-align:right;flex-shrink:0;min-width:80px;}
-.row-salary{font-size:17px;font-weight:800;color:var(--gold);letter-spacing:-0.02em;}
-.row-tenure{font-size:11px;color:var(--gray);margin-top:3px;}
-
-.badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.05em;}
-.b-IT{background:rgba(74,123,247,0.15);color:#7BA7FF;}
-.b-제조{background:rgba(251,146,60,0.15);color:#FFA070;}
-.b-금융{background:rgba(52,211,153,0.15);color:#6FDDAA;}
-.b-바이오{background:rgba(167,139,250,0.15);color:#C4AAFF;}
-.b-유통{background:rgba(251,191,36,0.15);color:#FFC830;}
-.b-건설{background:rgba(148,163,184,0.15);color:#AAB9CC;}
-.b-에너지{background:rgba(245,158,11,0.15);color:#F5C060;}
-.b-기타{background:rgba(255,255,255,0.06);color:var(--gray);}
-.emp-text{font-size:11px;color:var(--gray);}
-
-.pagination{
-  display:flex;
-  justify-content:center;
-  gap:6px;
-  padding:16px 0;
-  flex-wrap:wrap;
-}
-.page-btn{
-  width:34px;height:34px;
-  border-radius:8px;
-  border:1px solid var(--card-border);
-  background:transparent;
-  font-size:12px;font-weight:600;
-  cursor:pointer;color:var(--gray);
-  transition:all .15s;
-}
-.page-btn:hover{border-color:var(--gold);color:var(--gold);}
-.page-btn.active{background:var(--gold);color:#0A0F1E;border-color:var(--gold);font-weight:800;}
-
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;}
-.modal-overlay.open{opacity:1;pointer-events:all;}
-.modal{position:absolute;bottom:0;left:0;right:0;background:#0F1628;border:1px solid var(--card-border);border-radius:24px 24px 0 0;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s;max-height:90vh;overflow-y:auto;}
-.modal-overlay.open .modal{transform:translateY(0);}
-.modal-handle{width:36px;height:3px;background:var(--card-border);border-radius:99px;margin:0 auto 20px;}
-.modal-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
-.modal-top h2{font-size:22px;font-weight:800;color:var(--ink);}
-.modal-close{background:rgba(255,255,255,0.08);border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;color:var(--gray);display:flex;align-items:center;justify-content:center;}
-.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
-.modal-item{background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:12px;padding:16px;}
-.modal-item .mlabel{font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--gray);text-transform:uppercase;margin-bottom:8px;}
-.modal-item .mvalue{font-size:22px;font-weight:800;color:var(--ink);}
-.modal-item .mvalue.gold{color:var(--gold);}
-.modal-item .msub{font-size:11px;color:var(--gray);margin-top:4px;}
-.modal-note{font-size:11px;color:var(--gray);line-height:1.7;background:rgba(255,255,255,0.03);border-radius:10px;padding:12px 14px;border:1px solid var(--card-border);}
-
-.gold-divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:24px 0;opacity:0.3;}
-
-footer{text-align:center;padding:28px 16px;font-size:11px;color:var(--gray);border-top:1px solid var(--card-border);letter-spacing:0.05em;position:relative;z-index:1;}
-footer b{color:var(--gold);}
-
-@media(min-width:768px){
-  .stats-row{grid-template-columns:repeat(4,1fr);}
-  nav.desktop{display:flex;}
-  .hamburger{display:none!important;}
-  .modal{position:relative;bottom:auto;border-radius:20px;max-width:520px;margin:auto;transform:translateY(20px);max-height:none;}
-  .modal-overlay{display:flex;align-items:center;justify-content:center;padding:20px;}
-  .modal-overlay.open .modal{transform:translateY(0);}
-  .modal-handle{display:none;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden;}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.wrap{position:relative;z-index:1;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;background:rgba(5,8,15,0.7);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo img{width:28px;height:28px;object-fit:contain;}
+.nav-logo span{font-size:16px;font-weight:800;letter-spacing:-0.5px;color:var(--text);}
+.nav-links{display:flex;gap:6px;}
+.nav-link{padding:7px 14px;border-radius:20px;font-size:13px;text-decoration:none;color:var(--sub);transition:all 0.18s;border:1px solid transparent;}
+.nav-link:hover{color:var(--text);border-color:var(--border);}
+.nav-cta{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;text-decoration:none;color:#000;background:var(--green);border:1px solid var(--green);transition:all 0.18s;}
+.nav-cta:hover{background:#3de07a;}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 60px;text-align:center;}
+.hero-eyebrow{font-size:11px;letter-spacing:4px;color:var(--green);text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';width:30px;height:1px;background:var(--green);opacity:0.4;}
+.hero-logo{width:90px;height:90px;object-fit:contain;margin-bottom:20px;}
+.hero-title{font-size:clamp(42px,8vw,72px);font-weight:900;letter-spacing:-2px;line-height:1.05;margin-bottom:20px;}
+.hero-title em{font-style:normal;background:linear-gradient(135deg,#fff 0%,var(--green) 65%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-sub{font-size:clamp(15px,2.5vw,18px);color:var(--sub);line-height:1.7;max-width:480px;margin-bottom:40px;}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border-radius:28px;background:var(--green);color:#000;font-size:15px;font-weight:700;text-decoration:none;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 0 24px rgba(77,255,145,0.25);}
+.btn-primary:hover{background:#3de07a;transform:translateY(-1px);box-shadow:0 4px 32px rgba(77,255,145,0.35);}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;border-radius:28px;background:rgba(255,255,255,0.04);color:var(--text);font-size:15px;font-weight:600;text-decoration:none;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;}
+.btn-secondary:hover{border-color:rgba(77,255,145,0.3);background:var(--green-dim);transform:translateY(-1px);}
+.stats{display:flex;gap:0;border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--card);max-width:700px;margin:0 auto 80px;}
+.stat{flex:1;padding:22px 16px;text-align:center;border-right:1px solid var(--border);}
+.stat:last-child{border-right:none;}
+.stat-n{font-size:26px;font-weight:800;color:var(--green);}
+.stat-l{font-size:11px;color:var(--sub);margin-top:3px;letter-spacing:0.5px;}
+.section{padding:60px 24px;max-width:900px;margin:0 auto;}
+.sec-label{font-size:10px;letter-spacing:3px;color:var(--green);text-transform:uppercase;margin-bottom:10px;}
+.sec-title{font-size:clamp(24px,4vw,36px);font-weight:800;letter-spacing:-1px;margin-bottom:40px;line-height:1.2;}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;transition:all 0.2s;}
+.card:hover{border-color:rgba(77,255,145,0.25);transform:translateY(-2px);}
+.card-icon{font-size:32px;margin-bottom:14px;}
+.card-title{font-size:16px;font-weight:700;margin-bottom:8px;}
+.card-desc{font-size:13px;color:var(--sub);line-height:1.7;}
+.radio-promo{background:var(--card);border:1px solid rgba(77,255,145,0.2);border-radius:20px;padding:36px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;position:relative;overflow:hidden;max-width:860px;margin:0 auto 80px;}
+.radio-promo::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(77,255,145,0.08) 0%,transparent 70%);pointer-events:none;}
+.rp-globe{font-size:72px;flex-shrink:0;animation:float 4s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.rp-text{flex:1;min-width:200px;}
+.rp-tag{font-size:10px;letter-spacing:3px;color:var(--green);text-transform:uppercase;margin-bottom:10px;}
+.rp-title{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px;}
+.rp-desc{font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:20px;}
+.rp-features{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;}
+.rp-feat{font-size:11px;padding:4px 10px;border-radius:12px;background:var(--green-dim);border:1px solid var(--border);color:var(--green);}
+.nl-section{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;text-align:center;max-width:560px;margin:0 auto 80px;}
+.nl-title{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px;}
+.nl-desc{font-size:13px;color:var(--sub);margin-bottom:22px;line-height:1.6;}
+.nl-form{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.nl-input{flex:1;min-width:200px;padding:12px 16px;border-radius:12px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-size:14px;outline:none;}
+.nl-input:focus{border-color:rgba(77,255,145,0.4);}
+.nl-input::placeholder{color:var(--sub);}
+.nl-btn{padding:12px 22px;border-radius:12px;background:var(--green);color:#000;font-size:14px;font-weight:700;border:none;cursor:pointer;transition:background 0.18s;white-space:nowrap;}
+.nl-btn:hover{background:#3de07a;}
+footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.ft-brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;text-decoration:none;color:var(--text);}
+.ft-brand img{width:20px;height:20px;object-fit:contain;}
+.ft-copy{font-size:12px;color:var(--sub);}
+.ft-links{display:flex;gap:16px;}
+.ft-link{font-size:12px;color:var(--sub);text-decoration:none;transition:color 0.15s;}
+.ft-link:hover{color:var(--green);}
+@media(max-width:520px){
+  nav{padding:0 16px;}.nav-links{display:none;}
+  .hero{padding:80px 20px 48px;}
+  .radio-promo{padding:24px;margin:0 16px 60px;}
+  .nl-section{margin:0 16px 60px;padding:28px 20px;}
+  .stats{margin:0 16px 60px;}
+  .section{padding:40px 20px;}
+  footer{flex-direction:column;align-items:flex-start;padding:24px 20px;}
 }
 </style>
 </head>
 <body>
-<header>
-  <div class="brand">인사<span>브리핑</span></div>
-  <nav class="desktop">
-    <a href="#">홈</a><a href="#" class="active">연봉 비교</a><a href="#">인사이트</a>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <nav>
+    <a class="nav-logo" href="/">
+      <img src="/logo.png" alt="Wild Peaks" onerror="this.style.display='none'">
+      <span>Wild Peaks</span>
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="#features">소개</a>
+      <a class="nav-link" href="#newsletter">뉴스레터</a>
+    </div>
+    <a class="nav-cta" href="/radio.html">📻 Radio 열기</a>
   </nav>
-  <div class="hamburger"><span></span><span></span><span></span></div>
-</header>
-
-<div class="container"> 
-  <div class="hero">
-    <div class="hero-eyebrow">DART 공시 데이터</div>
-    <h1>대한민국 기업<br><em>연봉 리포트</em></h1>
-    <p class="hero-sub">금융감독원 사업보고서 기준 · 2025년</p>
-  </div>
-
-  <div class="stats-row">
-    <div class="stat-card"><div class="slabel">전체 기업</div><div class="svalue gold" id="statCount">—</div><div class="ssub">DART 연동</div></div>
-    <div class="stat-card"><div class="slabel">연봉 중앙값</div><div class="svalue" id="statMedian">—</div><div class="ssub">전체 기업</div></div>
-    <div class="stat-card"><div class="slabel">최고 평균연봉</div><div class="svalue gold" id="statMax">—</div><div class="ssub" id="statMaxCo">—</div></div>
-    <div class="stat-card"><div class="slabel">평균 근속연수</div><div class="svalue" id="statTenure">—</div><div class="ssub">전체 평균</div></div>
-  </div>
-
-  <div class="search-card">
-    <div class="search-top">
-      <input type="text" id="searchInput" placeholder="회사명 검색..." autocomplete="off">
-      <button class="btn-search" onclick="applyFilter()">검색</button>
+  <section class="hero">
+    <div class="hero-eyebrow">산을 사랑하는 사람들을 위해</div>
+    <img class="hero-logo" src="/logo.png" alt="Wild Peaks" onerror="this.style.display='none'">
+    <h1 class="hero-title"><em>Wild Peaks</em></h1>
+    <p class="hero-sub">전 세계 산악 뉴스, 트레일 정보, 그리고 지구 어디서든 들을 수 있는 라디오까지.<br>자연을 사랑하는 당신을 위한 공간입니다.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="/radio.html">🌍 Wild Peaks Radio 열기</a>
+      <a class="btn-secondary" href="#newsletter">📬 뉴스레터 구독</a>
     </div>
-    <div class="filter-row">
-      <select id="indFilter">
-        <option value="">전체 업종</option>
-        <option value="IT">IT/인터넷</option>
-        <option value="제조">제조</option>
-        <option value="금융">금융</option>
-        <option value="바이오">바이오</option>
-        <option value="유통">유통</option>
-        <option value="건설">건설</option>
-        <option value="에너지">에너지</option>
-      </select>
-      <select id="sizeFilter">
-        <option value="">전체 규모</option>
-        <option value="대기업">대기업</option>
-        <option value="중견기업">중견기업</option>
-      </select>
-      <select id="sortFilter" onchange="applyFilter()">
-        <option value="salary_desc">연봉 높은순</option>
-        <option value="salary_asc">연봉 낮은순</option>
-        <option value="emp_desc">직원 많은순</option>
-        <option value="name_asc">가나다순</option>
-      </select>
-      <button class="btn-reset" onclick="resetFilter()">초기화</button>
-    </div>
+  </section>
+  <div class="stats">
+    <div class="stat"><div class="stat-n">10K+</div><div class="stat-l">전 세계 방송국</div></div>
+    <div class="stat"><div class="stat-n">200+</div><div class="stat-l">국가 / 지역</div></div>
+    <div class="stat"><div class="stat-n">8K</div><div class="stat-l">NASA 지구 텍스처</div></div>
+    <div class="stat"><div class="stat-n">무료</div><div class="stat-l">완전 무료</div></div>
   </div>
-
-  <div id="loadingBox" class="loading-box">
-    <div class="spinner"></div>
-    <p style="color:var(--gray);font-size:13px">데이터를 불러오는 중...</p>
-  </div>
-
-  <div id="listWrap" style="display:none">
-    <div class="company-list" id="companyList">
-      <div class="list-head">
-        <h2>연봉 현황</h2>
-        <span style="font-size:12px;color:var(--gray)" id="tcount">—</span>
+  <div class="radio-promo">
+    <div class="rp-globe">🌍</div>
+    <div class="rp-text">
+      <div class="rp-tag">New · Wild Peaks Radio</div>
+      <div class="rp-title">지구본에서 라디오를 탐색하세요</div>
+      <div class="rp-desc">3D 지구본에 전 세계 방송국을 녹색 점으로 표시하고, 원하는 곳을 탭하면 바로 재생됩니다.</div>
+      <div class="rp-features">
+        <span class="rp-feat">🛰️ GPS 자동 이동</span>
+        <span class="rp-feat">♥ 즐겨찾기</span>
+        <span class="rp-feat">🔍 방송국 검색</span>
+        <span class="rp-feat">⏰ 현지 시간</span>
+        <span class="rp-feat">📱 모바일 최적화</span>
       </div>
-      <div class="sort-tabs">
-        <button class="sort-tab active" onclick="setSortTab(this,'salary_desc')">연봉↓</button>
-        <button class="sort-tab" onclick="setSortTab(this,'salary_asc')">연봉↑</button>
-        <button class="sort-tab" onclick="setSortTab(this,'emp_desc')">직원수↓</button>
-        <button class="sort-tab" onclick="setSortTab(this,'name_asc')">가나다</button>
-      </div>
-      <div id="rowsContainer"></div>
+      <a class="btn-primary" href="/radio.html" style="font-size:14px;padding:12px 22px;">📻 지금 Radio 열기</a>
     </div>
-    <div class="pagination" id="pagination"></div>
   </div>
-</div>
-
-<div class="gold-divider" style="position:relative;z-index:1;margin:0 16px;"></div>
-<footer><b>인사브리핑</b> · DART 사업보고서 공시 기준<br>등기임원 제외 직원 평균급여 · 참고용으로만 활용하세요</footer>
-
-<div class="modal-overlay" id="modalOverlay" onclick="handleModalClick(event)">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-top"><h2 id="mTitle">—</h2><button class="modal-close" onclick="closeModal()">✕</button></div>
-    <div style="margin-bottom:8px" id="mInd"></div>
-    <div class="modal-grid" id="mGrid"></div>
-    <div class="modal-note" id="mNote"></div>
+  <section class="section" id="features">
+    <div class="sec-label">Features</div>
+    <div class="sec-title">Wild Peaks가 하는 것들</div>
+    <div class="cards">
+      <div class="card"><div class="card-icon">⛰️</div><div class="card-title">산악 뉴스레터</div><div class="card-desc">전 세계 트레킹, 등반, 아웃도어 소식을 큐레이션해 매주 보내드립니다.</div></div>
+      <div class="card"><div class="card-icon">📻</div><div class="card-title">글로브 라디오</div><div class="card-desc">3D 지구본에서 전 세계 1만개 이상 방송국을 탐색하고 원하는 채널을 바로 재생하세요.</div></div>
+      <div class="card"><div class="card-icon">🗺️</div><div class="card-title">트레일 정보</div><div class="card-desc">국내외 주요 트레일 코스, 난이도, 시즌 정보를 한눈에 확인하세요. (Coming soon)</div></div>
+      <div class="card"><div class="card-icon">📡</div><div class="card-title">YouTube 라이브</div><div class="card-desc">Wild Peaks 유튜브 채널의 라이브 스트림을 앱 안에서 바로 시청할 수 있습니다. (Coming soon)</div></div>
+    </div>
+  </section>
+  <div class="nl-section" id="newsletter">
+    <div class="nl-title">📬 뉴스레터 구독</div>
+    <div class="nl-desc">매주 한 번, 산을 사랑하는 사람들을 위한 이야기를 보내드립니다.</div>
+    <div class="nl-form">
+      <input class="nl-input" type="email" placeholder="이메일 주소 입력" id="nl-email">
+      <button class="nl-btn" onclick="subscribeNL()">구독하기</button>
+    </div>
   </div>
+  <footer>
+    <a class="ft-brand" href="/"><img src="/logo.png" alt="" onerror="this.style.display='none'">Wild Peaks</a>
+    <div class="ft-copy">© 2025 Wild Peaks. All rights reserved.</div>
+    <div class="ft-links">
+      <a class="ft-link" href="/radio.html">📻 Radio</a>
+      <a class="ft-link" href="https://youtube.com/@wildpeaks-wp" target="_blank">YouTube</a>
+    </div>
+  </footer>
 </div>
-
 <script>
-const SUPABASE_URL='https://ylsneyixrbgssfljvpaj.supabase.co';
-const SUPABASE_KEY='sb_publishable_MLvTQx0gxmhwsG533vkpqg_E-YKN6lU';
-const H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
-
-let allData=[],filtered=[],curPage=1;
-const PER=20;
-
-const fmt=w=>{
-  if(!w||w===0)return'미공개';
-  if(w>=10000)return(w/10000).toFixed(2)+'억';
-  return w.toLocaleString()+'만원';
-};
-const fmtEmp=n=>n?n.toLocaleString()+'명':'';
-
-const getBadge=ind=>{
-  if(!ind)return'<span class="badge b-기타">기타</span>';
-  const map={IT:'b-IT',제조:'b-제조',금융:'b-금융',바이오:'b-바이오',유통:'b-유통',건설:'b-건설',에너지:'b-에너지'};
-  const key=Object.keys(map).find(k=>ind.includes(k))||'기타';
-  return`<span class="badge ${map[key]||'b-기타'}">${ind}</span>`;
-};
-
-async function loadData(){
-  try{
-    const[cRes,sRes]=await Promise.all([
-      fetch(`${SUPABASE_URL}/rest/v1/companies?select=*&limit=2000&order=id.asc`,{headers:H}),
-      fetch(`${SUPABASE_URL}/rest/v1/salary_data?select=*&limit=2000&order=data_year.desc`,{headers:H})
-    ]);
-    const companies=await cRes.json();
-    const salaries=await sRes.json();
-    const salMap={};
-    if(Array.isArray(salaries))salaries.forEach(s=>{if(!salMap[s.company_id])salMap[s.company_id]=s;});
-    allData=Array.isArray(companies)?companies.map(c=>({
-      ...c,
-      salary:salMap[c.id]?.avg_salary_wan||null,
-      emp:salMap[c.id]?.employee_count||null,
-      tenure:salMap[c.id]?.avg_tenure||null
-    })):[];
-    allData.sort((a,b)=>(b.salary||0)-(a.salary||0));
-    document.getElementById('loadingBox').style.display='none';
-    document.getElementById('listWrap').style.display='block';
-    applyFilter();
-  }catch(e){
-    document.getElementById('loadingBox').querySelector('p').textContent='오류: '+e.message;
-  }
+(()=>{
+  const c=document.getElementById('stars'),ctx=c.getContext('2d'),stars=[];
+  function resize(){c.width=innerWidth;c.height=innerHeight;}
+  resize();addEventListener('resize',resize);
+  for(let i=0;i<200;i++) stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.2+0.2,a:Math.random(),da:(Math.random()-0.5)*0.005});
+  (function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(s=>{s.a+=s.da;if(s.a<0.05||s.a>0.95)s.da*=-1;ctx.beginPath();ctx.arc(s.x*c.width,s.y*c.height,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${0.15+s.a*0.5})`;ctx.fill();});
+    requestAnimationFrame(draw);
+  })();
+})();
+function subscribeNL(){
+  const email=document.getElementById('nl-email').value.trim();
+  if(!email||!email.includes('@')){alert('올바른 이메일 주소를 입력해주세요.');return;}
+  document.getElementById('nl-email').value='';
+  alert(`${email} 구독이 완료되었습니다! 🎉\n첫 뉴스레터를 곧 보내드릴게요.`);
 }
-
-function applyFilter(){
-  const q=document.getElementById('searchInput').value.trim();
-  const ind=document.getElementById('indFilter').value;
-  const size=document.getElementById('sizeFilter').value;
-  const srt=document.getElementById('sortFilter').value;
-  filtered=allData.filter(d=>{
-    if(q&&!d.company_name.includes(q))return false;
-    if(ind&&!(d.industry||'').includes(ind))return false;
-    if(size&&d.company_size!==size)return false;
-    return true;
-  });
-  doSort(srt);
-  curPage=1;
-  updateStats();
-  renderList();
-}
-
-function doSort(srt){
-  if(srt==='salary_desc')filtered.sort((a,b)=>(b.salary||0)-(a.salary||0));
-  else if(srt==='salary_asc')filtered.sort((a,b)=>(a.salary||0)-(b.salary||0));
-  else if(srt==='emp_desc')filtered.sort((a,b)=>(b.emp||0)-(a.emp||0));
-  else if(srt==='name_asc')filtered.sort((a,b)=>a.company_name.localeCompare(b.company_name,'ko'));
-}
-
-function setSortTab(el,v){
-  document.querySelectorAll('.sort-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('sortFilter').value=v;
-  applyFilter();
-}
-
-function resetFilter(){
-  document.getElementById('searchInput').value='';
-  document.getElementById('indFilter').value='';
-  document.getElementById('sizeFilter').value='';
-  document.getElementById('sortFilter').value='salary_desc';
-  applyFilter();
-}
-
-function updateStats(){
-  document.getElementById('statCount').textContent=filtered.length+'개';
-  const w=filtered.filter(d=>d.salary);
-  if(!w.length)return;
-  const s=[...w].sort((a,b)=>a.salary-b.salary);
-  const mx=w.reduce((a,b)=>a.salary>b.salary?a:b);
-  document.getElementById('statMedian').textContent=fmt(s[Math.floor(s.length/2)].salary);
-  document.getElementById('statMax').textContent=fmt(mx.salary);
-  document.getElementById('statMaxCo').textContent=mx.company_name;
-  const ta=w.filter(d=>d.tenure);
-  if(ta.length)document.getElementById('statTenure').textContent=(ta.reduce((s,d)=>s+d.tenure,0)/ta.length).toFixed(1)+'년';
-}
-
-function renderList(){
-  const start=(curPage-1)*PER;
-  const page=filtered.slice(start,start+PER);
-  document.getElementById('tcount').textContent='총 '+filtered.length+'개';
-  const rows=document.getElementById('rowsContainer');
-
-  if(!filtered.length){
-    rows.innerHTML='<div style="padding:48px;text-align:center;color:var(--gray);font-size:13px">검색 결과가 없어요</div>';
-    document.getElementById('pagination').innerHTML='';
-    return;
-  }
-
-  rows.innerHTML=page.map((d,i)=>{
-    const r=start+i+1;
-    const rc=r===1?'t1':r===2?'t2':r===3?'t3':'';
-    return`<div class="company-row" onclick="openModal(${d.id})">
-      <div class="row-rank ${rc}">${r}</div>
-      <div class="row-main">
-        <div class="row-name">${d.company_name}</div>
-        <div class="row-meta">
-          ${getBadge(d.industry)}
-          ${d.emp?`<span class="emp-text">· ${fmtEmp(d.emp)}</span>`:''}
-        </div>
-      </div>
-      <div class="row-right">
-        <div class="row-salary">${d.salary?fmt(d.salary):'미공개'}</div>
-        ${d.tenure?`<div class="row-tenure">근속 ${Number(d.tenure).toFixed(1)}년</div>`:''}
-      </div>
-    </div>`;
-  }).join('');
-
-  renderPagination();
-}
-
-function renderPagination(){
-  const total=Math.ceil(filtered.length/PER);
-  const pg=document.getElementById('pagination');
-  if(total<=1){pg.innerHTML='';return;}
-
-  const pages=[];
-  const start=Math.max(1,curPage-2);
-  const end=Math.min(total,curPage+2);
-  if(start>1){pages.push(1);if(start>2)pages.push('…');}
-  for(let i=start;i<=end;i++)pages.push(i);
-  if(end<total){if(end<total-1)pages.push('…');pages.push(total);}
-
-  pg.innerHTML=pages.map(p=>
-    p==='…'
-      ?`<span style="color:var(--gray);padding:0 4px;line-height:34px">…</span>`
-      :`<button class="page-btn ${p===curPage?'active':''}" onclick="goPage(${p})">${p}</button>`
-  ).join('');
-}
-
-function goPage(n){
-  curPage=n;
-  renderList();
-  window.scrollTo({top:300,behavior:'smooth'});
-}
-
-function openModal(id){
-  const d=allData.find(x=>x.id===id);
-  if(!d)return;
-  document.getElementById('mTitle').textContent=d.company_name;
-  document.getElementById('mInd').innerHTML=getBadge(d.industry);
-  document.getElementById('mGrid').innerHTML=`
-    <div class="modal-item"><div class="mlabel">평균연봉</div><div class="mvalue gold">${d.salary?fmt(d.salary):'미공개'}</div><div class="msub">DART 기준 (만원)</div></div>
-    <div class="modal-item"><div class="mlabel">직원 수</div><div class="mvalue">${d.emp?fmtEmp(d.emp):'—'}</div><div class="msub">등기임원 제외</div></div>
-    <div class="modal-item"><div class="mlabel">평균 근속</div><div class="mvalue">${d.tenure?Number(d.tenure).toFixed(1)+'년':'—'}</div><div class="msub">전체 직원 평균</div></div>
-    <div class="modal-item"><div class="mlabel">기업 규모</div><div class="mvalue" style="font-size:16px">${d.company_size||'—'}</div><div class="msub">${d.is_listed?'상장':'비상장'}</div></div>`;
-  document.getElementById('mNote').innerHTML='※ DART 사업보고서 직원현황 공시 기준. 성과급·스톡옵션 미포함 가능.';
-  document.getElementById('modalOverlay').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-
-function closeModal(){
-  document.getElementById('modalOverlay').classList.remove('open');
-  document.body.style.overflow='';
-}
-
-function handleModalClick(e){
-  if(e.target===document.getElementById('modalOverlay'))closeModal();
-}
-
-document.getElementById('searchInput').addEventListener('keydown',e=>{
-  if(e.key==='Enter')applyFilter();
-});
-
-loadData();
+document.getElementById('nl-email').addEventListener('keydown',e=>{if(e.key==='Enter')subscribeNL();});
 </script>
 </body>
 </html>
