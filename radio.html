@@ -368,16 +368,25 @@ function checkCenterRing(){
   mXY.x=0;mXY.y=0;
   ray.setFromCamera(mXY,cam);
   var hits=ray.intersectObjects(ST.dots);
-  if(hits.length){
-    var cl=hits[0].object.userData.cluster;
+ if(hits.length){
+    var dot=hits[0].object;
+    var cl=dot.userData.cluster;
+
+    // 이전 활성 점 색상 복원
+    if(_ringActiveDot&&_ringActiveDot!==dot){
+      _ringActiveDot.material.color.setHex(0x4dff91);
+      _ringActiveDot=null;
+    }
+    // 현재 점 흰색으로
+    dot.material.color.setHex(0xffffff);
+    _ringActiveDot=dot;
+
     if(ST._lastRingCluster===cl)return;
     ST._lastRingCluster=cl;
-    // 0.6초 정지 후에만 재생 (스쳐 지나가는 것 무시)
     clearTimeout(_ringHoldTimer);
     _ringHoldTimer=setTimeout(function(){
       if(ST._lastRingCluster!==cl)return;
       if(!ST.locked&&cl.stations.length>0){
-        // flyTo 없이 재생만 (지구 움직임 없음)
         var s=cl.stations[0];
         ST.current=s;audio.src=s.url;audio.muted=ST.muted;
         audio.play().catch(function(){});ST.playing=true;
@@ -394,6 +403,11 @@ function checkCenterRing(){
       }
     },600);
   }else{
+    // 원 밖으로 나가면 점 색상 복원
+    if(_ringActiveDot){
+      _ringActiveDot.material.color.setHex(0x4dff91);
+      _ringActiveDot=null;
+    }
     ST._lastRingCluster=null;
     clearTimeout(_ringHoldTimer);
   }
