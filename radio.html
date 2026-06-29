@@ -474,6 +474,7 @@ function onLoaded(data){
   buildDots();setLoading(false);
   showToast('🌍 '+ST.stations.length.toLocaleString()+'개 방송국 로드 완료');
   ST.stationsReady=true;
+  document.getElementById('center-ring').classList.add('visible');
   if(ST.hasGPS)autoPlayNearby();
 }
 
