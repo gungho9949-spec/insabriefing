@@ -409,7 +409,7 @@ function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
   var targetY=-(lon+90)*Math.PI/180;
-  var targetX=lat*Math.PI/180;        // 0.5 제거, 부호 수정
+  var targetX=-lat*Math.PI/180;
   var sy=globe.rotation.y,sx=globe.rotation.x,t=0;
 
   // 최단경로 보정 (지구가 빙빙 도는 것 방지)
