@@ -483,20 +483,33 @@ function clusterStations(stations){
 var apiBase='https://de1.api.radio-browser.info';
 function loadStations(){
   setLoading(true);
-  var ctrl=new AbortController();
-  var tid=setTimeout(function(){ctrl.abort();},25000);
-  fetch(apiBase+'/json/stations?limit=5000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true',{signal:ctrl.signal})
-  .then(function(r){clearTimeout(tid);return r.json();})
-  .then(function(data){onLoaded(data);})
-  .catch(function(){
-    clearTimeout(tid);
-    fetch('https://nl1.api.radio-browser.info/json/stations?limit=5000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true')
-    .then(function(r){return r.json();})
-    .then(function(data){onLoaded(data);})
-    .catch(function(){setLoading(false);showToast('⚠️ API 연결 실패');});
+  // 전체 방송국 + 한국 방송국 동시 요청
+  var p1=fetch(apiBase+'/json/stations?limit=5000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true')
+          .then(function(r){return r.json();}).catch(function(){return[];});
+  var p2=fetch(apiBase+'/json/stations/bycountrycodeexact/KR?limit=500&hidebroken=true&order=clickcount&reverse=true')
+          .then(function(r){return r.json();}).catch(function(){return[];});
+
+  Promise.all([p1,p2]).then(function(results){
+    var combined=results[0];
+    var kr=results[1];
+    // 한국 방송국 중 geo 없는 것에 서울 좌표 부여 후 합치기
+    for(var i=0;i<kr.length;i++){
+      if(!kr[i].geo_lat||!kr[i].geo_long){
+        kr[i].geo_lat='37.5665';
+        kr[i].geo_long='126.9780';
+      }
+    }
+    // 중복 제거 후 합치기
+    var seen={};
+    for(var i=0;i<combined.length;i++)seen[combined[i].stationuuid]=true;
+    for(var i=0;i<kr.length;i++){
+      if(!seen[kr[i].stationuuid])combined.push(kr[i]);
+    }
+    onLoaded(combined);
+  }).catch(function(){
+    setLoading(false);showToast('⚠️ API 연결 실패');
   });
 }
-
 function onLoaded(data){
   ST.stations=[];
   for(var i=0;i<data.length;i++){
