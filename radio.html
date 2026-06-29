@@ -306,11 +306,10 @@ function onMM(e){
   var dx=e.clientX-pMouse.x,dy=e.clientY-pMouse.y;
   if(Math.abs(dx)>2||Math.abs(dy)>2)dragMoved=true;
   var spd=0.005*(cam.position.z/3.8);
-  globe.rotation.y+=dx*spd;
-  globe.rotation.x-=dy*spd;
-  globe.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globe.rotation.x));
-  atmo.rotation.copy(globe.rotation);
-  vel.x=-dy*spd;vel.y=dx*spd;
+    globe.rotation.y+=dx*spd;
+    globe.rotation.x-=dy*spd;
+    globe.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globe.rotation.x));
+    atmo.rotation.copy(globe.rotation);vel.x=-dy*spd;vel.y=dx*spd;
   pMouse={x:e.clientX,y:e.clientY};
 }
 function onMU(e){if(!dragMoved)handleTap(e.clientX,e.clientY);drag=false;}
