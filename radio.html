@@ -728,9 +728,8 @@ zoomTarget=null;
 setTimeout(function(){
   var sp=document.getElementById('splash');
   sp.classList.add('out');
-  setTimeout(function(){
+ setTimeout(function(){
     sp.style.display='none';
-    document.getElementById('center-ring').classList.add('visible');
   },1000);
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(function(pos){
