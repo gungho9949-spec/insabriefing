@@ -327,11 +327,11 @@ function onTM(e){
   }else if(drag){
     var dx=e.touches[0].clientX-pMouse.x,dy=e.touches[0].clientY-pMouse.y;
     if(Math.abs(dx)>3||Math.abs(dy)>3)dragMoved=true;
-    var spd=0.005*(cam.position.z/3.8);
+   var spd=0.005*(cam.position.z/3.8);
     globe.rotation.y+=dx*spd;
-    globe.rotation.x-=dy*spd;
+    globe.rotation.x+=dy*spd;
     globe.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globe.rotation.x));
-    atmo.rotation.copy(globe.rotation);vel.x=-dy*spd;vel.y=dx*spd;
+    atmo.rotation.copy(globe.rotation);vel.x=dy*spd;vel.y=dx*spd;
     pMouse={x:e.touches[0].clientX,y:e.touches[0].clientY};
   }
 }
