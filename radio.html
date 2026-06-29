@@ -356,12 +356,15 @@ function handleTap(cx,cy){
 }
 
 /* CENTER RING */
-var _ringLast=0;
+var _ringLast=0,_ringHoldTimer=null;
 function checkCenterRing(){
   var now=Date.now();
   if(now-_ringLast<400)return;
   _ringLast=now;
   if(!ST.dots.length)return;
+  // 드래그 중이거나 관성으로 움직이는 중이면 감지 안 함
+  if(drag)return;
+  if(Math.abs(vel.x)>0.001||Math.abs(vel.y)>0.001)return;
   mXY.x=0;mXY.y=0;
   ray.setFromCamera(mXY,cam);
   var hits=ray.intersectObjects(ST.dots);
@@ -369,15 +372,30 @@ function checkCenterRing(){
     var cl=hits[0].object.userData.cluster;
     if(ST._lastRingCluster===cl)return;
     ST._lastRingCluster=cl;
-    if(!ST.locked&&cl.stations.length>0){
-      play(cl.stations[0]);
-      showToast('📻 '+cl.stations[0].name);
-    }else{
-      document.getElementById('p-city').textContent=cl.country||'';
-      updateClock(cl.lat,cl.lon);
-    }
+    // 0.6초 정지 후에만 재생 (스쳐 지나가는 것 무시)
+    clearTimeout(_ringHoldTimer);
+    _ringHoldTimer=setTimeout(function(){
+      if(ST._lastRingCluster!==cl)return;
+      if(!ST.locked&&cl.stations.length>0){
+        // flyTo 없이 재생만 (지구 움직임 없음)
+        var s=cl.stations[0];
+        ST.current=s;audio.src=s.url;audio.muted=ST.muted;
+        audio.play().catch(function(){});ST.playing=true;
+        document.getElementById('btn-play').textContent='⏸';
+        document.getElementById('eq').classList.remove('paused');
+        document.getElementById('p-station').textContent=s.name;
+        document.getElementById('p-city').textContent=s.country||'Unknown';
+        document.getElementById('p-country').textContent=s.state||s.codec||'';
+        updateClock(s.lat,s.lon);
+        showToast('📻 '+s.name);
+      }else{
+        document.getElementById('p-city').textContent=cl.country||'';
+        updateClock(cl.lat,cl.lon);
+      }
+    },600);
   }else{
     ST._lastRingCluster=null;
+    clearTimeout(_ringHoldTimer);
   }
 }
 
