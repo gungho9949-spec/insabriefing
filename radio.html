@@ -418,7 +418,7 @@ function buildDots(){
   var dotR={sm:0.003,md:0.005,lg:0.008}[ST.dotSize]||0.005;
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
-    var m=new THREE.Mesh(new THREE.SphereGeometry(dotR,5,5),new THREE.MeshBasicMaterial({color:0x4dff91}));
+    var m=new THREE.Mesh(new THREE.SphereGeometry(dotR,16,16),new THREE.MeshBasicMaterial({color:0x4dff91}));
     var pos=ll2v(cl.lat,cl.lon,1.018);
     m.position.set(pos.x,pos.y,pos.z);
     m.userData={cluster:cl};
