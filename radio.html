@@ -400,18 +400,31 @@ function checkCenterRing(){
     ST._lastRingCluster=cl;
     clearTimeout(_ringHoldTimer);
 
-    // 점이 흰색으로 바뀌는 순간부터 0.6초 후 재생
     _ringHoldTimer=setTimeout(function(){
       if(ST._lastRingCluster!==cl)return;
       if(!ST.locked&&cl.stations.length>0){
         var s=cl.stations[0];
+        // 이미 같은 방송국이면 스킵
+        if(ST.current&&ST.current.uuid===s.uuid)return;
+        // 기존 오디오 정지 후 새 방송국으로 교체
+        audio.pause();
+        audio.src='';
         ST.current=s;
         audio.src=s.url;
         audio.muted=ST.muted;
-        audio.play().catch(function(){});
-        ST.playing=true;
-        document.getElementById('btn-play').textContent='⏸';
-        document.getElementById('eq').classList.remove('paused');
+        audio.load();
+        audio.play().then(function(){
+          ST.playing=true;
+          document.getElementById('btn-play').textContent='⏸';
+          document.getElementById('eq').classList.remove('paused');
+        }).catch(function(err){
+          console.warn('재생 실패:',err);
+          // 자동재생 막힌 경우 UI만 업데이트하고 사용자 탭 유도
+          ST.playing=false;
+          document.getElementById('btn-play').textContent='▶';
+          document.getElementById('eq').classList.add('paused');
+          showToast('▶ 탭해서 '+s.name+' 재생');
+        });
         document.getElementById('p-station').textContent=s.name;
         document.getElementById('p-city').textContent=s.country||'Unknown';
         document.getElementById('p-country').textContent=s.state||s.codec||'';
