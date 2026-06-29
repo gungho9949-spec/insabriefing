@@ -403,8 +403,7 @@ function checkCenterRing(){
     if(ST._lastRingCluster===cl)return;
     ST._lastRingCluster=cl;
     clearTimeout(_ringHoldTimer);
-
-    _ringHoldTimer=setTimeout(function(){
+_ringHoldTimer=setTimeout(function(){
       if(ST._lastRingCluster!==cl)return;
       if(!ST.locked&&cl.stations.length>0){
         var s=cl.stations[0];
