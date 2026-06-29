@@ -304,8 +304,8 @@ function onMM(e){
   if(!drag)return;
   var dx=e.clientX-pMouse.x,dy=e.clientY-pMouse.y;
   if(Math.abs(dx)>2||Math.abs(dy)>2)dragMoved=true;
-  globe.rotation.y-=dx*0.005;
-  globe.rotation.x+=dy*0.005;
+  globe.rotation.y+=dx*0.005;
+  globe.rotation.x-=dy*0.005;
   // X축 과회전 방지 (위아래 뒤집힘 차단)
   globe.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globe.rotation.x));
   atmo.rotation.copy(globe.rotation);
