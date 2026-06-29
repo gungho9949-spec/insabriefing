@@ -356,7 +356,7 @@ function handleTap(cx,cy){
 }
 
 /* CENTER RING */
-var _ringLast=0,_ringHoldTimer=null;
+var _ringLast=0,_ringHoldTimer=null,_ringActiveDot=null;
 function checkCenterRing(){
   var now=Date.now();
   if(now-_ringLast<400)return;
