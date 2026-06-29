@@ -396,6 +396,9 @@ function checkCenterRing(){
     _ringActiveDot=dot;
     setRingGreen(true);
 
+    // 관성 즉시 정지 (점이 원 밖으로 흘러가지 않도록)
+    vel.x=0;vel.y=0;
+
     if(ST._lastRingCluster===cl)return;
     ST._lastRingCluster=cl;
     clearTimeout(_ringHoldTimer);
