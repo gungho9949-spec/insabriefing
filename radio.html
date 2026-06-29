@@ -358,39 +358,59 @@ function handleTap(cx,cy){
 
 /* CENTER RING */
 var _ringLast=0,_ringHoldTimer=null,_ringActiveDot=null;
+var _ringEl=document.getElementById('center-ring');
+
+function setRingGreen(on){
+  if(on){
+    _ringEl.style.borderColor='rgba(77,255,145,0.9)';
+    _ringEl.style.boxShadow='0 0 8px rgba(77,255,145,0.6)';
+  }else{
+    _ringEl.style.borderColor='rgba(255,255,255,0.7)';
+    _ringEl.style.boxShadow='none';
+  }
+}
+
 function checkCenterRing(){
   var now=Date.now();
-  if(now-_ringLast<400)return;
+  if(now-_ringLast<100)return;
   _ringLast=now;
   if(!ST.dots.length)return;
-  // 드래그 중이거나 관성으로 움직이는 중이면 감지 안 함
   if(drag)return;
   if(Math.abs(vel.x)>0.001||Math.abs(vel.y)>0.001)return;
+
   mXY.x=0;mXY.y=0;
   ray.setFromCamera(mXY,cam);
   var hits=ray.intersectObjects(ST.dots);
- if(hits.length){
+
+  if(hits.length){
     var dot=hits[0].object;
     var cl=dot.userData.cluster;
 
-    // 이전 활성 점 색상 복원
+    // 이전 점 복원
     if(_ringActiveDot&&_ringActiveDot!==dot){
       _ringActiveDot.material.color.setHex(0x4dff91);
       _ringActiveDot=null;
     }
-    // 현재 점 흰색으로
+
+    // 점 즉시 흰색, 원 즉시 녹색
     dot.material.color.setHex(0xffffff);
     _ringActiveDot=dot;
+    setRingGreen(true);
 
     if(ST._lastRingCluster===cl)return;
     ST._lastRingCluster=cl;
     clearTimeout(_ringHoldTimer);
+
+    // 점이 흰색으로 바뀌는 순간부터 0.6초 후 재생
     _ringHoldTimer=setTimeout(function(){
       if(ST._lastRingCluster!==cl)return;
       if(!ST.locked&&cl.stations.length>0){
         var s=cl.stations[0];
-        ST.current=s;audio.src=s.url;audio.muted=ST.muted;
-        audio.play().catch(function(){});ST.playing=true;
+        ST.current=s;
+        audio.src=s.url;
+        audio.muted=ST.muted;
+        audio.play().catch(function(){});
+        ST.playing=true;
         document.getElementById('btn-play').textContent='⏸';
         document.getElementById('eq').classList.remove('paused');
         document.getElementById('p-station').textContent=s.name;
@@ -403,17 +423,18 @@ function checkCenterRing(){
         updateClock(cl.lat,cl.lon);
       }
     },600);
+
   }else{
-    // 원 밖으로 나가면 점 색상 복원
+    // 원 밖으로 나가면 복원
     if(_ringActiveDot){
       _ringActiveDot.material.color.setHex(0x4dff91);
       _ringActiveDot=null;
     }
+    setRingGreen(false);
     ST._lastRingCluster=null;
     clearTimeout(_ringHoldTimer);
   }
 }
-
 /* GLOBE UTILS */
 function ll2v(lat,lon,r){
   r=r||1.0;
