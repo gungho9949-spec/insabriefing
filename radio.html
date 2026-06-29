@@ -771,9 +771,29 @@ function nextStation(){
 function toggleMute(){ST.muted=!ST.muted;audio.muted=ST.muted;document.getElementById('btn-mute').textContent=ST.muted?'🔇':'🔊';}
 
 /* CLOCK */
+function getTimezoneOffset(lat,lon){
+  // 주요 나라 정확한 UTC offset
+  if(lat>=33&&lat<=43&&lon>=124&&lon<=132)return 9;   // 한국 UTC+9
+  if(lat>=24&&lat<=46&&lon>=122&&lon<=154)return 9;   // 일본 UTC+9
+  if(lat>=18&&lat<=54&&lon>=73&&lon<=135)return 8;    // 중국 UTC+8
+  if(lat>=-44&&lat<=-10&&lon>=112&&lon<=154)return 10; // 호주 동부 UTC+10
+  if(lat>=37&&lat<=70&&lon>=27&&lon<=60)return 3;     // 러시아 모스크바 UTC+3
+  if(lat>=24&&lat<=50&&lon>=-125&&lon<=-65)return -5; // 미국 동부 UTC-5
+  if(lat>=24&&lat<=50&&lon>=-115&&lon<=-85)return -6; // 미국 중부 UTC-6
+  if(lat>=24&&lat<=50&&lon>=-85&&lon<=-65)return -5;  // 미국 동부 UTC-5
+  if(lat>=36&&lat<=72&&lon>=-10&&lon<=15)return 1;    // 유럽 중부 UTC+1
+  if(lat>=36&&lat<=72&&lon>=15&&lon<=40)return 2;     // 유럽 동부 UTC+2
+  if(lat>=-55&&lat<=-10&&lon>=-74&&lon<=-34)return -3; // 브라질 UTC-3
+  if(lat>=20&&lat<=37&&lon>=25&&lon<=60)return 3;     // 중동 UTC+3
+  if(lat>=8&&lat<=37&&lon>=60&&lon<=80)return 5.5;    // 인도 UTC+5:30
+  if(lat>=1&&lat<=28&&lon>=95&&lon<=141)return 7;     // 동남아 UTC+7
+  // 기본: 경도 기반 근사
+  return Math.round(lon/15);
+}
+
 function updateClock(lat,lon){
   clearInterval(ST.timerId);
-  var off=Math.round(lon/15);
+  var off=getTimezoneOffset(lat,lon);
   ST.timerId=setInterval(function(){
     var now=new Date(),utc=now.getTime()+now.getTimezoneOffset()*60000,lc=new Date(utc+off*3600000);
     document.getElementById('p-time').textContent=String(lc.getHours()).padStart(2,'0')+':'+String(lc.getMinutes()).padStart(2,'0');
