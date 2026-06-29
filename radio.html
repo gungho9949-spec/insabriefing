@@ -537,7 +537,6 @@ function autoPlayNearby(){
   var best=null,bestD=9999;
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
-    // 위도/경도 보정 거리 계산
     var dLat=cl.lat-ST.myLat;
     var dLon=(cl.lon-ST.myLon)*Math.cos(ST.myLat*Math.PI/180);
     var d=Math.sqrt(dLat*dLat+dLon*dLon);
@@ -546,7 +545,27 @@ function autoPlayNearby(){
   if(best&&best.stations.length>0){
     console.log('자동재생:',best.country,best.lat,best.lon,'거리(도):',bestD.toFixed(2));
     ST.currentCluster=best;
-    play(best.stations[0]);
+    ST.pendingStation=best.stations[0];
+
+    // 일단 UI만 업데이트
+    var s=best.stations[0];
+    document.getElementById('p-station').textContent=s.name;
+    document.getElementById('p-city').textContent=s.country||'Unknown';
+    document.getElementById('p-country').textContent=s.state||s.codec||'';
+    updateClock(s.lat,s.lon);
+    showToast('📍 탭하면 '+s.name+' 재생');
+
+    // 첫 터치/클릭 때 자동재생
+    function startOnInteraction(){
+      if(ST.pendingStation){
+        play(ST.pendingStation);
+        ST.pendingStation=null;
+      }
+      document.removeEventListener('click',startOnInteraction);
+      document.removeEventListener('touchend',startOnInteraction);
+    }
+    document.addEventListener('click',startOnInteraction);
+    document.addEventListener('touchend',startOnInteraction);
   }
 }
 
