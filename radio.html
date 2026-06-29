@@ -408,11 +408,16 @@ function ll2v(lat,lon,r){
 function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
-  var targetY=-(lon+90)*Math.PI/180;
+
+  // ll2v: x=-sin(phi)*cos(th), z=sin(phi)*sin(th), th=(lon+180)*PI/180
+  // 카메라는 +z 방향. z최대=th=90° → lon=-90이 초기정면
+  // 드래그: rotation.y -= dx (왼쪽드래그→y감소→서쪽이 앞으로)
+  // 따라서 lon을 정면으로: targetY = (lon+90)*PI/180 (부호 반전)
+  var targetY=(lon+90)*Math.PI/180;
   var targetX=-lat*Math.PI/180;
+
   var sy=globe.rotation.y,sx=globe.rotation.x,t=0;
 
-  // 최단경로 보정 (지구가 빙빙 도는 것 방지)
   var dy=targetY-sy;
   while(dy>Math.PI)dy-=2*Math.PI;
   while(dy<-Math.PI)dy+=2*Math.PI;
