@@ -520,7 +520,48 @@ function clusterStations(stations){
 var apiBase='https://de1.api.radio-browser.info';
 function loadStations(){
   setLoading(true);
-  // 전체 방송국 + 한국 방송국 동시 요청
+
+  // 1단계: 내 나라 방송국 먼저 빠르게 로드
+  var countryCode=ST.hasGPS?getCountryCodeFromLatLon(ST.myLat,ST.myLon):'KR';
+  fetch(apiBase+'/json/stations/bycountrycodeexact/'+countryCode+'?limit=500&hidebroken=true&order=clickcount&reverse=true')
+  .then(function(r){return r.json();})
+  .then(function(local){
+    // geo 없는 방송국에 내 위치 부여
+    for(var i=0;i<local.length;i++){
+      if(!local[i].geo_lat||!local[i].geo_long){
+        local[i].geo_lat=String(ST.myLat||37.5665);
+        local[i].geo_long=String(ST.myLon||126.9780);
+      }
+    }
+    onLoaded(local);
+    showToast('📻 내 지역 방송국 로드 완료 — 전체 로딩 중…');
+
+    // 2단계: 백그라운드에서 전체 로드
+    loadAllStations(local);
+  })
+  .catch(function(){
+    // 내 나라 로드 실패시 바로 전체 로드
+    loadAllStations([]);
+  });
+}
+
+function getCountryCodeFromLatLon(lat,lon){
+  // 위도/경도로 대략적인 나라 코드 반환
+  if(lat>=33&&lat<=43&&lon>=124&&lon<=132)return'KR'; // 한국
+  if(lat>=24&&lat<=46&&lon>=122&&lon<=154)return'JP'; // 일본
+  if(lat>=18&&lat<=54&&lon>=73&&lon<=135)return'CN'; // 중국
+  if(lat>=37&&lat<=70&&lon>=27&&lon<=180)return'RU'; // 러시아
+  if(lat>=24&&lat<=50&&lon>=-125&&lon<=-65)return'US'; // 미국
+  if(lat>=42&&lat<=84&&lon>=-141&&lon<=-52)return'CA'; // 캐나다
+  if(lat>=-55&&lat<=-10&&lon>=-74&&lon<=-34)return'BR'; // 브라질
+  if(lat>=36&&lat<=72&&lon>=-10&&lon<=40)return'DE';  // 유럽 기본 독일
+  return'KR'; // 기본값
+}
+
+function loadAllStations(alreadyLoaded){
+  var seen={};
+  for(var i=0;i<alreadyLoaded.length;i++)seen[alreadyLoaded[i].stationuuid]=true;
+
   var p1=fetch(apiBase+'/json/stations?limit=5000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true')
           .then(function(r){return r.json();}).catch(function(){return[];});
   var p2=fetch(apiBase+'/json/stations/bycountrycodeexact/KR?limit=500&hidebroken=true&order=clickcount&reverse=true')
@@ -529,22 +570,19 @@ function loadStations(){
   Promise.all([p1,p2]).then(function(results){
     var combined=results[0];
     var kr=results[1];
-    // 한국 방송국 중 geo 없는 것에 서울 좌표 부여 후 합치기
     for(var i=0;i<kr.length;i++){
       if(!kr[i].geo_lat||!kr[i].geo_long){
-        kr[i].geo_lat='37.5665';
-        kr[i].geo_long='126.9780';
+        kr[i].geo_lat='37.5665';kr[i].geo_long='126.9780';
       }
-    }
-    // 중복 제거 후 합치기
-    var seen={};
-    for(var i=0;i<combined.length;i++)seen[combined[i].stationuuid]=true;
-    for(var i=0;i<kr.length;i++){
       if(!seen[kr[i].stationuuid])combined.push(kr[i]);
     }
-    onLoaded(combined);
-  }).catch(function(){
-    setLoading(false);showToast('⚠️ API 연결 실패');
+    // 기존 로드된 것과 중복 제거 후 추가
+    var newData=[];
+    for(var i=0;i<combined.length;i++){
+      if(!seen[combined[i].stationuuid])newData.push(combined[i]);
+    }
+    if(newData.length>0)onLoaded(combined);
+    showToast('🌍 전체 '+( ST.stations.length).toLocaleString()+'개 방송국 로드 완료');
   });
 }
 function onLoaded(data){
