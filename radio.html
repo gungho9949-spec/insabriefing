@@ -376,14 +376,31 @@ function checkCenterRing(){
   _ringLast=now;
   if(!ST.dots.length)return;
   if(drag)return;
-  // 줌 애니메이션 진행 중이 아니면서 관성도 거의 없을 때만 체크
   if(zoomTarget===null&&(Math.abs(vel.x)>0.001||Math.abs(vel.y)>0.001))return;
-  mXY.x=0;mXY.y=0;
-  ray.setFromCamera(mXY,cam);
-  var hits=ray.intersectObjects(ST.dots);
 
-  if(hits.length){
-    var hitDot=hits[0].object;
+  // 화면 중앙(흰색 원 위치) 기준, 가장 가까운 점을 화면 픽셀 거리로 탐색
+  var rect=ren.domElement.getBoundingClientRect();
+  var centerPx={x:rect.width/2,y:rect.height/2};
+  var ringRadiusPx=30; // 흰색 원의 판정 반경(px), 필요시 조정
+
+  var best=null,bestDist=9999;
+  var tmpV=new THREE.Vector3();
+  for(var i=0;i<ST.dots.length;i++){
+    var d=ST.dots[i];
+    d.getWorldPosition(tmpV);
+    // 카메라 뒤쪽(지구 반대편)에 있는 점은 제외
+    var camDir=tmpV.clone().sub(cam.position).normalize();
+    var toCenter=cam.position.clone().negate().normalize();
+    var ndc=tmpV.clone().project(cam);
+    if(ndc.z>1)continue; // 화면 밖(카메라 뒤)
+    var px=(ndc.x*0.5+0.5)*rect.width;
+    var py=(-ndc.y*0.5+0.5)*rect.height;
+    var dist=Math.hypot(px-centerPx.x,py-centerPx.y);
+    if(dist<bestDist){bestDist=dist;best=d;}
+  }
+
+  if(best&&bestDist<ringRadiusPx){
+    var hitDot=best;
     var dot=hitDot.userData.visualDot||hitDot;
     var cl=hitDot.userData.cluster;
 
