@@ -462,7 +462,7 @@ function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
 
- var targetY=-(lon+90)*Math.PI/180;
+ var targetY=-(lon+90-16)*Math.PI/180;
   var targetX=-(lat+6.5)*Math.PI/180;
   console.log('[flyTo] lat='+lat+' lon='+lon+' targetY(deg)='+(targetY*180/Math.PI).toFixed(1)+' targetX(deg)='+(targetX*180/Math.PI).toFixed(1));
   var sy=globe.rotation.y,sx=globe.rotation.x,t=0;
