@@ -384,8 +384,9 @@ function checkCenterRing(){
   var hits=ray.intersectObjects(ST.dots);
 
   if(hits.length){
-    var dot=hits[0].object;
-    var cl=dot.userData.cluster;
+    var hitDot=hits[0].object;
+    var dot=hitDot.userData.visualDot||hitDot;
+    var cl=hitDot.userData.cluster;
 
     // 이전 점 복원
     if(_ringActiveDot&&_ringActiveDot!==dot){
