@@ -896,12 +896,23 @@ initGlobe();
 cam.position.z=12;
 zoomTarget=null;
 
-setTimeout(function(){
+var _audioUnlocked=false;
+function unlockAudio(){
+  if(_audioUnlocked)return;
+  _audioUnlocked=true;
+  // 무음 재생으로 오디오 권한 미리 확보
+  audio.play().then(function(){audio.pause();}).catch(function(){});
+}
+
+function enterApp(){
+  if(window._entered)return;
+  window._entered=true;
+  unlockAudio();
+
   var sp=document.getElementById('splash');
   sp.classList.add('out');
- setTimeout(function(){
-    sp.style.display='none';
-  },1000);
+  setTimeout(function(){sp.style.display='none';},600);
+
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(function(pos){
       ST.myLat=pos.coords.latitude;
@@ -921,7 +932,13 @@ setTimeout(function(){
   }
 
   loadStations();
-},4500);
+}
+
+document.getElementById('splash').addEventListener('click',enterApp);
+document.getElementById('splash').addEventListener('touchend',enterApp);
+
+// 4.5초 지나도 터치 없으면 자동 진입 (재생은 안 될 수 있음)
+setTimeout(enterApp,4500);
 </script>
 </body>
 </html>
