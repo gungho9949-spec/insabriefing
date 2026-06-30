@@ -489,13 +489,24 @@ function buildDots(){
   for(var i=0;i<ST.dots.length;i++)globe.remove(ST.dots[i]);
   ST.dots=[];
   var dotR={sm:0.003,md:0.005,lg:0.008}[ST.dotSize]||0.005;
+  var hitR=dotR*6; // 클릭/감지 판정용 반경 (보이는 점보다 훨씬 큼)
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
-    var m=new THREE.Mesh(new THREE.SphereGeometry(dotR,16,16),new THREE.MeshBasicMaterial({color:0x4dff91}));
     var pos=ll2v(cl.lat,cl.lon,1.018);
+
+    // 보이는 점 (작게)
+    var m=new THREE.Mesh(new THREE.SphereGeometry(dotR,16,16),new THREE.MeshBasicMaterial({color:0x4dff91}));
     m.position.set(pos.x,pos.y,pos.z);
     m.userData={cluster:cl};
-    globe.add(m);ST.dots.push(m);
+    globe.add(m);
+
+    // 투명 판정용 구 (크게, 보이지 않음)
+    var hitMesh=new THREE.Mesh(new THREE.SphereGeometry(hitR,8,8),new THREE.MeshBasicMaterial({visible:false}));
+    hitMesh.position.set(pos.x,pos.y,pos.z);
+    hitMesh.userData={cluster:cl,visualDot:m};
+    globe.add(hitMesh);
+
+    ST.dots.push(hitMesh);
   }
 }
 
