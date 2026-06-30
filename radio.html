@@ -377,8 +377,8 @@ function checkCenterRing(){
   _ringLast=now;
   if(!ST.dots.length)return;
   if(drag)return;
-  if(Math.abs(vel.x)>0.001||Math.abs(vel.y)>0.001)return;
-
+  // 줌 애니메이션 진행 중이 아니면서 관성도 거의 없을 때만 체크
+  if(zoomTarget===null&&(Math.abs(vel.x)>0.001||Math.abs(vel.y)>0.001))return;
   mXY.x=0;mXY.y=0;
   ray.setFromCamera(mXY,cam);
   var hits=ray.intersectObjects(ST.dots);
