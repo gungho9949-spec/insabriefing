@@ -462,16 +462,9 @@ function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
 
-  // ll2v 좌표계: th=(lon+180)*PI/180, z=sin(phi)*sin(th)
-  // 카메라 +z 방향, z최대=th=PI/2 → lon=-90이 초기정면
-  // 드래그: globe.rotation.y += dx → y클수록 반시계(서쪽이 앞으로)
-  // lon을 정면으로 보내려면: targetY = -(lon+90)*PI/180
-  // 단, 드래그방향 수정으로 부호가 반전되었으므로 +로 사용
-  // 실제 검증: 서울lon=127 → targetY=-(127+90)*PI/180=-217*PI/180
-  // globe.rotation.y=-217*PI/180 일때 서울이 정면 → 드래그 y+=dx와 일치
   var targetY=-(lon+90)*Math.PI/180;
-  var targetX=lat*Math.PI/180;   // 위도: 북위 양수=지구 위로 기울임
-
+  var targetX=lat*Math.PI/180;
+  console.log('[flyTo] lat='+lat+' lon='+lon+' targetY(deg)='+(targetY*180/Math.PI).toFixed(1)+' targetX(deg)='+(targetX*180/Math.PI).toFixed(1));
   var sy=globe.rotation.y,sx=globe.rotation.x,t=0;
 
   var dy=targetY-sy;
