@@ -501,29 +501,23 @@ function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
 
-  // ll2v(0,0)=+X 실측 확인됨
-  // 카메라는 +Z에서 바라봄
-  // 따라서 어떤 위치의 ll2v 벡터를 +Z로 보내면 됨
-  // 단계 1: XZ평면에서 경도 정렬 (Y축 회전)
-  // ll2v에서 lon=-90 일때 z가 최대(+Z방향)
-  // 드래그: globe.quaternion에 qX*qY를 왼쪽곱
-  // flyTo는 그 역과정: 절대 quaternion을 직접 계산
+  // ll2v 실측: ll2v(0,0)=(1,0,0) → 경도0=+X, 카메라=+Z
+  // 경도-90이 +Z(정면). 임의 lon을 정면으로:
+  // 월드Y축으로 -(lon+90)*PI/180 회전
+  // 위도는 월드X축으로 -lat*PI/180 회전
+  // 드래그와 동일한 월드기준 왼쪽곱 방식
 
-  // XZ평면 각도로 경도 정렬
-  var pos=ll2v(lat,lon,1.0);
-  // pos의 XZ성분 각도
-  var angleXZ=Math.atan2(-pos.x, pos.z); // +Z기준 각도
   var qY=new THREE.Quaternion().setFromAxisAngle(
-    new THREE.Vector3(0,1,0), angleXZ
+    new THREE.Vector3(0,1,0),
+    -(lon+90)*Math.PI/180
   );
-
-  // 위도 정렬: Y축 회전 후 pos의 Y성분을 제거
-  var latRad=Math.asin(pos.y); // 위도 라디안
   var qX=new THREE.Quaternion().setFromAxisAngle(
-    new THREE.Vector3(1,0,0), latRad
+    new THREE.Vector3(1,0,0),
+    -lat*Math.PI/180
   );
 
-  var targetQ=new THREE.Quaternion().multiplyQuaternions(qY,qX);
+  // 드래그와 동일한 순서: multiplyQuaternions(qX, qY)
+  var targetQ=new THREE.Quaternion().multiplyQuaternions(qX,qY);
 
   var startQ=globe.quaternion.clone();
   var t=0;
