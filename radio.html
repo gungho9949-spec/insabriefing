@@ -396,8 +396,9 @@ function checkCenterRing(){
   _ringLast=now;
   if(!ST.dots.length)return;
   if(drag)return;
-  if(zoomTarget===null&&(Math.abs(vel.x)>0.001||Math.abs(vel.y)>0.001))return;
-
+// velQ가 거의 identity(정지)일 때만 체크
+  var vqw=velQ.w;
+  if(zoomTarget===null&&Math.abs(1-Math.abs(vqw))*2>0.0001)return;
   // 화면 중앙(흰색 원 위치) 기준, 가장 가까운 점을 화면 픽셀 거리로 탐색
   var rect=ren.domElement.getBoundingClientRect();
   var centerPx={x:rect.width/2,y:rect.height/2};
