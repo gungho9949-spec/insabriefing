@@ -248,6 +248,8 @@ var ST={
 var scene,cam,ren,globe,atmo;
 var drag=false,dragMoved=false,pMouse={x:0,y:0};
 var vel={x:0,y:0},autoRot=true,zoomTarget=null,pinch0=null;
+var globeQ=new THREE.Quaternion(); // 현재 회전 상태
+var velQ=new THREE.Quaternion();   // 관성 회전
 var ray=new THREE.Raycaster(),mXY=new THREE.Vector2();
 
 function initGlobe(){
