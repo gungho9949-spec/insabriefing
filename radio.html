@@ -345,10 +345,11 @@ function onTM(e){
    var dx=e.touches[0].clientX-pMouse.x,dy=e.touches[0].clientY-pMouse.y;
     if(Math.abs(dx)>3||Math.abs(dy)>3)dragMoved=true;
     var spd=0.003*(cam.position.z/3.8);
-    var qY=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),dx*spd);
-    var right=new THREE.Vector3(1,0,0).applyQuaternion(globe.quaternion).normalize();
-    var qX=new THREE.Quaternion().setFromAxisAngle(right,dy*spd);
-    var q=new THREE.Quaternion().multiplyQuaternions(qY,qX);
+    var axisY=new THREE.Vector3(0,1,0);
+    var axisX=new THREE.Vector3(1,0,0);
+    var qY=new THREE.Quaternion().setFromAxisAngle(axisY,dx*spd);
+    var qX=new THREE.Quaternion().setFromAxisAngle(axisX,dy*spd);
+    var q=new THREE.Quaternion().multiplyQuaternions(qX,qY);
     globe.quaternion.multiplyQuaternions(q,globe.quaternion);
     globeQ.copy(globe.quaternion);
     atmo.quaternion.copy(globe.quaternion);
