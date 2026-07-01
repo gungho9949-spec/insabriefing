@@ -971,22 +971,34 @@ function enterApp(){
   sp.classList.add('out');
   setTimeout(function(){sp.style.display='none';},600);
 
-  if(navigator.geolocation){
+ if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(function(pos){
       ST.myLat=pos.coords.latitude;
       ST.myLon=pos.coords.longitude;
       ST.hasGPS=true;
-      console.log('GPS:',ST.myLat,ST.myLon,'정확도:',pos.coords.accuracy+'m');
+      console.log('GPS 성공:',ST.myLat,ST.myLon,'정확도:',pos.coords.accuracy+'m');
       flyTo(ST.myLat,ST.myLon,1.8);
       if(ST.stationsReady)autoPlayNearby();
     },function(err){
-      console.warn('GPS 실패:',err.message);
+      // GPS 실패 → 서울 기본값으로 이동
+      console.warn('GPS 실패('+err.code+'):',err.message,'→ 서울 기본값 사용');
+      ST.myLat=37.5665;
+      ST.myLon=126.9780;
       ST.hasGPS=true;
-      zoomTarget=3.0;
+      flyTo(ST.myLat,ST.myLon,1.8);
       if(ST.stationsReady)autoPlayNearby();
-    },{enableHighAccuracy:true,timeout:8000,maximumAge:0});
-  } else {
-    zoomTarget=3.0;
+      showToast('📍 위치 사용 불가 — 서울로 이동');
+    },{
+      enableHighAccuracy:true,  // GPS/Wi-Fi 최고 정확도
+      timeout:10000,            // 10초 대기
+      maximumAge:0              // 캐시 사용 안 함 (항상 새 위치)
+    });
+  }else{
+    // Geolocation 미지원 → 서울 기본값
+    ST.myLat=37.5665;ST.myLon=126.9780;ST.hasGPS=true;
+    flyTo(ST.myLat,ST.myLon,1.8);
+    zoomTarget=1.8;
+    showToast('📍 위치 미지원 — 서울로 이동');
   }
 
   loadStations();
