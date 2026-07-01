@@ -501,18 +501,29 @@ function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
 
-  // ll2v 실측: ll2v(0,0)=+X, 카메라=+Z
-  // 서울 quaternion 실측: x=-0.3306, y=0.8406, z=0.4109, w=0.1237
-  // ll2v로 정확한 3D 위치 계산 후 lookAt 방식으로 회전
-  var pos=ll2v(lat,lon,1.0);
+  // ll2v(0,0)=+X 실측 확인됨
+  // 카메라는 +Z에서 바라봄
+  // 따라서 어떤 위치의 ll2v 벡터를 +Z로 보내면 됨
+  // 단계 1: XZ평면에서 경도 정렬 (Y축 회전)
+  // ll2v에서 lon=-90 일때 z가 최대(+Z방향)
+  // 드래그: globe.quaternion에 qX*qY를 왼쪽곱
+  // flyTo는 그 역과정: 절대 quaternion을 직접 계산
 
-  // pos를 +Z로 보내는 회전 (북극 +Y 유지)
-  var forward=pos.clone().negate().normalize();
-  var north=new THREE.Vector3(0,1,0);
-  var right=new THREE.Vector3().crossVectors(north,forward).normalize();
-  var up=new THREE.Vector3().crossVectors(forward,right).normalize();
-  var m=new THREE.Matrix4().makeBasis(right,up,forward);
-  var targetQ=new THREE.Quaternion().setFromRotationMatrix(m);
+  // XZ평면 각도로 경도 정렬
+  var pos=ll2v(lat,lon,1.0);
+  // pos의 XZ성분 각도
+  var angleXZ=Math.atan2(-pos.x, pos.z); // +Z기준 각도
+  var qY=new THREE.Quaternion().setFromAxisAngle(
+    new THREE.Vector3(0,1,0), angleXZ
+  );
+
+  // 위도 정렬: Y축 회전 후 pos의 Y성분을 제거
+  var latRad=Math.asin(pos.y); // 위도 라디안
+  var qX=new THREE.Quaternion().setFromAxisAngle(
+    new THREE.Vector3(1,0,0), latRad
+  );
+
+  var targetQ=new THREE.Quaternion().multiplyQuaternions(qY,qX);
 
   var startQ=globe.quaternion.clone();
   var t=0;
