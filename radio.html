@@ -316,17 +316,17 @@ function onMM(e){
   var dx=e.clientX-pMouse.x,dy=e.clientY-pMouse.y;
   if(Math.abs(dx)>2||Math.abs(dy)>2)dragMoved=true;
   var spd=0.003*(cam.position.z/3.8);
-  // 화면 X드래그 → 지구 Y축(수직축) 회전
-  var qY=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),dx*spd);
-  // 화면 Y드래그 → 지구 X축(수평축) 회전 (카메라 기준 오른쪽 벡터)
-  var right=new THREE.Vector3(1,0,0).applyQuaternion(globe.quaternion).normalize();
-  var qX=new THREE.Quaternion().setFromAxisAngle(right,dy*spd);
-  // 두 회전 합성
-  var q=new THREE.Quaternion().multiplyQuaternions(qY,qX);
+  // 좌우: 월드 Y축(수직) 기준 회전 → 경도 이동
+  var axisY=new THREE.Vector3(0,1,0);
+  var qY=new THREE.Quaternion().setFromAxisAngle(axisY,dx*spd);
+  // 상하: 월드 X축(수평) 기준 회전 → 위도 이동
+  var axisX=new THREE.Vector3(1,0,0);
+  var qX=new THREE.Quaternion().setFromAxisAngle(axisX,dy*spd);
+  // Y먼저, X다음 순서로 합성 (월드 기준)
+  var q=new THREE.Quaternion().multiplyQuaternions(qX,qY);
   globe.quaternion.multiplyQuaternions(q,globe.quaternion);
   globeQ.copy(globe.quaternion);
   atmo.quaternion.copy(globe.quaternion);
-  // 관성용 저장
   velQ.copy(q);
   pMouse={x:e.clientX,y:e.clientY};
 }
