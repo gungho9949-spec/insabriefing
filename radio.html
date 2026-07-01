@@ -501,15 +501,15 @@ function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
 
- var qLon=new THREE.Quaternion().setFromAxisAngle(
+var qLon=new THREE.Quaternion().setFromAxisAngle(
     new THREE.Vector3(0,1,0),
-    (lon+90)*Math.PI/180
+    -(lon+90)*Math.PI/180
   );
   var qLat=new THREE.Quaternion().setFromAxisAngle(
     new THREE.Vector3(1,0,0),
     -lat*Math.PI/180
   );
-  var targetQ=new THREE.Quaternion().multiplyQuaternions(qLat,qLon);
+  var targetQ=new THREE.Quaternion().multiplyQuaternions(qLon,qLat);
   var startQ=globe.quaternion.clone();
   var t=0;
   (function step(){
