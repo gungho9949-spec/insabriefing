@@ -264,7 +264,7 @@ function initGlobe(){
   var tex=new THREE.TextureLoader().load('/earth.jpg');
   globe=new THREE.Mesh(new THREE.SphereGeometry(1,64,64),new THREE.MeshPhongMaterial({map:tex,specular:new THREE.Color(0x1a2244),shininess:6}));
 scene.add(globe);
-globe.rotation.order='YXZ';
+globe.quaternion.identity(); // 초기 회전 완전히 0으로
 globeQ.copy(globe.quaternion);
   atmo=new THREE.Mesh(new THREE.SphereGeometry(1.045,64,64),new THREE.ShaderMaterial({
     vertexShader:'varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
