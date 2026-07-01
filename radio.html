@@ -501,20 +501,19 @@ function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
 
-  // Y축(북극 위) 유지하면서 경도→위도 순으로 회전
-  // 1단계: Y축으로 경도 회전
+  // ll2v 좌표계: lon=-90이 +Z 정면
+  // Y축 회전으로 원하는 경도를 정면으로
   var qLon=new THREE.Quaternion().setFromAxisAngle(
     new THREE.Vector3(0,1,0),
-    -lon*Math.PI/180
+    -(lon+90)*Math.PI/180
   );
-  // 2단계: X축으로 위도 회전
+  // X축 회전으로 위도 (북위=위로 기울임, 부호 음수)
   var qLat=new THREE.Quaternion().setFromAxisAngle(
     new THREE.Vector3(1,0,0),
-    lat*Math.PI/180
+    -lat*Math.PI/180
   );
-  // 합성: 위도 먼저, 경도 나중
-  var targetQ=new THREE.Quaternion().multiplyQuaternions(qLon,qLat);
-
+  // 경도 먼저, 위도 나중
+  var targetQ=new THREE.Quaternion().multiplyQuaternions(qLat,qLon);
   var startQ=globe.quaternion.clone();
   var t=0;
   (function step(){
