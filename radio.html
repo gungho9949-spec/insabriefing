@@ -507,6 +507,13 @@ function flyTo(lat,lon,zoom){
   // 위도는 월드X축으로 -lat*PI/180 회전
   // 드래그와 동일한 월드기준 왼쪽곱 방식
 
+  // 실측: set(0,-0.7071,0,0.7071) → 아프리카(경도0) 정면
+  // → Y축 -90° = -(0+90)*PI/180 ✅ 공식 확인
+  // 합성순서: qY 먼저(오른쪽), qX 나중(왼쪽) = multiplyQuaternions(qX, qY)
+  // 단 드래그는 q를 왼쪽곱하므로 위도/경도 독립적으로 작동
+  // 검증: lon=0 → qY=set(0,-0.7071,0,0.7071), lat=0 → qX=identity
+  // targetQ = qY → 아프리카 정면 ✅
+
   var qY=new THREE.Quaternion().setFromAxisAngle(
     new THREE.Vector3(0,1,0),
     -(lon+90)*Math.PI/180
@@ -515,10 +522,7 @@ function flyTo(lat,lon,zoom){
     new THREE.Vector3(1,0,0),
     -lat*Math.PI/180
   );
-
-  // 드래그와 동일한 순서: multiplyQuaternions(qX, qY)
   var targetQ=new THREE.Quaternion().multiplyQuaternions(qX,qY);
-
   var startQ=globe.quaternion.clone();
   var t=0;
   (function step(){
