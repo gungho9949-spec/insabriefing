@@ -491,26 +491,23 @@ _ringHoldTimer=setTimeout(function(){
 /* GLOBE UTILS */
 function ll2v(lat,lon,r){
   r=r||1.0;
- function flyTo(lat,lon,zoom){
+  var phi=(90-lat)*Math.PI/180,th=(lon+180)*Math.PI/180;
+  return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(th),r*Math.cos(phi),r*Math.sin(phi)*Math.sin(th));
+}
+
+function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
-
-  // ll2v로 해당 위치의 3D 좌표를 구하고
-  // 그 방향이 카메라(+Z)를 향하도록 Quaternion 계산
   var phi=(90-lat)*Math.PI/180;
   var th=(lon+180)*Math.PI/180;
-  // 해당 위치가 +Z 방향으로 오려면
-  // 위치벡터 v를 +Z로 회전시키는 Quaternion
   var vx=-Math.sin(phi)*Math.cos(th);
   var vy= Math.cos(phi);
   var vz= Math.sin(phi)*Math.sin(th);
   var from=new THREE.Vector3(vx,vy,vz).normalize();
   var to=new THREE.Vector3(0,0,1);
   var targetQ=new THREE.Quaternion().setFromUnitVectors(from,to);
-
   var startQ=globe.quaternion.clone();
   var t=0;
-
   (function step(){
     t+=0.025;
     var e=1-Math.pow(1-Math.min(t,1),3);
