@@ -315,12 +315,19 @@ function onMM(e){
   if(!drag)return;
   var dx=e.clientX-pMouse.x,dy=e.clientY-pMouse.y;
   if(Math.abs(dx)>2||Math.abs(dy)>2)dragMoved=true;
- var spd=0.005*(cam.position.z/3.8);
-  globe.rotation.y+=dx*spd;
-  globe.rotation.x+=dy*spd;
-  globe.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,globe.rotation.x));
-  atmo.rotation.copy(globe.rotation);
-  vel.x=dy*spd;vel.y=dx*spd;
+  var spd=0.003*(cam.position.z/3.8);
+  // 화면 X드래그 → 지구 Y축(수직축) 회전
+  var qY=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),dx*spd);
+  // 화면 Y드래그 → 지구 X축(수평축) 회전 (카메라 기준 오른쪽 벡터)
+  var right=new THREE.Vector3(1,0,0).applyQuaternion(globe.quaternion).normalize();
+  var qX=new THREE.Quaternion().setFromAxisAngle(right,dy*spd);
+  // 두 회전 합성
+  var q=new THREE.Quaternion().multiplyQuaternions(qY,qX);
+  globe.quaternion.multiplyQuaternions(q,globe.quaternion);
+  globeQ.copy(globe.quaternion);
+  atmo.quaternion.copy(globe.quaternion);
+  // 관성용 저장
+  velQ.copy(q);
   pMouse={x:e.clientX,y:e.clientY};
 }
 function onMU(e){if(!dragMoved)handleTap(e.clientX,e.clientY);drag=false;}
