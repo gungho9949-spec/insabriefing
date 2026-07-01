@@ -501,15 +501,30 @@ function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
 
-var qLon=new THREE.Quaternion().setFromAxisAngle(
+  // ll2v로 해당 위치의 정확한 3D 벡터를 구함
+  var pos=ll2v(lat,lon,1.0);
+
+  // 이 벡터를 카메라 방향(+Z)으로 보내는 회전을 구함
+  // 단, 북극(+Y)이 항상 위를 유지하도록 두 단계로 분리
+
+  // 1단계: Y축 회전으로 경도 정렬 (XZ평면에서)
+  // pos를 XZ평면에 투영한 벡터의 각도
+  var lonAngle=Math.atan2(pos.z, pos.x); // XZ평면에서의 각도
+  // 이 각도만큼 반대로 Y축 회전하면 +Z 방향으로 정렬됨
+  // 단, +Z로 보내려면 atan2(z,x)=0이 되어야 → 현재각도의 반대
+  var qLon=new THREE.Quaternion().setFromAxisAngle(
     new THREE.Vector3(0,1,0),
-    -(lon+90)*Math.PI/180
+    -(lonAngle - Math.PI/2)
   );
+
+  // 2단계: 위도 정렬 - Y축 회전 적용 후 남은 XZ->YZ 기울기
   var qLat=new THREE.Quaternion().setFromAxisAngle(
     new THREE.Vector3(1,0,0),
     -lat*Math.PI/180
   );
+
   var targetQ=new THREE.Quaternion().multiplyQuaternions(qLon,qLat);
+
   var startQ=globe.quaternion.clone();
   var t=0;
   (function step(){
