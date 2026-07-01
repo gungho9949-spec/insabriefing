@@ -288,10 +288,17 @@ globeQ.copy(globe.quaternion);
 function loop(){
   requestAnimationFrame(loop);
   if(!drag){
-    globe.rotation.x+=vel.x;globe.rotation.y+=vel.y;
-    vel.x*=0.93;vel.y*=0.93;
-    if(autoRot)globe.rotation.y+=0.0007;
-    atmo.rotation.copy(globe.rotation);
+    // 관성 적용
+    globe.quaternion.multiplyQuaternions(velQ,globe.quaternion);
+    // 관성 감쇠
+    velQ.slerp(new THREE.Quaternion(),0.07);
+    // 자동 회전 (Y축)
+    if(autoRot){
+      var autoQ=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),0.0007);
+      globe.quaternion.multiplyQuaternions(autoQ,globe.quaternion);
+    }
+    globeQ.copy(globe.quaternion);
+    atmo.quaternion.copy(globe.quaternion);
   }
   if(zoomTarget!==null){
     var diff=cam.position.z-zoomTarget;
