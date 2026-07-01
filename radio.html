@@ -449,43 +449,55 @@ function checkCenterRing(){
 }
 
 /* GLOBE UTILS */
-// 표준 구면좌표계: 경도0,위도0=+X / 북극=+Y / 경도90=+Z(카메라정면)
+// Three.js SphereGeometry 기본 UV 매핑과 일치하는 좌표계
 function ll2v(lat,lon,r){
   r=r||1.0;
-  var phi=lat*Math.PI/180;
-  var th=lon*Math.PI/180;
+  var phi=(90-lat)*Math.PI/180;
+  var th=(lon+180)*Math.PI/180;
   return new THREE.Vector3(
-    r*Math.cos(phi)*Math.cos(th),
-    r*Math.sin(phi),
-    r*Math.cos(phi)*Math.sin(th)
+    -r*Math.sin(phi)*Math.cos(th),
+    r*Math.cos(phi),
+    r*Math.sin(phi)*Math.sin(th)
   );
 }
 
-// flyTo: ll2v와 드래그가 동일한 좌표계 사용
-// 경도90=+Z(카메라정면)이므로 lon을 정면으로: Y축 -(lon-90)
-// 위도를 위로: X축 -lat
+// flyTo: 드래그와 완전히 동일한 방식 사용
+// 핵심: identity에서 시작해서 lon/lat만큼 드래그한 것과 동일하게 계산
+// ll2v와 동일한 좌표계 보장
 function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
-  var qY=new THREE.Quaternion().setFromAxisAngle(
-    new THREE.Vector3(0,1,0),
-    -(lon-90)*Math.PI/180
-  );
-  var qX=new THREE.Quaternion().setFromAxisAngle(
-    new THREE.Vector3(1,0,0),
-    -lat*Math.PI/180
-  );
-  var targetQ=new THREE.Quaternion().multiplyQuaternions(qX,qY);
-  var startQ=globe.quaternion.clone();
-  var t=0;
+
+  // 드래그 함수 applyDrag(dx,dy)는 spd=0.003*(z/3.8) 속도로 회전
+  // identity에서 lon도 만큼 X축, lat만큼 Y축 회전하면 해당 위치가 정면
+  // ll2v 검증: ll2v(0,0)에서 초기 정면은 경도 -90
+  // 따라서 lon을 정면으로 보내려면 (lon - (-90)) = lon+90 만큼 Y축 회전 필요
+  // 드래그 방향: dx양수→Y축양수방향→지구오른쪽→서쪽이 앞으로→경도감소
+  // 즉 드래그 기준으로 lon+90을 앞으로 보내려면 Y축 -(lon+90) 회전
+  // 위도: dy양수→X축양수→지구아래→남위가 앞으로→lat감소
+  // lat를 앞으로 보내려면 X축 +lat 회전
+
+  // 하지만 위 공식이 계속 틀렸으므로,
+  // 직접 ll2v로 서울 위치 벡터를 구해서 +Z로 보내는 회전을 역으로 적용
+  // setFromUnitVectors(pos, +Z)의 역 = setFromUnitVectors(+Z, pos)를 globe에 적용
+
+  var pos = ll2v(lat, lon, 1.0).normalize();
+  var camDir = new THREE.Vector3(0, 0, 1);
+
+  // pos를 카메라 방향(+Z)으로 보내는 회전
+  var rotToFront = new THREE.Quaternion().setFromUnitVectors(pos, camDir);
+  var targetQ = rotToFront;
+
+  var startQ = globe.quaternion.clone();
+  var t = 0;
   (function step(){
-    t+=0.025;
-    var e=1-Math.pow(1-Math.min(t,1),3);
-    globe.quaternion.slerpQuaternions(startQ,targetQ,e);
+    t += 0.025;
+    var e = 1 - Math.pow(1 - Math.min(t, 1), 3);
+    globe.quaternion.slerpQuaternions(startQ, targetQ, e);
     atmo.quaternion.copy(globe.quaternion);
-    if(t<1)requestAnimationFrame(step);
+    if(t < 1) requestAnimationFrame(step);
   })();
-  zoomTarget=zoom;
+  zoomTarget = zoom;
 }
 
 function buildDots(){
