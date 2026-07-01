@@ -500,14 +500,21 @@ function ll2v(lat,lon,r){
 function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
-  var phi=(90-lat)*Math.PI/180;
-  var th=(lon+180)*Math.PI/180;
-  var vx=-Math.sin(phi)*Math.cos(th);
-  var vy= Math.cos(phi);
-  var vz= Math.sin(phi)*Math.sin(th);
-  var from=new THREE.Vector3(vx,vy,vz).normalize();
-  var to=new THREE.Vector3(0,0,1);
-  var targetQ=new THREE.Quaternion().setFromUnitVectors(from,to);
+
+  // Y축(북극 위) 유지하면서 경도→위도 순으로 회전
+  // 1단계: Y축으로 경도 회전
+  var qLon=new THREE.Quaternion().setFromAxisAngle(
+    new THREE.Vector3(0,1,0),
+    -lon*Math.PI/180
+  );
+  // 2단계: X축으로 위도 회전
+  var qLat=new THREE.Quaternion().setFromAxisAngle(
+    new THREE.Vector3(1,0,0),
+    lat*Math.PI/180
+  );
+  // 합성: 위도 먼저, 경도 나중
+  var targetQ=new THREE.Quaternion().multiplyQuaternions(qLon,qLat);
+
   var startQ=globe.quaternion.clone();
   var t=0;
   (function step(){
