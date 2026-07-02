@@ -534,24 +534,35 @@ var apiBase='https://de1.api.radio-browser.info';
 
 function loadStations(){
   setLoading(true);
-  var countryCode=ST.hasGPS?getCountryCodeFromLatLon(ST.myLat,ST.myLon):'KR';
-  fetch(apiBase+'/json/stations/bycountrycodeexact/'+countryCode+'?limit=500&hidebroken=true&order=clickcount&reverse=true')
-  .then(function(r){return r.json();})
-  .then(function(local){
-    for(var i=0;i<local.length;i++){
-      if(!local[i].geo_lat||!local[i].geo_long){
-        local[i].geo_lat=String(ST.myLat||37.5665);
-        local[i].geo_long=String(ST.myLon||126.9780);
+  var countryCodePromise=ST.hasGPS?getCountryCodeFromLatLon(ST.myLat,ST.myLon):Promise.resolve('KR');
+  countryCodePromise.then(function(countryCode){
+    fetch(apiBase+'/json/stations/bycountrycodeexact/'+countryCode+'?limit=500&hidebroken=true&order=clickcount&reverse=true')
+    .then(function(r){return r.json();})
+    .then(function(local){
+      for(var i=0;i<local.length;i++){
+        if(!local[i].geo_lat||!local[i].geo_long){
+          local[i].geo_lat=String(ST.myLat||37.5665);
+          local[i].geo_long=String(ST.myLon||126.9780);
+        }
       }
-    }
-    onLoaded(local);
-    showToast('📻 내 지역 방송국 로드 완료 — 전체 로딩 중…');
-    loadAllStations(local);
-  })
-  .catch(function(){loadAllStations([]);});
+      onLoaded(local);
+      showToast('📻 내 지역 방송국 로드 완료 — 전체 로딩 중…');
+      loadAllStations(local);
+    })
+    .catch(function(){loadAllStations([]);});
+  });
 }
 
+/* 위경도 → 국가코드: BigDataCloud 무료 역지오코딩 API 사용 (키 불필요, CORS 허용)
+   실패 시(오프라인 등)에만 대략적인 대륙 범위로 폴백 */
 function getCountryCodeFromLatLon(lat,lon){
+  return fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude='+lat+'&longitude='+lon+'&localityLanguage=en')
+    .then(function(r){return r.json();})
+    .then(function(data){return (data&&data.countryCode)?data.countryCode:getCountryCodeFallback(lat,lon);})
+    .catch(function(){return getCountryCodeFallback(lat,lon);});
+}
+
+function getCountryCodeFallback(lat,lon){
   if(lat>=33&&lat<=43&&lon>=124&&lon<=132)return'KR';
   if(lat>=24&&lat<=46&&lon>=122&&lon<=154)return'JP';
   if(lat>=18&&lat<=54&&lon>=73&&lon<=135)return'CN';
