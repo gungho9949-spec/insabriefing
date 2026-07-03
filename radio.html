@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Wild Peaks Radio</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{--bg:#05080f;--green:#4dff91;--green-dim:rgba(77,255,145,0.12);--panel:#0c1320;--panel2:#111b2b;--text:#e8f0fe;--sub:#5a6e8a;--border:rgba(77,255,145,0.1);--red:#ff4d7e;}
@@ -18,6 +19,20 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .sp-bar{width:120px;height:2px;background:rgba(255,255,255,0.06);border-radius:1px;margin-top:28px;overflow:hidden;}
 .sp-bar-fill{height:100%;width:0;background:var(--green);border-radius:1px;animation:spLoad 2s 0.3s ease forwards;}
 @keyframes spLoad{to{width:100%}}
+.sp-tap{position:relative;width:104px;height:104px;display:flex;align-items:center;justify-content:center;margin-top:30px;}
+.tap-ring{position:absolute;width:48px;height:48px;border:2px solid var(--green);border-radius:50%;opacity:0;animation:tapRing 1.3s ease-out infinite;}
+.tap-ring.r2{animation-delay:0.43s;}
+.tap-ring.r3{animation-delay:0.86s;}
+@keyframes tapRing{
+  0%{transform:scale(0.55);opacity:0.8;}
+  100%{transform:scale(2.1);opacity:0;}
+}
+.tap-finger{position:relative;font-size:40px;line-height:1;color:#fff;text-shadow:0 0 14px var(--green);transform-origin:50% 85%;animation:tapPress 1.3s ease-in-out infinite;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.5));}
+@keyframes tapPress{
+  0%,100%{transform:translateY(0) rotate(0deg);}
+  22%{transform:translateY(6px) rotate(-6deg);}
+  44%{transform:translateY(0) rotate(0deg);}
+}
 #app{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;}
 #globe-wrap{flex:1;position:relative;overflow:hidden;cursor:grab;touch-action:none;}
 #globe-wrap:active{cursor:grabbing;}
@@ -117,11 +132,16 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 <body>
 <canvas id="stars"></canvas>
 <div id="splash">
-  <img class="sp-logo-img" src="/logo.png" alt="" onerror="this.style.display='none'">
+  <img class="sp-logo-img" src="/logo.jpg" alt="" onerror="this.style.display='none'">
   <div class="sp-brand">Wild Peaks</div>
   <div class="sp-tag">Radio</div>
   <div class="sp-bar"><div class="sp-bar-fill"></div></div>
-  <div style="font-size:11px;color:var(--sub);margin-top:24px;letter-spacing:1px;">탭하여 시작</div>
+  <div class="sp-tap" aria-hidden="true">
+    <span class="tap-ring r1"></span>
+    <span class="tap-ring r2"></span>
+    <span class="tap-ring r3"></span>
+    <i class="fa-solid fa-hand-pointer tap-finger"></i>
+  </div>
 </div>
 <div id="toast"></div>
 <div id="lock-badge">🔒 LOCKED</div>
