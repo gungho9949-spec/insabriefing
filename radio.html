@@ -247,7 +247,7 @@ var ST={
 })();
 
 /* THREE.JS GLOBE */
-var scene,cam,ren,globe,atmo;
+var scene,cam,ren,globe,atmo,nowPlayingMarker;
 var drag=false,dragMoved=false,pMouse={x:0,y:0};
 var autoRot=true,zoomTarget=null,pinch0=null;
 var velQ=new THREE.Quaternion();
@@ -270,6 +270,16 @@ function initGlobe(){
   );
   scene.add(globe);
 
+  // 현재 재생 중인 방송국의 정확한 위도/경도를 표시하는 전용 마커.
+  // 클러스터 대표점(clusterStations의 첫 방송국 좌표)과는 별개로,
+  // 항상 실제 재생 중인 방송국(s.lat/s.lon)의 좌표만 사용한다.
+  nowPlayingMarker=new THREE.Mesh(
+    new THREE.SphereGeometry(0.011,16,16),
+    new THREE.MeshBasicMaterial({color:0xff4d7e})
+  );
+  nowPlayingMarker.visible=false;
+  globe.add(nowPlayingMarker);
+
   atmo=new THREE.Mesh(new THREE.SphereGeometry(1.045,64,64),new THREE.ShaderMaterial({
     vertexShader:'varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
     fragmentShader:'varying vec3 vN;void main(){float i=pow(0.55-dot(vN,vec3(0,0,1)),2.0);gl_FragColor=vec4(0.15,0.45,1.0,1.0)*i*0.9;}',
@@ -283,9 +293,10 @@ function initGlobe(){
     var W2=wrap.clientWidth,H2=wrap.clientHeight;
     cam.aspect=W2/H2;cam.updateProjectionMatrix();ren.setSize(W2,H2);
   });
-  cv.addEventListener('mousedown',onMD);
-  window.addEventListener('mousemove',onMM);
-  window.addEventListener('mouseup',onMU);
+  cv.addEventListener('pointerdown',onMD);
+  cv.addEventListener('pointermove',onMM);
+  cv.addEventListener('pointerup',onMU);
+  cv.addEventListener('pointercancel',onMU);
   cv.addEventListener('wheel',onWH,{passive:false});
   cv.addEventListener('touchstart',onTS,{passive:false});
   cv.addEventListener('touchmove',onTM,{passive:false});
@@ -325,15 +336,25 @@ function applyDrag(dx,dy){
   velQ.copy(q);
 }
 
-function onMD(e){drag=true;dragMoved=false;pMouse={x:e.clientX,y:e.clientY};autoRot=false;velQ.identity();}
+function onMD(e){
+  if(e.pointerType==='touch'||(e.button!==undefined&&e.button!==0))return;
+  drag=true;dragMoved=false;pMouse={x:e.clientX,y:e.clientY};autoRot=false;velQ.identity();
+  if(e.pointerId!==undefined)ren.domElement.setPointerCapture(e.pointerId);
+}
 function onMM(e){
+  if(e.pointerType==='touch')return;
   if(!drag)return;
   var dx=e.clientX-pMouse.x,dy=e.clientY-pMouse.y;
   if(Math.abs(dx)>2||Math.abs(dy)>2)dragMoved=true;
   applyDrag(dx,dy);
   pMouse={x:e.clientX,y:e.clientY};
 }
-function onMU(e){if(!dragMoved)handleTap(e.clientX,e.clientY);drag=false;}
+function onMU(e){
+  if(e.pointerType==='touch')return;
+  if(!dragMoved)handleTap(e.clientX,e.clientY);
+  drag=false;
+  if(e.pointerId!==undefined&&ren.domElement.hasPointerCapture&&ren.domElement.hasPointerCapture(e.pointerId))ren.domElement.releasePointerCapture(e.pointerId);
+}
 function onWH(e){e.preventDefault();cam.position.z=Math.max(1.2,Math.min(8,cam.position.z+e.deltaY*0.003));}
 function onTS(e){
   if(e.touches.length===2)pinch0=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
@@ -437,6 +458,7 @@ function checkCenterRing(){
         document.getElementById('p-city').textContent=s.country||'Unknown';
         document.getElementById('p-country').textContent=s.state||s.codec||'';
         updateClock(s.lat,s.lon);
+        updateNowPlayingMarker(s);
         showToast('📻 '+s.name);
       }
     },600);
@@ -449,6 +471,13 @@ function checkCenterRing(){
 }
 
 /* GLOBE UTILS */
+// 재생 중인 방송국의 정확한 위도/경도로 now-playing 마커 위치를 갱신
+function updateNowPlayingMarker(s){
+  if(!nowPlayingMarker||!s||isNaN(s.lat)||isNaN(s.lon)){if(nowPlayingMarker)nowPlayingMarker.visible=false;return;}
+  nowPlayingMarker.position.copy(ll2v(s.lat,s.lon,1.024));
+  nowPlayingMarker.visible=true;
+}
+
 // Three.js SphereGeometry 기본 UV 매핑과 일치하는 좌표계
 function ll2v(lat,lon,r){
   r=r||1.0;
@@ -461,36 +490,37 @@ function ll2v(lat,lon,r){
   );
 }
 
-// flyTo: 드래그와 완전히 동일한 방식 사용
-// 핵심: identity에서 시작해서 lon/lat만큼 드래그한 것과 동일하게 계산
-// ll2v와 동일한 좌표계 보장
+// flyTo: 목표 지점을 카메라 정면(+Z)으로 보내되, 북극(로컬 +Y)이 항상 화면 위쪽을
+// 향하도록 롤(roll)이 생기지 않는 회전을 계산한다.
+// setFromUnitVectors(pos, +Z) 한 번으로는 pos→+Z 매핑만 보장될 뿐 회전축 주변의
+// "롤"은 결정되지 않아 임의의 값이 되고, 그 결과 위도/경도에 따라 지구본이
+// 옆으로 누운 것처럼 보이는 버그가 있었다. lookAt 기저(북극을 up으로 사용)로
+// 회전을 구성하면 롤이 0으로 고정된다.
+var _flyToToken=0;
 function flyTo(lat,lon,zoom){
   zoom=zoom||2.0;
   autoRot=false;
 
-  // 드래그 함수 applyDrag(dx,dy)는 spd=0.003*(z/3.8) 속도로 회전
-  // identity에서 lon도 만큼 X축, lat만큼 Y축 회전하면 해당 위치가 정면
-  // ll2v 검증: ll2v(0,0)에서 초기 정면은 경도 -90
-  // 따라서 lon을 정면으로 보내려면 (lon - (-90)) = lon+90 만큼 Y축 회전 필요
-  // 드래그 방향: dx양수→Y축양수방향→지구오른쪽→서쪽이 앞으로→경도감소
-  // 즉 드래그 기준으로 lon+90을 앞으로 보내려면 Y축 -(lon+90) 회전
-  // 위도: dy양수→X축양수→지구아래→남위가 앞으로→lat감소
-  // lat를 앞으로 보내려면 X축 +lat 회전
+  // flyTo()가 애니메이션 도중 다시 호출되면(예: GPS 성공 콜백이 내 위치로 flyTo한
+  // 직후 autoPlayNearby가 방송국 좌표로 다시 flyTo하는 경우) 이전 애니메이션의
+  // requestAnimationFrame 루프가 여전히 살아있어 두 애니메이션이 같은 globe.quaternion을
+  // 동시에 덮어써서 "여러 목적지를 거쳐가는" 것처럼 보였다. 토큰으로 이전 루프를 무효화한다.
+  _flyToToken++;
+  var myToken=_flyToToken;
 
-  // 하지만 위 공식이 계속 틀렸으므로,
-  // 직접 ll2v로 서울 위치 벡터를 구해서 +Z로 보내는 회전을 역으로 적용
-  // setFromUnitVectors(pos, +Z)의 역 = setFromUnitVectors(+Z, pos)를 globe에 적용
+  var pos=ll2v(lat,lon,1.0).normalize();
+  var north=new THREE.Vector3(0,1,0);
 
-  var pos = ll2v(lat, lon, 1.0).normalize();
-  var camDir = new THREE.Vector3(0, 0, 1);
-
-  // pos를 카메라 방향(+Z)으로 보내는 회전
-  var rotToFront = new THREE.Quaternion().setFromUnitVectors(pos, camDir);
-  var targetQ = rotToFront;
+  // pos 방향에서 원점을 바라보며 up=north로 정렬한 기저 행렬 M.
+  // M은 로컬 e_z를 pos로 보내므로, 우리가 원하는(pos를 +Z로 보내는) 회전은 M의 역(=전치=켤레).
+  var m=new THREE.Matrix4().lookAt(pos,new THREE.Vector3(0,0,0),north);
+  var basisQ=new THREE.Quaternion().setFromRotationMatrix(m);
+  var targetQ=basisQ.clone().conjugate();
 
   var startQ = globe.quaternion.clone();
   var t = 0;
   (function step(){
+    if(myToken!==_flyToToken)return;
     t += 0.025;
     var e = 1 - Math.pow(1 - Math.min(t, 1), 3);
     globe.quaternion.slerpQuaternions(startQ, targetQ, e);
@@ -618,7 +648,7 @@ function autoPlayNearby(){
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
     var dLat=cl.lat-ST.myLat;
-    var dLon=(cl.lon-ST.myLon)*Math.cos(ST.myLat*Math.PI/180);
+    var dLon=((cl.lon-ST.myLon+540)%360-180)*Math.cos(ST.myLat*Math.PI/180);
     var d=Math.sqrt(dLat*dLat+dLon*dLon);
     if(d<bestD){bestD=d;best=cl;}
   }
@@ -755,6 +785,7 @@ function play(s){
   document.getElementById('p-city').textContent=s.country||'Unknown';
   document.getElementById('p-country').textContent=s.state||s.codec||'';
   updateClock(s.lat,s.lon);
+  updateNowPlayingMarker(s);
   if(s.lat&&s.lon)flyTo(s.lat,s.lon,1.8);
 }
 function togglePlay(){
@@ -908,8 +939,10 @@ function enterApp(){
       if(ST.stationsReady)autoPlayNearby();
     },function(err){
       console.warn('GPS 실패:',err.message);
-      ST.hasGPS=true;zoomTarget=3.0;
-      if(ST.stationsReady)autoPlayNearby();
+      // hasGPS는 false로 유지한다. GPS 실패를 (0,0) 좌표의 "실제 위치"로 취급하면
+      // autoPlayNearby()가 적도/기니만 인근(Null Island)에서 가장 가까운 방송국을
+      // 마치 사용자 위치 기준인 것처럼 자동 재생해버리는 문제가 있었다(예: 가나 방송국 고정 재생).
+      zoomTarget=3.0;
     },{enableHighAccuracy:true,timeout:8000,maximumAge:0});
   }else{zoomTarget=3.0;}
   loadStations();
