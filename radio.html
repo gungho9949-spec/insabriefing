@@ -148,7 +148,7 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 <div id="app">
   <div id="globe-wrap">
     <canvas id="globe-canvas"></canvas>
-    <div id="loading-ring"><div class="ring"></div><div class="ring-txt">Loading</div></div>
+    <div id="loading-ring"><div class="ring"></div><div class="ring-txt" data-i18n="loading">Loading</div></div>
     <div id="center-ring"></div>
     <div id="side-btns">
       <div class="sbtn" onclick="gotoMyLocation()">📍</div>
@@ -160,12 +160,12 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
     <div class="p-brand">Wild Peaks Radio</div>
     <div class="p-info">
       <div class="p-left">
-        <div class="p-city" id="p-city">지구를 탐색하세요</div>
-        <div class="p-country" id="p-country">녹색 점을 탭하면 방송국 목록이 열립니다</div>
+        <div class="p-city" id="p-city" data-i18n="playerDefaultCity">지구를 탐색하세요</div>
+        <div class="p-country" id="p-country" data-i18n="playerDefaultCountry">녹색 점을 탭하면 방송국 목록이 열립니다</div>
       </div>
       <div class="p-right">
         <div class="p-time" id="p-time">--:--</div>
-        <div class="p-station" id="p-station">방송국 없음</div>
+        <div class="p-station" id="p-station" data-i18n="playerDefaultStation">방송국 없음</div>
       </div>
     </div>
     <div class="p-controls">
@@ -178,17 +178,17 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
     </div>
   </div>
   <div id="nav">
-    <button class="nbtn on" data-t="globe" onclick="switchTab('globe')"><span class="ni">🌍</span>탐색</button>
-    <button class="nbtn" data-t="fav" onclick="switchTab('fav')"><span class="ni">♡</span>즐겨찾기</button>
-    <button class="nbtn" data-t="live" onclick="switchTab('live')"><span class="ni">🔴</span>라이브</button>
-    <button class="nbtn" data-t="search" onclick="switchTab('search')"><span class="ni">🔍</span>검색</button>
-    <button class="nbtn" data-t="settings" onclick="switchTab('settings')"><span class="ni">☰</span>설정</button>
+    <button class="nbtn on" data-t="globe" onclick="switchTab('globe')"><span class="ni">🌍</span><span data-i18n="navExplore">탐색</span></button>
+    <button class="nbtn" data-t="fav" onclick="switchTab('fav')"><span class="ni">♡</span><span data-i18n="navFav">즐겨찾기</span></button>
+    <button class="nbtn" data-t="live" onclick="switchTab('live')"><span class="ni">🔴</span><span data-i18n="navLive">라이브</span></button>
+    <button class="nbtn" data-t="search" onclick="switchTab('search')"><span class="ni">🔍</span><span data-i18n="navSearch">검색</span></button>
+    <button class="nbtn" data-t="settings" onclick="switchTab('settings')"><span class="ni">☰</span><span data-i18n="navSettings">설정</span></button>
   </div>
 </div>
 <div id="sheet">
   <div class="sh-handle" onclick="closeSheet()"></div>
   <div class="sh-head">
-    <div><div class="sh-city" id="sh-city">방송국</div><div class="sh-meta" id="sh-meta"></div></div>
+    <div><div class="sh-city" id="sh-city" data-i18n="sheetDefaultCity">방송국</div><div class="sh-meta" id="sh-meta"></div></div>
     <div style="display:flex;align-items:center;gap:12px;">
       <div class="sh-time" id="sh-time"></div>
       <div class="sh-close" onclick="closeSheet()">✕</div>
@@ -197,39 +197,39 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
   <div class="sh-list" id="sh-list"></div>
 </div>
 <div class="tab" id="tab-fav">
-  <div class="tab-hd"><button class="tab-back" onclick="closeTab('fav')">‹</button><div class="tab-ttl">즐겨찾기</div></div>
+  <div class="tab-hd"><button class="tab-back" onclick="closeTab('fav')">‹</button><div class="tab-ttl" data-i18n="tabTtlFav">즐겨찾기</div></div>
   <div class="tab-body" id="fav-body"></div>
 </div>
 <div class="tab" id="tab-live">
-  <div class="tab-hd"><button class="tab-back" onclick="closeTab('live')">‹</button><div class="tab-ttl">라이브</div></div>
+  <div class="tab-hd"><button class="tab-back" onclick="closeTab('live')">‹</button><div class="tab-ttl" data-i18n="tabTtlLive">라이브</div></div>
   <div class="live-cnt">
-    <div class="big">📡</div><h2>Coming Soon</h2>
-    <p>YouTube 라이브 연동이 곧 추가됩니다!</p>
+    <div class="big">📡</div><h2 data-i18n="liveComingSoon">Coming Soon</h2>
+    <p data-i18n="liveDesc">YouTube 라이브 연동이 곧 추가됩니다!</p>
     <a class="yt-btn" href="https://youtube.com/@wildpeaks-wp" target="_blank">▶ Wild Peaks YouTube</a>
   </div>
 </div>
 <div class="tab" id="tab-search">
-  <div class="tab-hd"><button class="tab-back" onclick="closeTab('search')">‹</button><div class="tab-ttl">검색</div></div>
+  <div class="tab-hd"><button class="tab-back" onclick="closeTab('search')">‹</button><div class="tab-ttl" data-i18n="tabTtlSearch">검색</div></div>
   <div class="tab-body">
-    <input class="sinput" id="search-input" placeholder="방송국 또는 도시명 검색…" oninput="doSearch(this.value)">
+    <input class="sinput" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="방송국 또는 도시명 검색…" oninput="doSearch(this.value)">
     <div id="search-results"></div>
   </div>
 </div>
 <div class="tab" id="tab-settings">
-  <div class="tab-hd"><button class="tab-back" onclick="closeTab('settings')">‹</button><div class="tab-ttl">설정</div></div>
+  <div class="tab-hd"><button class="tab-back" onclick="closeTab('settings')">‹</button><div class="tab-ttl" data-i18n="tabTtlSettings">설정</div></div>
   <div class="tab-body">
-    <div class="set-sec"><div class="set-lbl">언어</div><div class="lang-grid" id="lang-grid"></div></div>
+    <div class="set-sec"><div class="set-lbl" data-i18n="settingsLang">언어</div><div class="lang-grid" id="lang-grid"></div></div>
     <div class="set-sec">
-      <div class="set-lbl">지구본 점 크기</div>
+      <div class="set-lbl" data-i18n="settingsDotSize">지구본 점 크기</div>
       <div class="szrow">
-        <button class="szbtn" data-s="sm" onclick="setDotSize('sm')">작게</button>
-        <button class="szbtn on" data-s="md" onclick="setDotSize('md')">보통</button>
-        <button class="szbtn" data-s="lg" onclick="setDotSize('lg')">크게</button>
+        <button class="szbtn" data-s="sm" data-i18n="dotSmall" onclick="setDotSize('sm')">작게</button>
+        <button class="szbtn on" data-s="md" data-i18n="dotMedium" onclick="setDotSize('md')">보통</button>
+        <button class="szbtn" data-s="lg" data-i18n="dotLarge" onclick="setDotSize('lg')">크게</button>
       </div>
     </div>
     <div class="set-sec">
-      <div class="set-lbl">정보</div>
-      <div class="about"><strong>Wild Peaks Radio v2.0</strong><br>전 세계 라디오 방송국을 지구본에서 탐색하세요.<br><br>데이터: <strong>radio-browser.info</strong><br>3D: <strong>Three.js r128</strong></div>
+      <div class="set-lbl" data-i18n="settingsInfo">정보</div>
+      <div class="about" id="about-box"><strong>Wild Peaks Radio v2.0</strong><br>전 세계 라디오 방송국을 지구본에서 탐색하세요.<br><br>데이터: <strong>radio-browser.info</strong><br>3D: <strong>Three.js r128</strong></div>
     </div>
   </div>
 </div>
@@ -483,14 +483,14 @@ function checkCenterRing(){
           document.getElementById('btn-play').textContent='⏸';
           document.getElementById('eq').classList.remove('paused');
         }).catch(function(){
-          showToast('▶ 탭해서 '+s.name+' 재생');
+          showToast(t('toastTapToPlay',{name:s.name}));
         });
         document.getElementById('p-station').textContent=s.name;
         document.getElementById('p-city').textContent=s.country||'Unknown';
         document.getElementById('p-country').textContent=s.state||s.codec||'';
         updateClock(s.lat,s.lon);
         updateNowPlayingMarker(s);
-        showToast('📻 '+s.name);
+        showToast(t('toastNowPlaying',{name:s.name}));
       }
     },600);
   }else{
@@ -607,7 +607,7 @@ function loadStations(){
         }
       }
       onLoaded(local);
-      showToast('📻 내 지역 방송국 로드 완료 — 전체 로딩 중…');
+      showToast(t('toastLocalLoaded'));
       loadAllStations(local);
     })
     .catch(function(){loadAllStations([]);});
@@ -650,7 +650,7 @@ function loadAllStations(alreadyLoaded){
     var newData=[];
     for(var i=0;i<combined.length;i++){if(!seen[combined[i].stationuuid])newData.push(combined[i]);}
     if(newData.length>0)onLoaded(combined);
-    showToast('🌍 전체 '+ST.stations.length.toLocaleString()+'개 방송국 로드 완료');
+    showToast(t('toastAllLoaded',{n:ST.stations.length.toLocaleString()}));
   });
 }
 
@@ -693,7 +693,7 @@ function autoPlayNearby(){
       document.getElementById('p-city').textContent=s.country||'Unknown';
       document.getElementById('p-country').textContent=s.state||s.codec||'';
       updateClock(s.lat,s.lon);
-      showToast('📍 탭하면 '+s.name+' 재생');
+      showToast(t('toastTapWhenReady',{name:s.name}));
       function startOnInteraction(){
         if(ST.pendingStation){play(ST.pendingStation);ST.pendingStation=null;}
         document.removeEventListener('click',startOnInteraction);
@@ -712,8 +712,8 @@ function onPlayerTap(){if(ST.currentCluster)openSheet(ST.currentCluster);}
 
 function openSheet(cl){
   ST.currentCluster=cl;ST.sheetList=cl.stations;
-  document.getElementById('sh-city').textContent=cl.country||'방송국';
-  document.getElementById('sh-meta').textContent=cl.stations.length+'개 방송국';
+  document.getElementById('sh-city').textContent=cl.country||t('sheetDefaultCity');
+  document.getElementById('sh-meta').textContent=t('stationCount',{n:cl.stations.length});
   clearInterval(ST.sheetTimerId);
   ST.sheetTimerId=setInterval(function(){
     var off=getTimezoneOffset(cl.lat,cl.lon);
@@ -724,19 +724,19 @@ function openSheet(cl){
   renderSheetList(cl);
   document.getElementById('sheet').classList.add('open');
   document.getElementById('p-city').textContent=cl.country||'Unknown';
-  document.getElementById('p-country').textContent=(cl.stations[0]&&cl.stations[0].state)||cl.stations.length+'개 방송국';
+  document.getElementById('p-country').textContent=(cl.stations[0]&&cl.stations[0].state)||t('stationCount',{n:cl.stations.length});
 }
 function closeSheet(){document.getElementById('sheet').classList.remove('open');clearInterval(ST.sheetTimerId);}
 
 function renderSheetList(cl){
   var ul=document.getElementById('sh-list');ul.innerHTML='';
-  var sec=document.createElement('div');sec.className='sh-section';sec.textContent=(cl.country||'방송국')+' 방송국';ul.appendChild(sec);
+  var sec=document.createElement('div');sec.className='sh-section';sec.textContent=countryStationsLabel(cl.country);ul.appendChild(sec);
   var list=cl.stations,max=Math.min(5,list.length);
   for(var i=0;i<max;i++)ul.appendChild(makeItem(list[i],i,'sheet'));
   if(list.length>5){
     var sa=document.createElement('div');sa.className='sh-see-all';
-    sa.innerHTML='전체 '+list.length+'개 방송국 보기 <span>›</span>';
-    (function(l){sa.onclick=function(){ul.innerHTML='';var s2=document.createElement('div');s2.className='sh-section';s2.textContent=(cl.country||'방송국')+' 방송국';ul.appendChild(s2);for(var i=0;i<l.length;i++)ul.appendChild(makeItem(l[i],i,'sheet'));renderNearby(cl,ul);};})(list);
+    sa.innerHTML=t('seeAllStations',{n:list.length})+' <span>›</span>';
+    (function(l){sa.onclick=function(){ul.innerHTML='';var s2=document.createElement('div');s2.className='sh-section';s2.textContent=countryStationsLabel(cl.country);ul.appendChild(s2);for(var i=0;i<l.length;i++)ul.appendChild(makeItem(l[i],i,'sheet'));renderNearby(cl,ul);};})(list);
     ul.appendChild(sa);
   }
   renderNearby(cl,ul);
@@ -751,14 +751,14 @@ function renderNearby(cl,ul){
   }
   nearby.sort(function(a,b){return a.d-b.d;});nearby=nearby.slice(0,8);
   if(!nearby.length)return;
-  var sec=document.createElement('div');sec.className='sh-section';sec.textContent='주변 지역 방송국';ul.appendChild(sec);
+  var sec=document.createElement('div');sec.className='sh-section';sec.textContent=t('nearbySection');ul.appendChild(sec);
   for(var i=0;i<nearby.length;i++){
     var nc=nearby[i].cl;if(!nc.stations.length)continue;
     var s=nc.stations[0];
     var div=document.createElement('div');div.className='si';
     var isFav=ST.favs.some(function(f){return f.uuid===s.uuid;});
     div.innerHTML='<div class="si-dot'+(ST.current&&ST.current.uuid===s.uuid?' on':'')+'"></div>'+
-      '<div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+(nc.country||'')+' · '+nc.stations.length+'개 방송국</div></div>'+
+      '<div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+(nc.country||'')+' · '+t('stationCount',{n:nc.stations.length})+'</div></div>'+
       '<div class="si-heart'+(isFav?' on':'')+'" onclick="tapHeartUUID(event,\''+s.uuid+'\')">'+(isFav?'♥':'♡')+'</div>';
     (function(cluster,station){div.addEventListener('click',function(e){if(e.target.classList.contains('si-heart'))return;openSheet(cluster);play(station);});})(nc,s);
     ul.appendChild(div);
@@ -770,7 +770,7 @@ function tapHeartUUID(e,uuid){
   var s=null;for(var i=0;i<ST.stations.length;i++){if(ST.stations[i].uuid===uuid){s=ST.stations[i];break;}}
   if(!s)return;
   var fi=ST.favs.findIndex(function(f){return f.uuid===uuid;});
-  if(fi>=0){ST.favs.splice(fi,1);showToast('즐겨찾기 삭제');}else{ST.favs.push(s);showToast('♥ 즐겨찾기 추가');}
+  if(fi>=0){ST.favs.splice(fi,1);showToast(t('toastFavRemoved'));}else{ST.favs.push(s);showToast(t('toastFavAdded'));}
   localStorage.setItem('wp_favs',JSON.stringify(ST.favs));
   if(ST.currentCluster)renderSheetList(ST.currentCluster);renderFav();
 }
@@ -794,14 +794,14 @@ function tapHeart(e,idx,ctx){
   e.stopPropagation();
   var list=ctx==='fav'?ST.favs:ST.sheetList;var s=list[idx];if(!s)return;
   var fi=ST.favs.findIndex(function(f){return f.uuid===s.uuid;});
-  if(fi>=0){ST.favs.splice(fi,1);showToast('즐겨찾기 삭제');}else{ST.favs.push(s);showToast('♥ 즐겨찾기 추가');}
+  if(fi>=0){ST.favs.splice(fi,1);showToast(t('toastFavRemoved'));}else{ST.favs.push(s);showToast(t('toastFavAdded'));}
   localStorage.setItem('wp_favs',JSON.stringify(ST.favs));
   if(ST.currentCluster)renderSheetList(ST.currentCluster);renderFav();
 }
 
 function renderFav(){
   var el=document.getElementById('fav-body');
-  if(!ST.favs.length){el.innerHTML='<div class="fav-empty"><div class="icon">♡</div><div style="font-size:14px;font-weight:600;">즐겨찾기가 없습니다</div><div style="font-size:12px;margin-top:4px;">방송국 옆 ♡를 눌러 추가하세요</div></div>';return;}
+  if(!ST.favs.length){el.innerHTML='<div class="fav-empty"><div class="icon">♡</div><div style="font-size:14px;font-weight:600;">'+esc(t('favEmptyTitle'))+'</div><div style="font-size:12px;margin-top:4px;">'+esc(t('favEmptyDesc'))+'</div></div>';return;}
   el.innerHTML='';for(var i=0;i<ST.favs.length;i++)el.appendChild(makeItem(ST.favs[i],i,'fav'));
 }
 
@@ -860,11 +860,11 @@ function updateClock(lat,lon){
 /* GPS */
 function gotoMyLocation(){
   if(ST.hasGPS){flyTo(ST.myLat,ST.myLon,1.8);return;}
-  showToast('📍 위치 확인 중…');
+  showToast(t('toastLocating'));
   if(navigator.geolocation)navigator.geolocation.getCurrentPosition(function(pos){
     ST.myLat=pos.coords.latitude;ST.myLon=pos.coords.longitude;ST.hasGPS=true;
-    flyTo(ST.myLat,ST.myLon,1.8);showToast('📍 내 위치로 이동');
-  },function(){showToast('위치 권한을 허용해 주세요');});
+    flyTo(ST.myLat,ST.myLon,1.8);showToast(t('toastLocated'));
+  },function(){showToast(t('toastLocationDenied'));});
 }
 
 /* LOCK */
@@ -872,14 +872,14 @@ function toggleLock(){
   ST.locked=!ST.locked;
   document.getElementById('btn-lock').textContent=ST.locked?'🔒':'🔓';
   document.getElementById('lock-badge').classList.toggle('show',ST.locked);
-  showToast(ST.locked?'🔒 잠김 — 방송 유지':'🔓 열림 — 자동 재생');
+  showToast(ST.locked?t('toastLocked'):t('toastUnlocked'));
 }
 
 /* SHARE */
 function shareStation(){
   var s=ST.current,text=s?'🎵 '+s.name+' — Wild Peaks Radio\n'+location.href:'Wild Peaks Radio\n'+location.href;
   if(navigator.share)navigator.share({title:'Wild Peaks Radio',text:text,url:location.href}).catch(function(){});
-  else if(navigator.clipboard)navigator.clipboard.writeText(text).then(function(){showToast('🔗 링크 복사 완료');});
+  else if(navigator.clipboard)navigator.clipboard.writeText(text).then(function(){showToast(t('toastLinkCopied'));});
 }
 
 /* SEARCH */
@@ -889,38 +889,126 @@ function doSearch(q){
   var el=document.getElementById('search-results');
   if(!q.trim()){el.innerHTML='';return;}
   searchTimer=setTimeout(function(){
-    el.innerHTML='<div style="color:var(--sub);font-size:12px;padding:8px 0;">검색 중…</div>';
+    el.innerHTML='<div style="color:var(--sub);font-size:12px;padding:8px 0;">'+esc(t('searchSearching'))+'</div>';
     fetch(apiBase+'/json/stations/search?name='+encodeURIComponent(q)+'&limit=30&hidebroken=true')
     .then(function(r){return r.json();})
     .then(function(data){
       el.innerHTML='';
-      if(!data.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;padding:8px 0;">결과 없음</div>';return;}
+      if(!data.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;padding:8px 0;">'+esc(t('searchNoResults'))+'</div>';return;}
       for(var i=0;i<data.length;i++){(function(raw){
         var s={name:(raw.name||'').trim()||'Unknown',url:raw.url_resolved||raw.url,lat:parseFloat(raw.geo_lat)||0,lon:parseFloat(raw.geo_long)||0,country:raw.country||'',state:raw.state||'',codec:raw.codec||'',bitrate:parseInt(raw.bitrate)||0,uuid:raw.stationuuid||''};
         var div=document.createElement('div');div.className='si';
         div.innerHTML='<div class="si-dot"></div><div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+s.country+(s.state?' · '+s.state:'')+'</div></div>';
-        div.onclick=function(){play(s);ST.sheetList=[s];closeTab('search');showToast('▶ '+s.name);};
+        div.onclick=function(){play(s);ST.sheetList=[s];closeTab('search');showToast(t('toastPlaySearch',{name:s.name}));};
         el.appendChild(div);
       })(data[i]);}
     })
-    .catch(function(){el.innerHTML='<div style="color:var(--sub);font-size:12px;">오류 발생</div>';});
+    .catch(function(){el.innerHTML='<div style="color:var(--sub);font-size:12px;">'+esc(t('searchError'))+'</div>';});
   },380);
 }
 
 /* SETTINGS */
-var LANGS=[['auto','자동'],['ko','한국어'],['en','English'],['ja','日本語'],['zh-TW','繁體中文'],['zh-CN','简体中文'],['es','Español'],['fr','français'],['de','Deutsch'],['pt','Português'],['it','Italiano'],['ru','русский'],['ar','العربية'],['tr','Türkçe'],['id','Bahasa Indonesia'],['th','ภาษาไทย'],['vi','Tiếng Việt'],['hi','हिन्दी']];
+var LANGS=[['auto','자동'],['ko','한국어'],['en','English'],['ja','日本語'],['zh-TW','繁體中文'],['zh-CN','简体中文'],['es','Español'],['fr','français'],['de','Deutsch'],['pt','Português'],['it','Italiano'],['ru','русский'],['ar','العربية'],['tr','Türkçe'],['id','Bahasa Indonesia'],['th','ภาษาไทย'],['vi','Tiếng Việt'],['hi','हिन्दी'],['pl','Polski'],['nl','Nederlands'],['sv','Svenska'],['uk','Українська'],['el','Ελληνικά']];
+
+/* 화면에 보이는 모든 텍스트의 번역 데이터. auto는 언어가 아니라 "자동 감지" 옵션이라
+   여기 포함하지 않고 langAuto 키로 각 언어별로 그 라벨만 따로 번역한다. */
+var translations={
+ko:{langAuto:"자동",loading:"로딩 중",navExplore:"탐색",navFav:"즐겨찾기",navLive:"라이브",navSearch:"검색",navSettings:"설정",tabTtlFav:"즐겨찾기",tabTtlLive:"라이브",tabTtlSearch:"검색",tabTtlSettings:"설정",playerDefaultCity:"지구를 탐색하세요",playerDefaultCountry:"녹색 점을 탭하면 방송국 목록이 열립니다",playerDefaultStation:"방송국 없음",sheetDefaultCity:"방송국",liveComingSoon:"Coming Soon",liveDesc:"YouTube 라이브 연동이 곧 추가됩니다!",searchPlaceholder:"방송국 또는 도시명 검색…",searchSearching:"검색 중…",searchNoResults:"결과 없음",searchError:"오류 발생",settingsLang:"언어",settingsDotSize:"지구본 점 크기",dotSmall:"작게",dotMedium:"보통",dotLarge:"크게",settingsInfo:"정보",aboutDesc:"전 세계 라디오 방송국을 지구본에서 탐색하세요.",aboutDataLabel:"데이터",about3dLabel:"3D",favEmptyTitle:"즐겨찾기가 없습니다",favEmptyDesc:"방송국 옆 ♡를 눌러 추가하세요",nearbySection:"주변 지역 방송국",seeAllStations:"전체 {n}개 방송국 보기",stationCount:"{n}개 방송국",countryStations:"{country} 방송국",toastLocalLoaded:"📻 내 지역 방송국 로드 완료 — 전체 로딩 중…",toastAllLoaded:"🌍 전체 {n}개 방송국 로드 완료",toastTapToPlay:"▶ 탭해서 {name} 재생",toastTapWhenReady:"📍 탭하면 {name} 재생",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"즐겨찾기 삭제",toastFavAdded:"♥ 즐겨찾기 추가",toastLocating:"📍 위치 확인 중…",toastLocated:"📍 내 위치로 이동",toastLocationDenied:"위치 권한을 허용해 주세요",toastLocked:"🔒 잠김 — 방송 유지",toastUnlocked:"🔓 열림 — 자동 재생",toastLinkCopied:"🔗 링크 복사 완료",toastWebglError:"⚠️ 3D 지구본을 불러오지 못했습니다. 새로고침 해주세요."},
+en:{langAuto:"Auto",loading:"Loading",navExplore:"Explore",navFav:"Favorites",navLive:"Live",navSearch:"Search",navSettings:"Settings",tabTtlFav:"Favorites",tabTtlLive:"Live",tabTtlSearch:"Search",tabTtlSettings:"Settings",playerDefaultCity:"Explore the globe",playerDefaultCountry:"Tap a green dot to open the station list",playerDefaultStation:"No station",sheetDefaultCity:"Station",liveComingSoon:"Coming Soon",liveDesc:"YouTube Live integration is coming soon!",searchPlaceholder:"Search station or city…",searchSearching:"Searching…",searchNoResults:"No results",searchError:"Something went wrong",settingsLang:"Language",settingsDotSize:"Globe dot size",dotSmall:"Small",dotMedium:"Medium",dotLarge:"Large",settingsInfo:"About",aboutDesc:"Explore radio stations from around the world on a 3D globe.",aboutDataLabel:"Data",about3dLabel:"3D",favEmptyTitle:"No favorites yet",favEmptyDesc:"Tap ♡ next to a station to add it",nearbySection:"Nearby stations",seeAllStations:"See all {n} stations",stationCount:"{n} stations",countryStations:"{country} stations",toastLocalLoaded:"📻 Local stations loaded — loading all stations…",toastAllLoaded:"🌍 Loaded {n} stations worldwide",toastTapToPlay:"▶ Tap to play {name}",toastTapWhenReady:"📍 Tap to play {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Removed from favorites",toastFavAdded:"♥ Added to favorites",toastLocating:"📍 Locating…",toastLocated:"📍 Moved to your location",toastLocationDenied:"Please allow location access",toastLocked:"🔒 Locked — station stays",toastUnlocked:"🔓 Unlocked — auto-play",toastLinkCopied:"🔗 Link copied",toastWebglError:"⚠️ Couldn't load the 3D globe. Please refresh."},
+ja:{langAuto:"自動",loading:"読み込み中",navExplore:"探索",navFav:"お気に入り",navLive:"ライブ",navSearch:"検索",navSettings:"設定",tabTtlFav:"お気に入り",tabTtlLive:"ライブ",tabTtlSearch:"検索",tabTtlSettings:"設定",playerDefaultCity:"地球儀を探索しましょう",playerDefaultCountry:"緑の点をタップすると放送局リストが開きます",playerDefaultStation:"放送局なし",sheetDefaultCity:"放送局",liveComingSoon:"Coming Soon",liveDesc:"YouTubeライブ連携は近日公開予定です！",searchPlaceholder:"放送局または都市名を検索…",searchSearching:"検索中…",searchNoResults:"結果なし",searchError:"エラーが発生しました",settingsLang:"言語",settingsDotSize:"地球儀の点のサイズ",dotSmall:"小",dotMedium:"中",dotLarge:"大",settingsInfo:"情報",aboutDesc:"世界中のラジオ局を3D地球儀で探索しましょう。",aboutDataLabel:"データ",about3dLabel:"3D",favEmptyTitle:"お気に入りがありません",favEmptyDesc:"放送局の横の♡をタップして追加",nearbySection:"周辺地域の放送局",seeAllStations:"全{n}件の放送局を見る",stationCount:"{n}件の放送局",countryStations:"{country}の放送局",toastLocalLoaded:"📻 地元の放送局を読み込みました — 全体を読み込み中…",toastAllLoaded:"🌍 世界中の{n}件の放送局を読み込みました",toastTapToPlay:"▶ タップして{name}を再生",toastTapWhenReady:"📍 タップして{name}を再生",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"お気に入りを削除しました",toastFavAdded:"♥ お気に入りに追加しました",toastLocating:"📍 位置情報を確認中…",toastLocated:"📍 現在地に移動しました",toastLocationDenied:"位置情報へのアクセスを許可してください",toastLocked:"🔒 ロック中 — 放送を維持",toastUnlocked:"🔓 解除 — 自動再生",toastLinkCopied:"🔗 リンクをコピーしました",toastWebglError:"⚠️ 3D地球儀を読み込めませんでした。更新してください。"},
+"zh-TW":{langAuto:"自動",loading:"載入中",navExplore:"探索",navFav:"收藏",navLive:"直播",navSearch:"搜尋",navSettings:"設定",tabTtlFav:"收藏",tabTtlLive:"直播",tabTtlSearch:"搜尋",tabTtlSettings:"設定",playerDefaultCity:"探索地球",playerDefaultCountry:"點擊綠點開啟電台列表",playerDefaultStation:"無電台",sheetDefaultCity:"電台",liveComingSoon:"即將推出",liveDesc:"YouTube 直播功能即將推出！",searchPlaceholder:"搜尋電台或城市…",searchSearching:"搜尋中…",searchNoResults:"沒有結果",searchError:"發生錯誤",settingsLang:"語言",settingsDotSize:"地球點的大小",dotSmall:"小",dotMedium:"中",dotLarge:"大",settingsInfo:"關於",aboutDesc:"在3D地球儀上探索全世界的電台。",aboutDataLabel:"資料",about3dLabel:"3D",favEmptyTitle:"尚無收藏",favEmptyDesc:"點擊電台旁的♡即可加入收藏",nearbySection:"鄰近地區電台",seeAllStations:"查看全部 {n} 個電台",stationCount:"{n} 個電台",countryStations:"{country} 電台",toastLocalLoaded:"📻 已載入本地電台 — 正在載入全部電台…",toastAllLoaded:"🌍 已載入全球 {n} 個電台",toastTapToPlay:"▶ 點擊播放 {name}",toastTapWhenReady:"📍 點擊播放 {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"已從收藏移除",toastFavAdded:"♥ 已加入收藏",toastLocating:"📍 正在定位…",toastLocated:"📍 已移至您的位置",toastLocationDenied:"請允許存取位置資訊",toastLocked:"🔒 已鎖定 — 保持播放",toastUnlocked:"🔓 已解鎖 — 自動播放",toastLinkCopied:"🔗 連結已複製",toastWebglError:"⚠️ 無法載入3D地球儀，請重新整理。"},
+"zh-CN":{langAuto:"自动",loading:"加载中",navExplore:"探索",navFav:"收藏",navLive:"直播",navSearch:"搜索",navSettings:"设置",tabTtlFav:"收藏",tabTtlLive:"直播",tabTtlSearch:"搜索",tabTtlSettings:"设置",playerDefaultCity:"探索地球",playerDefaultCountry:"点击绿点打开电台列表",playerDefaultStation:"无电台",sheetDefaultCity:"电台",liveComingSoon:"即将推出",liveDesc:"YouTube直播功能即将推出！",searchPlaceholder:"搜索电台或城市…",searchSearching:"搜索中…",searchNoResults:"无结果",searchError:"发生错误",settingsLang:"语言",settingsDotSize:"地球点的大小",dotSmall:"小",dotMedium:"中",dotLarge:"大",settingsInfo:"关于",aboutDesc:"在3D地球仪上探索全世界的电台。",aboutDataLabel:"数据",about3dLabel:"3D",favEmptyTitle:"暂无收藏",favEmptyDesc:"点击电台旁的♡即可添加收藏",nearbySection:"附近地区电台",seeAllStations:"查看全部 {n} 个电台",stationCount:"{n} 个电台",countryStations:"{country} 电台",toastLocalLoaded:"📻 本地电台加载完成 — 正在加载全部电台…",toastAllLoaded:"🌍 已加载全球 {n} 个电台",toastTapToPlay:"▶ 点击播放 {name}",toastTapWhenReady:"📍 点击播放 {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"已取消收藏",toastFavAdded:"♥ 已加入收藏",toastLocating:"📍 正在定位…",toastLocated:"📍 已移动到您的位置",toastLocationDenied:"请允许访问位置信息",toastLocked:"🔒 已锁定 — 保持播放",toastUnlocked:"🔓 已解锁 — 自动播放",toastLinkCopied:"🔗 链接已复制",toastWebglError:"⚠️ 无法加载3D地球仪，请刷新。"},
+es:{langAuto:"Automático",loading:"Cargando",navExplore:"Explorar",navFav:"Favoritos",navLive:"En vivo",navSearch:"Buscar",navSettings:"Ajustes",tabTtlFav:"Favoritos",tabTtlLive:"En vivo",tabTtlSearch:"Buscar",tabTtlSettings:"Ajustes",playerDefaultCity:"Explora el globo",playerDefaultCountry:"Toca un punto verde para abrir la lista de emisoras",playerDefaultStation:"Sin emisora",sheetDefaultCity:"Emisora",liveComingSoon:"Próximamente",liveDesc:"La integración con YouTube Live llegará pronto.",searchPlaceholder:"Buscar emisora o ciudad…",searchSearching:"Buscando…",searchNoResults:"Sin resultados",searchError:"Ocurrió un error",settingsLang:"Idioma",settingsDotSize:"Tamaño de los puntos del globo",dotSmall:"Pequeño",dotMedium:"Mediano",dotLarge:"Grande",settingsInfo:"Acerca de",aboutDesc:"Explora emisoras de radio de todo el mundo en un globo 3D.",aboutDataLabel:"Datos",about3dLabel:"3D",favEmptyTitle:"Aún no hay favoritos",favEmptyDesc:"Toca ♡ junto a una emisora para añadirla",nearbySection:"Emisoras cercanas",seeAllStations:"Ver las {n} emisoras",stationCount:"{n} emisoras",countryStations:"Emisoras de {country}",toastLocalLoaded:"📻 Emisoras locales cargadas — cargando todas las emisoras…",toastAllLoaded:"🌍 Se cargaron {n} emisoras en todo el mundo",toastTapToPlay:"▶ Toca para reproducir {name}",toastTapWhenReady:"📍 Toca para reproducir {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Eliminado de favoritos",toastFavAdded:"♥ Añadido a favoritos",toastLocating:"📍 Localizando…",toastLocated:"📍 Movido a tu ubicación",toastLocationDenied:"Por favor, permite el acceso a la ubicación",toastLocked:"🔒 Bloqueado — la emisora se mantiene",toastUnlocked:"🔓 Desbloqueado — reproducción automática",toastLinkCopied:"🔗 Enlace copiado",toastWebglError:"⚠️ No se pudo cargar el globo 3D. Actualiza la página."},
+fr:{langAuto:"Automatique",loading:"Chargement",navExplore:"Explorer",navFav:"Favoris",navLive:"Direct",navSearch:"Recherche",navSettings:"Réglages",tabTtlFav:"Favoris",tabTtlLive:"Direct",tabTtlSearch:"Recherche",tabTtlSettings:"Réglages",playerDefaultCity:"Explorez le globe",playerDefaultCountry:"Touchez un point vert pour ouvrir la liste des stations",playerDefaultStation:"Aucune station",sheetDefaultCity:"Station",liveComingSoon:"Bientôt disponible",liveDesc:"L'intégration YouTube Live arrive bientôt.",searchPlaceholder:"Rechercher une station ou une ville…",searchSearching:"Recherche…",searchNoResults:"Aucun résultat",searchError:"Une erreur est survenue",settingsLang:"Langue",settingsDotSize:"Taille des points du globe",dotSmall:"Petit",dotMedium:"Moyen",dotLarge:"Grand",settingsInfo:"À propos",aboutDesc:"Explorez les stations de radio du monde entier sur un globe 3D.",aboutDataLabel:"Données",about3dLabel:"3D",favEmptyTitle:"Aucun favori",favEmptyDesc:"Touchez ♡ à côté d'une station pour l'ajouter",nearbySection:"Stations à proximité",seeAllStations:"Voir les {n} stations",stationCount:"{n} stations",countryStations:"Stations de {country}",toastLocalLoaded:"📻 Stations locales chargées — chargement de toutes les stations…",toastAllLoaded:"🌍 {n} stations chargées dans le monde",toastTapToPlay:"▶ Touchez pour lire {name}",toastTapWhenReady:"📍 Touchez pour lire {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Retiré des favoris",toastFavAdded:"♥ Ajouté aux favoris",toastLocating:"📍 Localisation…",toastLocated:"📍 Déplacé vers votre position",toastLocationDenied:"Veuillez autoriser l'accès à la position",toastLocked:"🔒 Verrouillé — la station reste",toastUnlocked:"🔓 Déverrouillé — lecture automatique",toastLinkCopied:"🔗 Lien copié",toastWebglError:"⚠️ Impossible de charger le globe 3D. Veuillez actualiser."},
+de:{langAuto:"Automatisch",loading:"Wird geladen",navExplore:"Entdecken",navFav:"Favoriten",navLive:"Live",navSearch:"Suche",navSettings:"Einstellungen",tabTtlFav:"Favoriten",tabTtlLive:"Live",tabTtlSearch:"Suche",tabTtlSettings:"Einstellungen",playerDefaultCity:"Entdecke den Globus",playerDefaultCountry:"Tippe auf einen grünen Punkt, um die Senderliste zu öffnen",playerDefaultStation:"Kein Sender",sheetDefaultCity:"Sender",liveComingSoon:"Demnächst verfügbar",liveDesc:"YouTube-Live-Integration folgt in Kürze!",searchPlaceholder:"Sender oder Stadt suchen…",searchSearching:"Suche läuft…",searchNoResults:"Keine Ergebnisse",searchError:"Ein Fehler ist aufgetreten",settingsLang:"Sprache",settingsDotSize:"Punktgröße auf dem Globus",dotSmall:"Klein",dotMedium:"Mittel",dotLarge:"Groß",settingsInfo:"Über",aboutDesc:"Entdecke Radiosender aus aller Welt auf einem 3D-Globus.",aboutDataLabel:"Daten",about3dLabel:"3D",favEmptyTitle:"Noch keine Favoriten",favEmptyDesc:"Tippe auf ♡ neben einem Sender, um ihn hinzuzufügen",nearbySection:"Sender in der Nähe",seeAllStations:"Alle {n} Sender ansehen",stationCount:"{n} Sender",countryStations:"Sender in {country}",toastLocalLoaded:"📻 Lokale Sender geladen — alle Sender werden geladen…",toastAllLoaded:"🌍 {n} Sender weltweit geladen",toastTapToPlay:"▶ Tippen, um {name} abzuspielen",toastTapWhenReady:"📍 Tippen, um {name} abzuspielen",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Aus Favoriten entfernt",toastFavAdded:"♥ Zu Favoriten hinzugefügt",toastLocating:"📍 Standort wird ermittelt…",toastLocated:"📍 Zu deinem Standort bewegt",toastLocationDenied:"Bitte erlaube den Zugriff auf den Standort",toastLocked:"🔒 Gesperrt — Sender bleibt",toastUnlocked:"🔓 Entsperrt — automatische Wiedergabe",toastLinkCopied:"🔗 Link kopiert",toastWebglError:"⚠️ 3D-Globus konnte nicht geladen werden. Bitte aktualisieren."},
+pt:{langAuto:"Automático",loading:"Carregando",navExplore:"Explorar",navFav:"Favoritos",navLive:"Ao vivo",navSearch:"Buscar",navSettings:"Ajustes",tabTtlFav:"Favoritos",tabTtlLive:"Ao vivo",tabTtlSearch:"Buscar",tabTtlSettings:"Ajustes",playerDefaultCity:"Explore o globo",playerDefaultCountry:"Toque em um ponto verde para abrir a lista de estações",playerDefaultStation:"Nenhuma estação",sheetDefaultCity:"Estação",liveComingSoon:"Em breve",liveDesc:"A integração com o YouTube Live chega em breve!",searchPlaceholder:"Buscar estação ou cidade…",searchSearching:"Buscando…",searchNoResults:"Nenhum resultado",searchError:"Ocorreu um erro",settingsLang:"Idioma",settingsDotSize:"Tamanho dos pontos do globo",dotSmall:"Pequeno",dotMedium:"Médio",dotLarge:"Grande",settingsInfo:"Sobre",aboutDesc:"Explore rádios do mundo todo em um globo 3D.",aboutDataLabel:"Dados",about3dLabel:"3D",favEmptyTitle:"Ainda sem favoritos",favEmptyDesc:"Toque no ♡ ao lado de uma estação para adicioná-la",nearbySection:"Estações próximas",seeAllStations:"Ver todas as {n} estações",stationCount:"{n} estações",countryStations:"Estações de {country}",toastLocalLoaded:"📻 Estações locais carregadas — carregando todas as estações…",toastAllLoaded:"🌍 {n} estações carregadas no mundo todo",toastTapToPlay:"▶ Toque para tocar {name}",toastTapWhenReady:"📍 Toque para tocar {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Removido dos favoritos",toastFavAdded:"♥ Adicionado aos favoritos",toastLocating:"📍 Localizando…",toastLocated:"📍 Movido para sua localização",toastLocationDenied:"Permita o acesso à localização",toastLocked:"🔒 Bloqueado — a estação permanece",toastUnlocked:"🔓 Desbloqueado — reprodução automática",toastLinkCopied:"🔗 Link copiado",toastWebglError:"⚠️ Não foi possível carregar o globo 3D. Atualize a página."},
+it:{langAuto:"Automatico",loading:"Caricamento",navExplore:"Esplora",navFav:"Preferiti",navLive:"Live",navSearch:"Cerca",navSettings:"Impostazioni",tabTtlFav:"Preferiti",tabTtlLive:"Live",tabTtlSearch:"Cerca",tabTtlSettings:"Impostazioni",playerDefaultCity:"Esplora il globo",playerDefaultCountry:"Tocca un punto verde per aprire l'elenco delle stazioni",playerDefaultStation:"Nessuna stazione",sheetDefaultCity:"Stazione",liveComingSoon:"Prossimamente",liveDesc:"L'integrazione con YouTube Live arriverà presto!",searchPlaceholder:"Cerca stazione o città…",searchSearching:"Ricerca in corso…",searchNoResults:"Nessun risultato",searchError:"Si è verificato un errore",settingsLang:"Lingua",settingsDotSize:"Dimensione dei punti sul globo",dotSmall:"Piccolo",dotMedium:"Medio",dotLarge:"Grande",settingsInfo:"Informazioni",aboutDesc:"Esplora le stazioni radio di tutto il mondo su un globo 3D.",aboutDataLabel:"Dati",about3dLabel:"3D",favEmptyTitle:"Nessun preferito",favEmptyDesc:"Tocca ♡ accanto a una stazione per aggiungerla",nearbySection:"Stazioni vicine",seeAllStations:"Vedi tutte le {n} stazioni",stationCount:"{n} stazioni",countryStations:"Stazioni di {country}",toastLocalLoaded:"📻 Stazioni locali caricate — caricamento di tutte le stazioni…",toastAllLoaded:"🌍 Caricate {n} stazioni in tutto il mondo",toastTapToPlay:"▶ Tocca per riprodurre {name}",toastTapWhenReady:"📍 Tocca per riprodurre {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Rimosso dai preferiti",toastFavAdded:"♥ Aggiunto ai preferiti",toastLocating:"📍 Localizzazione…",toastLocated:"📍 Spostato sulla tua posizione",toastLocationDenied:"Consenti l'accesso alla posizione",toastLocked:"🔒 Bloccato — la stazione resta",toastUnlocked:"🔓 Sbloccato — riproduzione automatica",toastLinkCopied:"🔗 Link copiato",toastWebglError:"⚠️ Impossibile caricare il globo 3D. Aggiorna la pagina."},
+ru:{langAuto:"Авто",loading:"Загрузка",navExplore:"Обзор",navFav:"Избранное",navLive:"Эфир",navSearch:"Поиск",navSettings:"Настройки",tabTtlFav:"Избранное",tabTtlLive:"Эфир",tabTtlSearch:"Поиск",tabTtlSettings:"Настройки",playerDefaultCity:"Исследуйте глобус",playerDefaultCountry:"Нажмите на зелёную точку, чтобы открыть список станций",playerDefaultStation:"Нет станции",sheetDefaultCity:"Станция",liveComingSoon:"Скоро",liveDesc:"Интеграция с YouTube Live скоро появится!",searchPlaceholder:"Поиск станции или города…",searchSearching:"Поиск…",searchNoResults:"Нет результатов",searchError:"Произошла ошибка",settingsLang:"Язык",settingsDotSize:"Размер точек на глобусе",dotSmall:"Маленький",dotMedium:"Средний",dotLarge:"Крупный",settingsInfo:"О приложении",aboutDesc:"Исследуйте радиостанции со всего мира на 3D-глобусе.",aboutDataLabel:"Данные",about3dLabel:"3D",favEmptyTitle:"Пока нет избранного",favEmptyDesc:"Нажмите ♡ рядом со станцией, чтобы добавить",nearbySection:"Станции поблизости",seeAllStations:"Показать все станции ({n})",stationCount:"{n} станций",countryStations:"Станции: {country}",toastLocalLoaded:"📻 Местные станции загружены — загружаются все станции…",toastAllLoaded:"🌍 Загружено {n} станций по всему миру",toastTapToPlay:"▶ Нажмите, чтобы включить {name}",toastTapWhenReady:"📍 Нажмите, чтобы включить {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Удалено из избранного",toastFavAdded:"♥ Добавлено в избранное",toastLocating:"📍 Определение местоположения…",toastLocated:"📍 Перемещено к вашему местоположению",toastLocationDenied:"Пожалуйста, разрешите доступ к геолокации",toastLocked:"🔒 Заблокировано — станция сохраняется",toastUnlocked:"🔓 Разблокировано — автовоспроизведение",toastLinkCopied:"🔗 Ссылка скопирована",toastWebglError:"⚠️ Не удалось загрузить 3D-глобус. Обновите страницу."},
+ar:{langAuto:"تلقائي",loading:"جارٍ التحميل",navExplore:"استكشاف",navFav:"المفضلة",navLive:"مباشر",navSearch:"بحث",navSettings:"الإعدادات",tabTtlFav:"المفضلة",tabTtlLive:"مباشر",tabTtlSearch:"بحث",tabTtlSettings:"الإعدادات",playerDefaultCity:"استكشف الكرة الأرضية",playerDefaultCountry:"اضغط على نقطة خضراء لفتح قائمة المحطات",playerDefaultStation:"لا توجد محطة",sheetDefaultCity:"محطة",liveComingSoon:"قريباً",liveDesc:"سيتوفر بث يوتيوب المباشر قريباً!",searchPlaceholder:"ابحث عن محطة أو مدينة…",searchSearching:"جارٍ البحث…",searchNoResults:"لا توجد نتائج",searchError:"حدث خطأ ما",settingsLang:"اللغة",settingsDotSize:"حجم النقاط على الكرة الأرضية",dotSmall:"صغير",dotMedium:"متوسط",dotLarge:"كبير",settingsInfo:"حول",aboutDesc:"استكشف محطات الراديو حول العالم على كرة أرضية ثلاثية الأبعاد.",aboutDataLabel:"البيانات",about3dLabel:"ثلاثي الأبعاد",favEmptyTitle:"لا توجد مفضلات بعد",favEmptyDesc:"اضغط على ♡ بجانب المحطة لإضافتها",nearbySection:"محطات قريبة",seeAllStations:"عرض جميع المحطات ({n})",stationCount:"{n} محطة",countryStations:"محطات {country}",toastLocalLoaded:"📻 تم تحميل المحطات المحلية — جارٍ تحميل جميع المحطات…",toastAllLoaded:"🌍 تم تحميل {n} محطة حول العالم",toastTapToPlay:"▶ اضغط لتشغيل {name}",toastTapWhenReady:"📍 اضغط لتشغيل {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"تمت إزالته من المفضلة",toastFavAdded:"♥ أُضيف إلى المفضلة",toastLocating:"📍 جارٍ تحديد الموقع…",toastLocated:"📍 تم الانتقال إلى موقعك",toastLocationDenied:"يرجى السماح بالوصول إلى الموقع",toastLocked:"🔒 مقفل — تبقى المحطة",toastUnlocked:"🔓 مفتوح — تشغيل تلقائي",toastLinkCopied:"🔗 تم نسخ الرابط",toastWebglError:"⚠️ تعذر تحميل الكرة الأرضية ثلاثية الأبعاد. يرجى إعادة التحميل."},
+tr:{langAuto:"Otomatik",loading:"Yükleniyor",navExplore:"Keşfet",navFav:"Favoriler",navLive:"Canlı",navSearch:"Ara",navSettings:"Ayarlar",tabTtlFav:"Favoriler",tabTtlLive:"Canlı",tabTtlSearch:"Ara",tabTtlSettings:"Ayarlar",playerDefaultCity:"Küreyi keşfedin",playerDefaultCountry:"İstasyon listesini açmak için yeşil bir noktaya dokunun",playerDefaultStation:"İstasyon yok",sheetDefaultCity:"İstasyon",liveComingSoon:"Yakında",liveDesc:"YouTube Canlı entegrasyonu yakında geliyor!",searchPlaceholder:"İstasyon veya şehir ara…",searchSearching:"Aranıyor…",searchNoResults:"Sonuç yok",searchError:"Bir hata oluştu",settingsLang:"Dil",settingsDotSize:"Küre nokta boyutu",dotSmall:"Küçük",dotMedium:"Orta",dotLarge:"Büyük",settingsInfo:"Hakkında",aboutDesc:"Dünyanın dört bir yanındaki radyo istasyonlarını 3D küre üzerinde keşfedin.",aboutDataLabel:"Veri",about3dLabel:"3D",favEmptyTitle:"Henüz favori yok",favEmptyDesc:"Eklemek için istasyonun yanındaki ♡ simgesine dokunun",nearbySection:"Yakındaki istasyonlar",seeAllStations:"Tüm {n} istasyonu gör",stationCount:"{n} istasyon",countryStations:"{country} istasyonları",toastLocalLoaded:"📻 Yerel istasyonlar yüklendi — tüm istasyonlar yükleniyor…",toastAllLoaded:"🌍 Dünya genelinde {n} istasyon yüklendi",toastTapToPlay:"▶ {name} çalmak için dokunun",toastTapWhenReady:"📍 {name} çalmak için dokunun",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Favorilerden kaldırıldı",toastFavAdded:"♥ Favorilere eklendi",toastLocating:"📍 Konum belirleniyor…",toastLocated:"📍 Konumunuza taşındı",toastLocationDenied:"Lütfen konum erişimine izin verin",toastLocked:"🔒 Kilitli — istasyon sabit kalır",toastUnlocked:"🔓 Kilit açık — otomatik oynatma",toastLinkCopied:"🔗 Bağlantı kopyalandı",toastWebglError:"⚠️ 3D küre yüklenemedi. Lütfen sayfayı yenileyin."},
+id:{langAuto:"Otomatis",loading:"Memuat",navExplore:"Jelajahi",navFav:"Favorit",navLive:"Langsung",navSearch:"Cari",navSettings:"Pengaturan",tabTtlFav:"Favorit",tabTtlLive:"Langsung",tabTtlSearch:"Cari",tabTtlSettings:"Pengaturan",playerDefaultCity:"Jelajahi globe",playerDefaultCountry:"Ketuk titik hijau untuk membuka daftar stasiun",playerDefaultStation:"Tidak ada stasiun",sheetDefaultCity:"Stasiun",liveComingSoon:"Segera Hadir",liveDesc:"Integrasi YouTube Live akan segera hadir!",searchPlaceholder:"Cari stasiun atau kota…",searchSearching:"Mencari…",searchNoResults:"Tidak ada hasil",searchError:"Terjadi kesalahan",settingsLang:"Bahasa",settingsDotSize:"Ukuran titik globe",dotSmall:"Kecil",dotMedium:"Sedang",dotLarge:"Besar",settingsInfo:"Tentang",aboutDesc:"Jelajahi stasiun radio dari seluruh dunia di globe 3D.",aboutDataLabel:"Data",about3dLabel:"3D",favEmptyTitle:"Belum ada favorit",favEmptyDesc:"Ketuk ♡ di sebelah stasiun untuk menambahkannya",nearbySection:"Stasiun terdekat",seeAllStations:"Lihat semua {n} stasiun",stationCount:"{n} stasiun",countryStations:"Stasiun {country}",toastLocalLoaded:"📻 Stasiun lokal dimuat — memuat semua stasiun…",toastAllLoaded:"🌍 {n} stasiun di seluruh dunia dimuat",toastTapToPlay:"▶ Ketuk untuk memutar {name}",toastTapWhenReady:"📍 Ketuk untuk memutar {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Dihapus dari favorit",toastFavAdded:"♥ Ditambahkan ke favorit",toastLocating:"📍 Mencari lokasi…",toastLocated:"📍 Dipindahkan ke lokasi Anda",toastLocationDenied:"Mohon izinkan akses lokasi",toastLocked:"🔒 Terkunci — stasiun tetap",toastUnlocked:"🔓 Terbuka — putar otomatis",toastLinkCopied:"🔗 Tautan disalin",toastWebglError:"⚠️ Gagal memuat globe 3D. Silakan muat ulang."},
+th:{langAuto:"อัตโนมัติ",loading:"กำลังโหลด",navExplore:"สำรวจ",navFav:"รายการโปรด",navLive:"ไลฟ์",navSearch:"ค้นหา",navSettings:"ตั้งค่า",tabTtlFav:"รายการโปรด",tabTtlLive:"ไลฟ์",tabTtlSearch:"ค้นหา",tabTtlSettings:"ตั้งค่า",playerDefaultCity:"สำรวจโลกใบนี้",playerDefaultCountry:"แตะจุดสีเขียวเพื่อเปิดรายชื่อสถานี",playerDefaultStation:"ไม่มีสถานี",sheetDefaultCity:"สถานี",liveComingSoon:"เร็วๆ นี้",liveDesc:"การเชื่อมต่อ YouTube Live กำลังจะมาเร็วๆ นี้!",searchPlaceholder:"ค้นหาสถานีหรือเมือง…",searchSearching:"กำลังค้นหา…",searchNoResults:"ไม่พบผลลัพธ์",searchError:"เกิดข้อผิดพลาด",settingsLang:"ภาษา",settingsDotSize:"ขนาดจุดบนลูกโลก",dotSmall:"เล็ก",dotMedium:"กลาง",dotLarge:"ใหญ่",settingsInfo:"เกี่ยวกับ",aboutDesc:"สำรวจสถานีวิทยุจากทั่วโลกบนลูกโลก 3 มิติ",aboutDataLabel:"ข้อมูล",about3dLabel:"3D",favEmptyTitle:"ยังไม่มีรายการโปรด",favEmptyDesc:"แตะ ♡ ข้างสถานีเพื่อเพิ่ม",nearbySection:"สถานีใกล้เคียง",seeAllStations:"ดูสถานีทั้งหมด {n} แห่ง",stationCount:"{n} สถานี",countryStations:"สถานีใน {country}",toastLocalLoaded:"📻 โหลดสถานีในพื้นที่แล้ว — กำลังโหลดสถานีทั้งหมด…",toastAllLoaded:"🌍 โหลดสถานีทั่วโลกแล้ว {n} แห่ง",toastTapToPlay:"▶ แตะเพื่อเล่น {name}",toastTapWhenReady:"📍 แตะเพื่อเล่น {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"ลบออกจากรายการโปรดแล้ว",toastFavAdded:"♥ เพิ่มในรายการโปรดแล้ว",toastLocating:"📍 กำลังค้นหาตำแหน่ง…",toastLocated:"📍 ย้ายไปยังตำแหน่งของคุณแล้ว",toastLocationDenied:"กรุณาอนุญาตการเข้าถึงตำแหน่ง",toastLocked:"🔒 ล็อกอยู่ — คงสถานีไว้",toastUnlocked:"🔓 ปลดล็อกแล้ว — เล่นอัตโนมัติ",toastLinkCopied:"🔗 คัดลอกลิงก์แล้ว",toastWebglError:"⚠️ โหลดลูกโลก 3 มิติไม่สำเร็จ กรุณารีเฟรช"},
+vi:{langAuto:"Tự động",loading:"Đang tải",navExplore:"Khám phá",navFav:"Yêu thích",navLive:"Trực tiếp",navSearch:"Tìm kiếm",navSettings:"Cài đặt",tabTtlFav:"Yêu thích",tabTtlLive:"Trực tiếp",tabTtlSearch:"Tìm kiếm",tabTtlSettings:"Cài đặt",playerDefaultCity:"Khám phá quả địa cầu",playerDefaultCountry:"Chạm vào chấm xanh để mở danh sách đài",playerDefaultStation:"Không có đài",sheetDefaultCity:"Đài",liveComingSoon:"Sắp ra mắt",liveDesc:"Tích hợp YouTube Live sẽ sớm ra mắt!",searchPlaceholder:"Tìm đài hoặc thành phố…",searchSearching:"Đang tìm…",searchNoResults:"Không có kết quả",searchError:"Đã xảy ra lỗi",settingsLang:"Ngôn ngữ",settingsDotSize:"Kích thước chấm trên địa cầu",dotSmall:"Nhỏ",dotMedium:"Vừa",dotLarge:"Lớn",settingsInfo:"Giới thiệu",aboutDesc:"Khám phá các đài phát thanh trên khắp thế giới trên quả địa cầu 3D.",aboutDataLabel:"Dữ liệu",about3dLabel:"3D",favEmptyTitle:"Chưa có mục yêu thích",favEmptyDesc:"Chạm ♡ bên cạnh đài để thêm",nearbySection:"Đài lân cận",seeAllStations:"Xem tất cả {n} đài",stationCount:"{n} đài",countryStations:"Đài {country}",toastLocalLoaded:"📻 Đã tải đài địa phương — đang tải tất cả đài…",toastAllLoaded:"🌍 Đã tải {n} đài trên toàn thế giới",toastTapToPlay:"▶ Chạm để phát {name}",toastTapWhenReady:"📍 Chạm để phát {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Đã xóa khỏi mục yêu thích",toastFavAdded:"♥ Đã thêm vào mục yêu thích",toastLocating:"📍 Đang định vị…",toastLocated:"📍 Đã chuyển đến vị trí của bạn",toastLocationDenied:"Vui lòng cho phép truy cập vị trí",toastLocked:"🔒 Đã khóa — giữ nguyên đài",toastUnlocked:"🔓 Đã mở khóa — tự động phát",toastLinkCopied:"🔗 Đã sao chép liên kết",toastWebglError:"⚠️ Không thể tải địa cầu 3D. Vui lòng làm mới trang."},
+hi:{langAuto:"स्वचालित",loading:"लोड हो रहा है",navExplore:"खोजें",navFav:"पसंदीदा",navLive:"लाइव",navSearch:"खोज",navSettings:"सेटिंग्स",tabTtlFav:"पसंदीदा",tabTtlLive:"लाइव",tabTtlSearch:"खोज",tabTtlSettings:"सेटिंग्स",playerDefaultCity:"ग्लोब को एक्सप्लोर करें",playerDefaultCountry:"स्टेशन सूची खोलने के लिए हरे बिंदु पर टैप करें",playerDefaultStation:"कोई स्टेशन नहीं",sheetDefaultCity:"स्टेशन",liveComingSoon:"जल्द आ रहा है",liveDesc:"YouTube लाइव इंटीग्रेशन जल्द ही आ रहा है!",searchPlaceholder:"स्टेशन या शहर खोजें…",searchSearching:"खोज जारी है…",searchNoResults:"कोई परिणाम नहीं",searchError:"कुछ गड़बड़ हो गई",settingsLang:"भाषा",settingsDotSize:"ग्लोब बिंदु आकार",dotSmall:"छोटा",dotMedium:"मध्यम",dotLarge:"बड़ा",settingsInfo:"जानकारी",aboutDesc:"दुनिया भर के रेडियो स्टेशनों को 3D ग्लोब पर एक्सप्लोर करें।",aboutDataLabel:"डेटा",about3dLabel:"3D",favEmptyTitle:"अभी तक कोई पसंदीदा नहीं",favEmptyDesc:"जोड़ने के लिए स्टेशन के बगल में ♡ टैप करें",nearbySection:"आस-पास के स्टेशन",seeAllStations:"सभी {n} स्टेशन देखें",stationCount:"{n} स्टेशन",countryStations:"{country} के स्टेशन",toastLocalLoaded:"📻 स्थानीय स्टेशन लोड हो गए — सभी स्टेशन लोड हो रहे हैं…",toastAllLoaded:"🌍 दुनिया भर के {n} स्टेशन लोड हो गए",toastTapToPlay:"▶ {name} चलाने के लिए टैप करें",toastTapWhenReady:"📍 {name} चलाने के लिए टैप करें",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"पसंदीदा से हटाया गया",toastFavAdded:"♥ पसंदीदा में जोड़ा गया",toastLocating:"📍 स्थान पता किया जा रहा है…",toastLocated:"📍 आपके स्थान पर ले जाया गया",toastLocationDenied:"कृपया लोकेशन एक्सेस की अनुमति दें",toastLocked:"🔒 लॉक — स्टेशन बना रहेगा",toastUnlocked:"🔓 अनलॉक — ऑटो-प्ले",toastLinkCopied:"🔗 लिंक कॉपी हो गया",toastWebglError:"⚠️ 3D ग्लोब लोड नहीं हो सका। कृपया रीफ्रेश करें।"},
+pl:{langAuto:"Automatyczny",loading:"Ładowanie",navExplore:"Eksploruj",navFav:"Ulubione",navLive:"Na żywo",navSearch:"Szukaj",navSettings:"Ustawienia",tabTtlFav:"Ulubione",tabTtlLive:"Na żywo",tabTtlSearch:"Szukaj",tabTtlSettings:"Ustawienia",playerDefaultCity:"Odkrywaj globus",playerDefaultCountry:"Dotknij zielonej kropki, aby otworzyć listę stacji",playerDefaultStation:"Brak stacji",sheetDefaultCity:"Stacja",liveComingSoon:"Wkrótce",liveDesc:"Integracja z YouTube Live już wkrótce!",searchPlaceholder:"Szukaj stacji lub miasta…",searchSearching:"Szukanie…",searchNoResults:"Brak wyników",searchError:"Wystąpił błąd",settingsLang:"Język",settingsDotSize:"Rozmiar kropek na globusie",dotSmall:"Mały",dotMedium:"Średni",dotLarge:"Duży",settingsInfo:"Informacje",aboutDesc:"Odkrywaj stacje radiowe z całego świata na globusie 3D.",aboutDataLabel:"Dane",about3dLabel:"3D",favEmptyTitle:"Brak ulubionych",favEmptyDesc:"Dotknij ♡ obok stacji, aby ją dodać",nearbySection:"Stacje w pobliżu",seeAllStations:"Zobacz wszystkie {n} stacji",stationCount:"{n} stacji",countryStations:"Stacje: {country}",toastLocalLoaded:"📻 Wczytano lokalne stacje — wczytywanie wszystkich stacji…",toastAllLoaded:"🌍 Wczytano {n} stacji z całego świata",toastTapToPlay:"▶ Dotknij, aby odtworzyć {name}",toastTapWhenReady:"📍 Dotknij, aby odtworzyć {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Usunięto z ulubionych",toastFavAdded:"♥ Dodano do ulubionych",toastLocating:"📍 Ustalanie lokalizacji…",toastLocated:"📍 Przeniesiono do Twojej lokalizacji",toastLocationDenied:"Zezwól na dostęp do lokalizacji",toastLocked:"🔒 Zablokowane — stacja pozostaje",toastUnlocked:"🔓 Odblokowane — automatyczne odtwarzanie",toastLinkCopied:"🔗 Link skopiowany",toastWebglError:"⚠️ Nie udało się wczytać globusa 3D. Odśwież stronę."},
+nl:{langAuto:"Automatisch",loading:"Laden",navExplore:"Verkennen",navFav:"Favorieten",navLive:"Live",navSearch:"Zoeken",navSettings:"Instellingen",tabTtlFav:"Favorieten",tabTtlLive:"Live",tabTtlSearch:"Zoeken",tabTtlSettings:"Instellingen",playerDefaultCity:"Verken de wereldbol",playerDefaultCountry:"Tik op een groene stip om de zenderlijst te openen",playerDefaultStation:"Geen zender",sheetDefaultCity:"Zender",liveComingSoon:"Binnenkort beschikbaar",liveDesc:"YouTube Live-integratie komt binnenkort!",searchPlaceholder:"Zoek zender of stad…",searchSearching:"Zoeken…",searchNoResults:"Geen resultaten",searchError:"Er is een fout opgetreden",settingsLang:"Taal",settingsDotSize:"Grootte van de stippen op de wereldbol",dotSmall:"Klein",dotMedium:"Gemiddeld",dotLarge:"Groot",settingsInfo:"Over",aboutDesc:"Verken radiozenders van over de hele wereld op een 3D-wereldbol.",aboutDataLabel:"Gegevens",about3dLabel:"3D",favEmptyTitle:"Nog geen favorieten",favEmptyDesc:"Tik op ♡ naast een zender om toe te voegen",nearbySection:"Zenders in de buurt",seeAllStations:"Bekijk alle {n} zenders",stationCount:"{n} zenders",countryStations:"Zenders in {country}",toastLocalLoaded:"📻 Lokale zenders geladen — alle zenders laden…",toastAllLoaded:"🌍 {n} zenders wereldwijd geladen",toastTapToPlay:"▶ Tik om {name} af te spelen",toastTapWhenReady:"📍 Tik om {name} af te spelen",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Verwijderd uit favorieten",toastFavAdded:"♥ Toegevoegd aan favorieten",toastLocating:"📍 Locatie bepalen…",toastLocated:"📍 Verplaatst naar jouw locatie",toastLocationDenied:"Sta locatietoegang toe",toastLocked:"🔒 Vergrendeld — zender blijft",toastUnlocked:"🔓 Ontgrendeld — automatisch afspelen",toastLinkCopied:"🔗 Link gekopieerd",toastWebglError:"⚠️ Kan de 3D-wereldbol niet laden. Vernieuw de pagina."},
+sv:{langAuto:"Automatisk",loading:"Laddar",navExplore:"Utforska",navFav:"Favoriter",navLive:"Live",navSearch:"Sök",navSettings:"Inställningar",tabTtlFav:"Favoriter",tabTtlLive:"Live",tabTtlSearch:"Sök",tabTtlSettings:"Inställningar",playerDefaultCity:"Utforska jordgloben",playerDefaultCountry:"Tryck på en grön prick för att öppna stationslistan",playerDefaultStation:"Ingen station",sheetDefaultCity:"Station",liveComingSoon:"Kommer snart",liveDesc:"YouTube Live-integration kommer snart!",searchPlaceholder:"Sök station eller stad…",searchSearching:"Söker…",searchNoResults:"Inga resultat",searchError:"Något gick fel",settingsLang:"Språk",settingsDotSize:"Storlek på prickar på jordgloben",dotSmall:"Liten",dotMedium:"Medium",dotLarge:"Stor",settingsInfo:"Om",aboutDesc:"Utforska radiostationer från hela världen på en 3D-jordglob.",aboutDataLabel:"Data",about3dLabel:"3D",favEmptyTitle:"Inga favoriter än",favEmptyDesc:"Tryck på ♡ bredvid en station för att lägga till den",nearbySection:"Stationer i närheten",seeAllStations:"Visa alla {n} stationer",stationCount:"{n} stationer",countryStations:"Stationer i {country}",toastLocalLoaded:"📻 Lokala stationer laddade — laddar alla stationer…",toastAllLoaded:"🌍 {n} stationer laddade världen över",toastTapToPlay:"▶ Tryck för att spela {name}",toastTapWhenReady:"📍 Tryck för att spela {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Borttagen från favoriter",toastFavAdded:"♥ Tillagd i favoriter",toastLocating:"📍 Söker plats…",toastLocated:"📍 Flyttad till din plats",toastLocationDenied:"Tillåt platsåtkomst",toastLocked:"🔒 Låst — stationen ligger kvar",toastUnlocked:"🔓 Upplåst — automatisk uppspelning",toastLinkCopied:"🔗 Länk kopierad",toastWebglError:"⚠️ Det gick inte att ladda 3D-jordgloben. Uppdatera sidan."},
+uk:{langAuto:"Автоматично",loading:"Завантаження",navExplore:"Огляд",navFav:"Обране",navLive:"Ефір",navSearch:"Пошук",navSettings:"Налаштування",tabTtlFav:"Обране",tabTtlLive:"Ефір",tabTtlSearch:"Пошук",tabTtlSettings:"Налаштування",playerDefaultCity:"Досліджуйте глобус",playerDefaultCountry:"Торкніться зеленої точки, щоб відкрити список станцій",playerDefaultStation:"Немає станції",sheetDefaultCity:"Станція",liveComingSoon:"Скоро",liveDesc:"Інтеграція з YouTube Live з'явиться найближчим часом!",searchPlaceholder:"Пошук станції або міста…",searchSearching:"Пошук…",searchNoResults:"Немає результатів",searchError:"Сталася помилка",settingsLang:"Мова",settingsDotSize:"Розмір точок на глобусі",dotSmall:"Малий",dotMedium:"Середній",dotLarge:"Великий",settingsInfo:"Про застосунок",aboutDesc:"Досліджуйте радіостанції з усього світу на 3D-глобусі.",aboutDataLabel:"Дані",about3dLabel:"3D",favEmptyTitle:"Поки що немає обраного",favEmptyDesc:"Торкніться ♡ біля станції, щоб додати",nearbySection:"Станції поруч",seeAllStations:"Переглянути всі станції ({n})",stationCount:"{n} станцій",countryStations:"Станції: {country}",toastLocalLoaded:"📻 Локальні станції завантажено — завантаження всіх станцій…",toastAllLoaded:"🌍 Завантажено {n} станцій з усього світу",toastTapToPlay:"▶ Торкніться, щоб увімкнути {name}",toastTapWhenReady:"📍 Торкніться, щоб увімкнути {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Видалено з обраного",toastFavAdded:"♥ Додано в обране",toastLocating:"📍 Визначення місця…",toastLocated:"📍 Переміщено до вашого місця",toastLocationDenied:"Будь ласка, дозвольте доступ до геолокації",toastLocked:"🔒 Заблоковано — станція залишається",toastUnlocked:"🔓 Розблоковано — автовідтворення",toastLinkCopied:"🔗 Посилання скопійовано",toastWebglError:"⚠️ Не вдалося завантажити 3D-глобус. Оновіть сторінку."},
+el:{langAuto:"Αυτόματο",loading:"Φόρτωση",navExplore:"Εξερεύνηση",navFav:"Αγαπημένα",navLive:"Ζωντανά",navSearch:"Αναζήτηση",navSettings:"Ρυθμίσεις",tabTtlFav:"Αγαπημένα",tabTtlLive:"Ζωντανά",tabTtlSearch:"Αναζήτηση",tabTtlSettings:"Ρυθμίσεις",playerDefaultCity:"Εξερευνήστε την υδρόγειο",playerDefaultCountry:"Πατήστε μια πράσινη κουκκίδα για να ανοίξετε τη λίστα σταθμών",playerDefaultStation:"Κανένας σταθμός",sheetDefaultCity:"Σταθμός",liveComingSoon:"Σύντομα διαθέσιμο",liveDesc:"Η ενσωμάτωση YouTube Live έρχεται σύντομα!",searchPlaceholder:"Αναζήτηση σταθμού ή πόλης…",searchSearching:"Αναζήτηση…",searchNoResults:"Κανένα αποτέλεσμα",searchError:"Παρουσιάστηκε σφάλμα",settingsLang:"Γλώσσα",settingsDotSize:"Μέγεθος κουκκίδων υδρογείου",dotSmall:"Μικρό",dotMedium:"Μεσαίο",dotLarge:"Μεγάλο",settingsInfo:"Σχετικά",aboutDesc:"Εξερευνήστε ραδιοφωνικούς σταθμούς απ' όλο τον κόσμο σε μια 3D υδρόγειο.",aboutDataLabel:"Δεδομένα",about3dLabel:"3D",favEmptyTitle:"Δεν υπάρχουν ακόμη αγαπημένα",favEmptyDesc:"Πατήστε το ♡ δίπλα σε έναν σταθμό για να τον προσθέσετε",nearbySection:"Κοντινοί σταθμοί",seeAllStations:"Δείτε όλους τους {n} σταθμούς",stationCount:"{n} σταθμοί",countryStations:"Σταθμοί {country}",toastLocalLoaded:"📻 Φορτώθηκαν οι τοπικοί σταθμοί — φόρτωση όλων των σταθμών…",toastAllLoaded:"🌍 Φορτώθηκαν {n} σταθμοί παγκοσμίως",toastTapToPlay:"▶ Πατήστε για αναπαραγωγή {name}",toastTapWhenReady:"📍 Πατήστε για αναπαραγωγή {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Αφαιρέθηκε από τα αγαπημένα",toastFavAdded:"♥ Προστέθηκε στα αγαπημένα",toastLocating:"📍 Εντοπισμός θέσης…",toastLocated:"📍 Μετακινήθηκε στην τοποθεσία σας",toastLocationDenied:"Παρακαλώ επιτρέψτε την πρόσβαση στην τοποθεσία",toastLocked:"🔒 Κλειδωμένο — ο σταθμός παραμένει",toastUnlocked:"🔓 Ξεκλειδωμένο — αυτόματη αναπαραγωγή",toastLinkCopied:"🔗 Ο σύνδεσμος αντιγράφηκε",toastWebglError:"⚠️ Δεν ήταν δυνατή η φόρτωση της 3D υδρογείου. Ανανεώστε τη σελίδα."}
+};
+
+function resolveLang(code){
+  if(code&&code!=='auto'&&translations[code])return code;
+  var nav=((navigator.language||navigator.userLanguage||'en')+'').toLowerCase();
+  var codes=Object.keys(translations);
+  for(var i=0;i<codes.length;i++){if(nav===codes[i].toLowerCase())return codes[i];}
+  var navBase=nav.split('-')[0];
+  for(var i=0;i<codes.length;i++){if(codes[i].toLowerCase().split('-')[0]===navBase)return codes[i];}
+  return 'en';
+}
+
+function t(key,vars){
+  var lang=resolveLang(ST.lang);
+  var dict=translations[lang]||translations.en;
+  var str=(dict[key]!==undefined)?dict[key]:(translations.en[key]!==undefined?translations.en[key]:key);
+  if(vars)for(var k in vars)str=str.split('{'+k+'}').join(vars[k]);
+  return str;
+}
+
+/* 정적 텍스트(data-i18n) + 언어 버튼 라벨 + 현재 화면 상태(재생 안내문/즐겨찾기/시트 등)를
+   전부 다시 렌더링한다. 언어를 바꾼 순간 화면에 보이는 모든 텍스트가 즉시 갱신되도록. */
+function applyTranslations(){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){el.textContent=t(el.getAttribute('data-i18n'));});
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){el.placeholder=t(el.getAttribute('data-i18n-placeholder'));});
+  document.querySelectorAll('.lbtn').forEach(function(x){
+    var c=x.dataset.code,f=LANGS.find(function(l){return l[0]===c;});
+    if(!f)return;
+    var label=c==='auto'?t('langAuto'):f[1];
+    x.textContent=(ST.lang===c?'✓ ':'')+label;
+  });
+  renderAbout();
+  refreshDynamicUI();
+}
+
+function renderAbout(){
+  var el=document.getElementById('about-box');
+  if(!el)return;
+  el.innerHTML='<strong>Wild Peaks Radio v2.0</strong><br>'+t('aboutDesc')+'<br><br>'+t('aboutDataLabel')+': <strong>radio-browser.info</strong><br>'+t('about3dLabel')+': <strong>Three.js r128</strong>';
+}
+
+function countryStationsLabel(country){
+  return t('countryStations',{country:country||t('sheetDefaultCity')});
+}
+
+/* 현재 화면 상태를 새 언어로 다시 그린다: 재생 중이 아니면 기본 안내문, 즐겨찾기/시트가
+   열려 있으면 그 목록도 새 언어로 갱신한다. */
+function refreshDynamicUI(){
+  if(!ST.current){
+    document.getElementById('p-city').textContent=t('playerDefaultCity');
+    document.getElementById('p-country').textContent=t('playerDefaultCountry');
+    document.getElementById('p-station').textContent=t('playerDefaultStation');
+  }
+  if(document.getElementById('tab-fav').classList.contains('open'))renderFav();
+  if(document.getElementById('sheet').classList.contains('open')&&ST.currentCluster){
+    document.getElementById('sh-meta').textContent=t('stationCount',{n:ST.currentCluster.stations.length});
+    renderSheetList(ST.currentCluster);
+  }
+}
+
+function setLang(code){
+  ST.lang=code;
+  localStorage.setItem('wp_lang',code);
+  applyTranslations();
+}
+
 function initSettings(){
   var g=document.getElementById('lang-grid');
-  for(var i=0;i<LANGS.length;i++){(function(code,label){
+  for(var i=0;i<LANGS.length;i++){(function(code){
     var b=document.createElement('button');
     b.className='lbtn'+(ST.lang===code?' on':'');b.dataset.code=code;
-    b.textContent=(ST.lang===code?'✓ ':'')+label;
-    b.onclick=function(){
-      ST.lang=code;localStorage.setItem('wp_lang',code);
-      document.querySelectorAll('.lbtn').forEach(function(x){var c=x.dataset.code,f=LANGS.find(function(l){return l[0]===c;});x.className='lbtn'+(c===code?' on':'');x.textContent=(c===code?'✓ ':'')+f[1];});
-    };
+    b.onclick=function(){setLang(code);};
     g.appendChild(b);
-  })(LANGS[i][0],LANGS[i][1]);}
+  })(LANGS[i][0]);}
   document.querySelectorAll('.szbtn').forEach(function(b){b.classList.toggle('on',b.dataset.s===ST.dotSize);});
 }
 function setDotSize(s){ST.dotSize=s;localStorage.setItem('wp_dotsize',s);document.querySelectorAll('.szbtn').forEach(function(b){b.classList.toggle('on',b.dataset.s===s);});buildDots();}
@@ -952,6 +1040,7 @@ function unlockAudio(){
 }
 
 initSettings();
+applyTranslations();
 // CDN에서 three.js 로드가 안 되거나(네트워크/차단) WebGL을 못 쓰는 환경이면
 // initGlobe()가 여기서 예외를 던지는데, try/catch가 없으면 스크립트 실행이
 // 여기서 멈춰버려 그 아래 정의된 enterApp() 관련 로직까지 영향을 줄 수 있었다.
@@ -972,7 +1061,7 @@ function enterApp(){
   sp.classList.add('out');
   setTimeout(function(){sp.style.display='none';},600);
   if(!_threeReady){
-    showToast('⚠️ 3D 지구본을 불러오지 못했습니다. 새로고침 해주세요.');
+    showToast(t('toastWebglError'));
     return;
   }
   if(navigator.geolocation){
