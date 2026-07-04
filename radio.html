@@ -1153,21 +1153,31 @@ function enterApp(){
     showToast(t('toastWebglError'));
     return;
   }
+  // loadStations()는 GPS 결과(성공/실패 어느 쪽이든)가 확정된 "뒤에"만 호출한다.
+  // 예전에는 GPS 콜백과 상관없이 곧바로 loadStations()를 불러서, 그 시점에 아직
+  // ST.hasGPS가 true가 되기 전이라 "내 지역" 조회가 항상 한국(KR) 기준으로
+  // 나갔다. 그러면 실제 위치 기준 자동 재생은 오직 느린 전세계 배치가 다
+  // 끝난 뒤(수십 초)에만 일어났다 — 사용자가 소리가 나올 때까지 전체 로딩을
+  // 기다려야 했던 원인이 바로 이것이다. 이제는 GPS가 정해진 뒤 내 지역 방송국을
+  // 먼저 빠르게 불러오고, 그게 로드되자마자 가장 가까운 방송국을 바로 재생한다.
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(function(pos){
       ST.myLat=pos.coords.latitude;ST.myLon=pos.coords.longitude;ST.hasGPS=true;
       console.log('GPS:',ST.myLat,ST.myLon);
       flyTo(ST.myLat,ST.myLon,1.8);
-      if(ST.stationsReady)autoPlayNearby();
+      loadStations();
     },function(err){
       console.warn('GPS 실패:',err.message);
       // hasGPS는 false로 유지한다. GPS 실패를 (0,0) 좌표의 "실제 위치"로 취급하면
       // autoPlayNearby()가 적도/기니만 인근(Null Island)에서 가장 가까운 방송국을
       // 마치 사용자 위치 기준인 것처럼 자동 재생해버리는 문제가 있었다(예: 가나 방송국 고정 재생).
       zoomTarget=3.0;
-    },{enableHighAccuracy:true,timeout:8000,maximumAge:0});
-  }else{zoomTarget=3.0;}
-  loadStations();
+      loadStations();
+    },{enableHighAccuracy:true,timeout:8000,maximumAge:300000});
+  }else{
+    zoomTarget=3.0;
+    loadStations();
+  }
 }
 </script>
 </body>
