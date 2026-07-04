@@ -409,6 +409,48 @@ function onTE(e){
   if(!dragMoved){var t=e.changedTouches[0];handleTap(t.clientX,t.clientY);}
 }
 
+// 특정 월드 좌표가 카메라에서 지구본(불투명 구체) 뒤에 가려지지 않고 실제로 화면에
+// 보이는지 "정확히" 판정한다. 이전에는 "표면 바깥쪽 방향이 카메라를 향하는지"를
+// 근사값(내적)으로만 확인했는데, 방송국 데이터가 늘어나 점이 촘촘해질수록 그
+// 근사값의 오차 범위 안에서 대척점 부근의 무관한 점이 다시 새어 들어왔다.
+// 여기서는 카메라→지점 사이의 실제 광선이 지구본 메시 자체와 먼저 부딪히는지
+// 직접 검사하므로, 점 개수/밀도와 무관하게 항상 정확하다.
+function isPointVisibleFromCamera(worldPoint){
+  var dir=worldPoint.clone().sub(cam.position);
+  var dist=dir.length();
+  if(dist<1e-6)return true;
+  dir.normalize();
+  var occRay=new THREE.Raycaster(cam.position.clone(),dir,0,dist-0.002);
+  return occRay.intersectObject(globe).length===0;
+}
+
+// 안전장치: 선택된 클러스터(cl)가 실제로 화면의 (screenX,screenY) 근처에 렌더링되고
+// 있는지 재확인한다. 방송국 개수를 늘리거나 클러스터링/정렬 로직을 바꾸는 과정에서
+// 이 매칭이 다시 깨지면, 엉뚱한 나라를 조용히 재생하는 대신 콘솔에 바로 경고가
+// 뜨도록 해서 회귀를 즉시 알아챌 수 있게 한다.
+function verifyClusterMatchesScreenPos(cl,screenX,screenY,context){
+  var rect=ren.domElement.getBoundingClientRect();
+  var pos=ll2v(cl.lat,cl.lon,1.018).applyQuaternion(globe.quaternion);
+  var ndc=pos.clone().project(cam);
+  var px=(ndc.x*0.5+0.5)*rect.width+rect.left;
+  var py=(-ndc.y*0.5+0.5)*rect.height+rect.top;
+  var distPx=Math.hypot(px-screenX,py-screenY);
+  // 대척점 근처의 점은 화면 2D 좌표만 보면 원래 지점과 거의 같은 자리에 투영되지만
+  // (깊이만 다름) 실제로는 지구본에 가려서 안 보인다. 2D 거리만 비교하면 이 경우를
+  // 놓치므로, 반드시 가림(occlusion) 여부도 함께 확인해야 검증이 의미가 있다.
+  var occluded=!isPointVisibleFromCamera(pos);
+  if(ndc.z>1||occluded||distPx>100){
+    console.warn('[Wild Peaks] 마커 매칭 검증 실패('+context+'): 선택된 클러스터가 화면상 예상 위치에서 벗어났거나 가려져 있습니다.',{
+      country:cl.country,lat:cl.lat,lon:cl.lon,
+      expected:{x:Math.round(screenX),y:Math.round(screenY)},
+      actual:{x:Math.round(px),y:Math.round(py)},
+      distancePx:+distPx.toFixed(0),occluded:occluded,ndcZ:+ndc.z.toFixed(3)
+    });
+    return false;
+  }
+  return true;
+}
+
 function handleTap(cx,cy){
   var sheet=document.getElementById('sheet');
   if(sheet.classList.contains('open')){closeSheet();return;}
@@ -417,8 +459,15 @@ function handleTap(cx,cy){
   mXY.y=-((cy-rect.top)/rect.height)*2+1;
   ray.setFromCamera(mXY,cam);
   var hits=ray.intersectObjects(ST.dots);
+  // intersectObjects는 카메라에서의 "거리"로만 정렬할 뿐, 지구본 반대쪽(뒷면)에
+  // 가려져 실제로는 안 보이는 히트-구체까지 그대로 반환한다. 탭 지점이 앞면 점의
+  // 판정 범위를 살짝 벗어나면, 광선이 지구 내부를 관통해 반대편(대척점 부근)의
+  // 무관한 방송국을 맞히는 경우가 있었다 — 예: 한국을 탭했는데 우루과이가,
+  // 중국을 탭했는데 아르헨티나가 선택되는 버그가 바로 이 때문이었다.
+  hits=hits.filter(function(h){return isPointVisibleFromCamera(h.point);});
   if(hits.length){
     var cl=hits[0].object.userData.cluster;
+    verifyClusterMatchesScreenPos(cl,cx,cy,'탭');
     openSheet(cl);
     if(!ST.locked&&cl.stations.length>0)play(cl.stations[0]);
   }
@@ -438,6 +487,12 @@ function checkCenterRing(){
   if(now-_ringLast<100)return;
   _ringLast=now;
   if(!ST.dots.length||drag)return;
+  // 카메라가 아직 목표 줌 배율로 다가가는 중이면(flyTo 직후 회전은 금방 끝나지만
+  // 줌은 처음 배율에 따라 몇 초씩 걸릴 수 있다) 화면 중앙 자동 잠금을 쉰다.
+  // 이 상태에서 카메라가 지구본에서 멀리 떨어져 있으면 화면 중앙 근처에 전혀
+  // 상관없는 다른 나라 방송국들이 우연히 몰려 보여서, 사용자가 방금 선택한
+  // 방송국과 무관한 곳으로 잘못 전환되는 문제가 있었다.
+  if(zoomTarget!==null)return;
   var vqw=velQ.w;
   if(Math.abs(1-Math.abs(vqw))*2>0.0001)return;
 
@@ -447,15 +502,31 @@ function checkCenterRing(){
   var best=null,bestDist=9999;
   var tmpV=new THREE.Vector3();
 
+  var camDir=cam.position.clone().normalize();
+  // 1차로 값싼 근사 필터(표면 바깥쪽이 대략 카메라 쪽을 향하는지)로 후보를 좁힌다.
+  // 매 프레임 모든 점에 대해 정밀한 광선-지구본 교차 검사를 하면 점 개수가 많을 때
+  // 비용이 커지므로, 최종 후보 하나에 대해서만 아래에서 정밀 검사를 한다.
   for(var i=0;i<ST.dots.length;i++){
     var d=ST.dots[i];
     d.getWorldPosition(tmpV);
+    if(tmpV.clone().normalize().dot(camDir)<=0)continue;
     var ndc=tmpV.clone().project(cam);
     if(ndc.z>1)continue;
     var px=(ndc.x*0.5+0.5)*rect.width;
     var py=(-ndc.y*0.5+0.5)*rect.height;
     var dist=Math.hypot(px-cx,py-cy);
     if(dist<bestDist){bestDist=dist;best=d;}
+  }
+
+  // 정밀 검사: 근사 필터를 통과했더라도, 실제로 카메라→점 광선이 지구본 메시에
+  // 가려지지 않는지 다시 한 번 확실히 확인한다. 방송국 개수가 늘어나 점이
+  // 촘촘해질수록 근사 필터의 오차 범위 안에서 대척점 부근의 무관한 점이 골라질
+  // 위험이 커지므로(예: 한국을 조준했는데 우루과이가 자동 재생됨), 여기서
+  // 한 번 더 확실하게 걸러낸다.
+  if(best){
+    var bestWorldPos=new THREE.Vector3();
+    best.getWorldPosition(bestWorldPos);
+    if(!isPointVisibleFromCamera(bestWorldPos))best=null;
   }
 
   if(best&&bestDist<ringR){
@@ -473,9 +544,20 @@ function checkCenterRing(){
     clearTimeout(_ringHoldTimer);
     _ringHoldTimer=setTimeout(function(){
       if(ST._lastRingCluster!==cl)return;
+      // play()로 방송국을 직접 선택한 직후(flyTo 애니메이션이 진행되는 동안)에는
+      // 화면 중앙 자동 잠금이 다른 클러스터로 끼어들어 마커를 덮어쓰지 않도록
+      // 잠깐 쉰다. 안 그러면 카메라는 사용자가 고른 정확한 좌표를 향해 있는데
+      // 마커만 인접한 다른 클러스터의 방송국 좌표로 바뀌어 화면 중앙 조준점에서
+      // 빨간 점이 어긋나 보이는 문제가 있었다.
+      if(Date.now()-(ST._lastPlayAt||0)<2200)return;
       if(!ST.locked&&cl.stations.length>0){
+        // 이 클러스터 안의 어떤 방송국이든 이미 재생 중이면(사용자가 목록/검색에서
+        // 직접 고른 방송국이 클러스터의 첫 방송국이 아닌 경우 포함) 자동 잠금이
+        // 클러스터의 첫 방송국으로 덮어쓰지 않는다.
+        if(ST.current&&cl.stations.some(function(st){return st.uuid===ST.current.uuid;}))return;
         var s=cl.stations[0];
-        if(ST.current&&ST.current.uuid===s.uuid)return;
+        var _ringRect=ren.domElement.getBoundingClientRect();
+        verifyClusterMatchesScreenPos(cl,_ringRect.left+_ringRect.width/2,_ringRect.top+_ringRect.height/2,'화면 중앙 자동 잠금');
         audio.pause();audio.src='';
         ST.current=s;audio.src=s.url;audio.muted=ST.muted;audio.load();
         audio.play().then(function(){
@@ -597,7 +679,7 @@ function loadStations(){
   setLoading(true);
   var countryCodePromise=ST.hasGPS?getCountryCodeFromLatLon(ST.myLat,ST.myLon):Promise.resolve('KR');
   countryCodePromise.then(function(countryCode){
-    fetch(apiBase+'/json/stations/bycountrycodeexact/'+countryCode+'?limit=500&hidebroken=true&order=clickcount&reverse=true')
+    fetch(apiBase+'/json/stations/bycountrycodeexact/'+countryCode+'?limit=1500&hidebroken=true&order=clickcount&reverse=true')
     .then(function(r){return r.json();})
     .then(function(local){
       for(var i=0;i<local.length;i++){
@@ -638,8 +720,8 @@ function getCountryCodeFallback(lat,lon){
 function loadAllStations(alreadyLoaded){
   var seen={};
   for(var i=0;i<alreadyLoaded.length;i++)seen[alreadyLoaded[i].stationuuid]=true;
-  var p1=fetch(apiBase+'/json/stations?limit=5000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true').then(function(r){return r.json();}).catch(function(){return[];});
-  var p2=fetch(apiBase+'/json/stations/bycountrycodeexact/KR?limit=500&hidebroken=true&order=clickcount&reverse=true').then(function(r){return r.json();}).catch(function(){return[];});
+  var p1=fetch(apiBase+'/json/stations?limit=12000&hidebroken=true&has_geo_info=true&order=clickcount&reverse=true').then(function(r){return r.json();}).catch(function(){return[];});
+  var p2=fetch(apiBase+'/json/stations/bycountrycodeexact/KR?limit=1000&hidebroken=true&order=clickcount&reverse=true').then(function(r){return r.json();}).catch(function(){return[];});
   Promise.all([p1,p2]).then(function(results){
     var combined=results[0];
     var kr=results[1];
@@ -782,21 +864,12 @@ function makeItem(s,i,ctx){
   var isPlay=ST.current&&ST.current.uuid===s.uuid;
   div.innerHTML='<div class="si-dot'+(isPlay?' on':'')+'"></div>'+
     '<div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+(s.codec||'MP3')+(s.bitrate?' · '+s.bitrate+'kbps':'')+' · '+s.country+'</div></div>'+
-    '<div class="si-heart'+(isFav?' on':'')+'" onclick="tapHeart(event,'+i+',\''+ctx+'\')">'+(isFav?'♥':'♡')+'</div>';
+    '<div class="si-heart'+(isFav?' on':'')+'" onclick="tapHeartUUID(event,\''+s.uuid+'\')">'+(isFav?'♥':'♡')+'</div>';
   div.addEventListener('click',function(e){
     if(e.target.classList.contains('si-heart'))return;
     play(s);if(ST.currentCluster)renderSheetList(ST.currentCluster);renderFav();
   });
   return div;
-}
-
-function tapHeart(e,idx,ctx){
-  e.stopPropagation();
-  var list=ctx==='fav'?ST.favs:ST.sheetList;var s=list[idx];if(!s)return;
-  var fi=ST.favs.findIndex(function(f){return f.uuid===s.uuid;});
-  if(fi>=0){ST.favs.splice(fi,1);showToast(t('toastFavRemoved'));}else{ST.favs.push(s);showToast(t('toastFavAdded'));}
-  localStorage.setItem('wp_favs',JSON.stringify(ST.favs));
-  if(ST.currentCluster)renderSheetList(ST.currentCluster);renderFav();
 }
 
 function renderFav(){
@@ -807,6 +880,7 @@ function renderFav(){
 
 /* AUDIO */
 function play(s){
+  ST._lastPlayAt=Date.now();
   ST.current=s;audio.src=s.url;audio.muted=ST.muted;
   audio.play().catch(function(){});ST.playing=true;
   document.getElementById('btn-play').textContent='⏸';
