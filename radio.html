@@ -577,7 +577,7 @@ function checkCenterRing(){
           showToast(t('toastTapToPlay',{name:s.name}));
         });
         document.getElementById('p-station').textContent=s.name;
-        document.getElementById('p-city').textContent=s.country||'Unknown';
+        document.getElementById('p-city').textContent=translateCountryName(s.countrycode,s.country)||'Unknown';
         document.getElementById('p-country').textContent=s.state||s.codec||'';
         updateClock(s.lat,s.lon);
         updateNowPlayingMarker(s);
@@ -676,7 +676,7 @@ function clusterStations(stations){
     var found=null;
     for(var j=0;j<cls.length;j++){if(Math.hypot(cls[j].lat-s.lat,cls[j].lon-s.lon)<THR){found=cls[j];break;}}
     if(found)found.stations.push(s);
-    else cls.push({lat:s.lat,lon:s.lon,stations:[s],country:s.country});
+    else cls.push({lat:s.lat,lon:s.lon,stations:[s],country:s.country,countrycode:s.countrycode});
   }
   return cls;
 }
@@ -753,7 +753,7 @@ function onLoaded(data){
     ST.stations.push({
       name:(s.name||'').trim()||'Unknown',url:s.url_resolved||s.url,
       lat:parseFloat(s.geo_lat),lon:parseFloat(s.geo_long),
-      country:s.country||'',state:s.state||'',
+      country:s.country||'',countrycode:s.countrycode||'',state:s.state||'',
       codec:s.codec||'',bitrate:parseInt(s.bitrate)||0,uuid:s.stationuuid||''
     });
   }
@@ -781,7 +781,7 @@ function autoPlayNearby(){
     else{
       ST.pendingStation=s;
       document.getElementById('p-station').textContent=s.name;
-      document.getElementById('p-city').textContent=s.country||'Unknown';
+      document.getElementById('p-city').textContent=translateCountryName(s.countrycode,s.country)||'Unknown';
       document.getElementById('p-country').textContent=s.state||s.codec||'';
       updateClock(s.lat,s.lon);
       showToast(t('toastTapWhenReady',{name:s.name}));
@@ -803,7 +803,7 @@ function onPlayerTap(){if(ST.currentCluster)openSheet(ST.currentCluster);}
 
 function openSheet(cl){
   ST.currentCluster=cl;ST.sheetList=cl.stations;
-  document.getElementById('sh-city').textContent=cl.country||t('sheetDefaultCity');
+  document.getElementById('sh-city').textContent=translateCountryName(cl.countrycode,cl.country)||t('sheetDefaultCity');
   document.getElementById('sh-meta').textContent=t('stationCount',{n:cl.stations.length});
   clearInterval(ST.sheetTimerId);
   ST.sheetTimerId=setInterval(function(){
@@ -814,20 +814,20 @@ function openSheet(cl){
   updateClock(cl.lat,cl.lon);
   renderSheetList(cl);
   document.getElementById('sheet').classList.add('open');
-  document.getElementById('p-city').textContent=cl.country||'Unknown';
+  document.getElementById('p-city').textContent=translateCountryName(cl.countrycode,cl.country)||'Unknown';
   document.getElementById('p-country').textContent=(cl.stations[0]&&cl.stations[0].state)||t('stationCount',{n:cl.stations.length});
 }
 function closeSheet(){document.getElementById('sheet').classList.remove('open');clearInterval(ST.sheetTimerId);}
 
 function renderSheetList(cl){
   var ul=document.getElementById('sh-list');ul.innerHTML='';
-  var sec=document.createElement('div');sec.className='sh-section';sec.textContent=countryStationsLabel(cl.country);ul.appendChild(sec);
+  var sec=document.createElement('div');sec.className='sh-section';sec.textContent=countryStationsLabel(cl);ul.appendChild(sec);
   var list=cl.stations,max=Math.min(5,list.length);
   for(var i=0;i<max;i++)ul.appendChild(makeItem(list[i],i,'sheet'));
   if(list.length>5){
     var sa=document.createElement('div');sa.className='sh-see-all';
     sa.innerHTML=t('seeAllStations',{n:list.length})+' <span>›</span>';
-    (function(l){sa.onclick=function(){ul.innerHTML='';var s2=document.createElement('div');s2.className='sh-section';s2.textContent=countryStationsLabel(cl.country);ul.appendChild(s2);for(var i=0;i<l.length;i++)ul.appendChild(makeItem(l[i],i,'sheet'));renderNearby(cl,ul);};})(list);
+    (function(l){sa.onclick=function(){ul.innerHTML='';var s2=document.createElement('div');s2.className='sh-section';s2.textContent=countryStationsLabel(cl);ul.appendChild(s2);for(var i=0;i<l.length;i++)ul.appendChild(makeItem(l[i],i,'sheet'));renderNearby(cl,ul);};})(list);
     ul.appendChild(sa);
   }
   renderNearby(cl,ul);
@@ -849,7 +849,7 @@ function renderNearby(cl,ul){
     var div=document.createElement('div');div.className='si';
     var isFav=ST.favs.some(function(f){return f.uuid===s.uuid;});
     div.innerHTML='<div class="si-dot'+(ST.current&&ST.current.uuid===s.uuid?' on':'')+'"></div>'+
-      '<div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+(nc.country||'')+' · '+t('stationCount',{n:nc.stations.length})+'</div></div>'+
+      '<div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+(translateCountryName(nc.countrycode,nc.country)||'')+' · '+t('stationCount',{n:nc.stations.length})+'</div></div>'+
       '<div class="si-heart'+(isFav?' on':'')+'" onclick="tapHeartUUID(event,\''+s.uuid+'\')">'+(isFav?'♥':'♡')+'</div>';
     (function(cluster,station){div.addEventListener('click',function(e){if(e.target.classList.contains('si-heart'))return;openSheet(cluster);play(station);});})(nc,s);
     ul.appendChild(div);
@@ -872,7 +872,7 @@ function makeItem(s,i,ctx){
   var isFav=ST.favs.some(function(f){return f.uuid===s.uuid;});
   var isPlay=ST.current&&ST.current.uuid===s.uuid;
   div.innerHTML='<div class="si-dot'+(isPlay?' on':'')+'"></div>'+
-    '<div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+(s.codec||'MP3')+(s.bitrate?' · '+s.bitrate+'kbps':'')+' · '+s.country+'</div></div>'+
+    '<div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+(s.codec||'MP3')+(s.bitrate?' · '+s.bitrate+'kbps':'')+' · '+translateCountryName(s.countrycode,s.country)+'</div></div>'+
     '<div class="si-heart'+(isFav?' on':'')+'" onclick="tapHeartUUID(event,\''+s.uuid+'\')">'+(isFav?'♥':'♡')+'</div>';
   div.addEventListener('click',function(e){
     if(e.target.classList.contains('si-heart'))return;
@@ -895,7 +895,7 @@ function play(s){
   document.getElementById('btn-play').textContent='⏸';
   document.getElementById('eq').classList.remove('paused');
   document.getElementById('p-station').textContent=s.name;
-  document.getElementById('p-city').textContent=s.country||'Unknown';
+  document.getElementById('p-city').textContent=translateCountryName(s.countrycode,s.country)||'Unknown';
   document.getElementById('p-country').textContent=s.state||s.codec||'';
   updateClock(s.lat,s.lon);
   updateNowPlayingMarker(s);
@@ -979,9 +979,9 @@ function doSearch(q){
       el.innerHTML='';
       if(!data.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;padding:8px 0;">'+esc(t('searchNoResults'))+'</div>';return;}
       for(var i=0;i<data.length;i++){(function(raw){
-        var s={name:(raw.name||'').trim()||'Unknown',url:raw.url_resolved||raw.url,lat:parseFloat(raw.geo_lat)||0,lon:parseFloat(raw.geo_long)||0,country:raw.country||'',state:raw.state||'',codec:raw.codec||'',bitrate:parseInt(raw.bitrate)||0,uuid:raw.stationuuid||''};
+        var s={name:(raw.name||'').trim()||'Unknown',url:raw.url_resolved||raw.url,lat:parseFloat(raw.geo_lat)||0,lon:parseFloat(raw.geo_long)||0,country:raw.country||'',countrycode:raw.countrycode||'',state:raw.state||'',codec:raw.codec||'',bitrate:parseInt(raw.bitrate)||0,uuid:raw.stationuuid||''};
         var div=document.createElement('div');div.className='si';
-        div.innerHTML='<div class="si-dot"></div><div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+s.country+(s.state?' · '+s.state:'')+'</div></div>';
+        div.innerHTML='<div class="si-dot"></div><div class="si-body"><div class="si-name">'+esc(s.name)+'</div><div class="si-meta">'+translateCountryName(s.countrycode,s.country)+(s.state?' · '+s.state:'')+'</div></div>';
         div.onclick=function(){play(s);ST.sheetList=[s];closeTab('search');showToast(t('toastPlaySearch',{name:s.name}));};
         el.appendChild(div);
       })(data[i]);}
@@ -1019,6 +1019,85 @@ sv:{langAuto:"Automatisk",loading:"Laddar",navExplore:"Utforska",navFav:"Favorit
 uk:{langAuto:"Автоматично",loading:"Завантаження",navExplore:"Огляд",navFav:"Обране",navLive:"Ефір",navSearch:"Пошук",navSettings:"Налаштування",tabTtlFav:"Обране",tabTtlLive:"Ефір",tabTtlSearch:"Пошук",tabTtlSettings:"Налаштування",playerDefaultCity:"Досліджуйте глобус",playerDefaultCountry:"Торкніться зеленої точки, щоб відкрити список станцій",playerDefaultStation:"Немає станції",sheetDefaultCity:"Станція",liveComingSoon:"Скоро",liveDesc:"Інтеграція з YouTube Live з'явиться найближчим часом!",searchPlaceholder:"Пошук станції або міста…",searchSearching:"Пошук…",searchNoResults:"Немає результатів",searchError:"Сталася помилка",settingsLang:"Мова",settingsDotSize:"Розмір точок на глобусі",dotSmall:"Малий",dotMedium:"Середній",dotLarge:"Великий",settingsInfo:"Про застосунок",aboutDesc:"Досліджуйте радіостанції з усього світу на 3D-глобусі.",aboutDataLabel:"Дані",about3dLabel:"3D",favEmptyTitle:"Поки що немає обраного",favEmptyDesc:"Торкніться ♡ біля станції, щоб додати",nearbySection:"Станції поруч",seeAllStations:"Переглянути всі станції ({n})",stationCount:"{n} станцій",countryStations:"Станції: {country}",toastLocalLoaded:"📻 Локальні станції завантажено — завантаження всіх станцій…",toastAllLoaded:"🌍 Завантажено {n} станцій з усього світу",toastTapToPlay:"▶ Торкніться, щоб увімкнути {name}",toastTapWhenReady:"📍 Торкніться, щоб увімкнути {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Видалено з обраного",toastFavAdded:"♥ Додано в обране",toastLocating:"📍 Визначення місця…",toastLocated:"📍 Переміщено до вашого місця",toastLocationDenied:"Будь ласка, дозвольте доступ до геолокації",toastLocked:"🔒 Заблоковано — станція залишається",toastUnlocked:"🔓 Розблоковано — автовідтворення",toastLinkCopied:"🔗 Посилання скопійовано",toastWebglError:"⚠️ Не вдалося завантажити 3D-глобус. Оновіть сторінку."},
 el:{langAuto:"Αυτόματο",loading:"Φόρτωση",navExplore:"Εξερεύνηση",navFav:"Αγαπημένα",navLive:"Ζωντανά",navSearch:"Αναζήτηση",navSettings:"Ρυθμίσεις",tabTtlFav:"Αγαπημένα",tabTtlLive:"Ζωντανά",tabTtlSearch:"Αναζήτηση",tabTtlSettings:"Ρυθμίσεις",playerDefaultCity:"Εξερευνήστε την υδρόγειο",playerDefaultCountry:"Πατήστε μια πράσινη κουκκίδα για να ανοίξετε τη λίστα σταθμών",playerDefaultStation:"Κανένας σταθμός",sheetDefaultCity:"Σταθμός",liveComingSoon:"Σύντομα διαθέσιμο",liveDesc:"Η ενσωμάτωση YouTube Live έρχεται σύντομα!",searchPlaceholder:"Αναζήτηση σταθμού ή πόλης…",searchSearching:"Αναζήτηση…",searchNoResults:"Κανένα αποτέλεσμα",searchError:"Παρουσιάστηκε σφάλμα",settingsLang:"Γλώσσα",settingsDotSize:"Μέγεθος κουκκίδων υδρογείου",dotSmall:"Μικρό",dotMedium:"Μεσαίο",dotLarge:"Μεγάλο",settingsInfo:"Σχετικά",aboutDesc:"Εξερευνήστε ραδιοφωνικούς σταθμούς απ' όλο τον κόσμο σε μια 3D υδρόγειο.",aboutDataLabel:"Δεδομένα",about3dLabel:"3D",favEmptyTitle:"Δεν υπάρχουν ακόμη αγαπημένα",favEmptyDesc:"Πατήστε το ♡ δίπλα σε έναν σταθμό για να τον προσθέσετε",nearbySection:"Κοντινοί σταθμοί",seeAllStations:"Δείτε όλους τους {n} σταθμούς",stationCount:"{n} σταθμοί",countryStations:"Σταθμοί {country}",toastLocalLoaded:"📻 Φορτώθηκαν οι τοπικοί σταθμοί — φόρτωση όλων των σταθμών…",toastAllLoaded:"🌍 Φορτώθηκαν {n} σταθμοί παγκοσμίως",toastTapToPlay:"▶ Πατήστε για αναπαραγωγή {name}",toastTapWhenReady:"📍 Πατήστε για αναπαραγωγή {name}",toastNowPlaying:"📻 {name}",toastPlaySearch:"▶ {name}",toastFavRemoved:"Αφαιρέθηκε από τα αγαπημένα",toastFavAdded:"♥ Προστέθηκε στα αγαπημένα",toastLocating:"📍 Εντοπισμός θέσης…",toastLocated:"📍 Μετακινήθηκε στην τοποθεσία σας",toastLocationDenied:"Παρακαλώ επιτρέψτε την πρόσβαση στην τοποθεσία",toastLocked:"🔒 Κλειδωμένο — ο σταθμός παραμένει",toastUnlocked:"🔓 Ξεκλειδωμένο — αυτόματη αναπαραγωγή",toastLinkCopied:"🔗 Ο σύνδεσμος αντιγράφηκε",toastWebglError:"⚠️ Δεν ήταν δυνατή η φόρτωση της 3D υδρογείου. Ανανεώστε τη σελίδα."}
 };
+
+/* 방송국의 country(국가) 필드를 ISO 국가 코드 기준으로 UI 언어에 맞게 번역하기 위한 데이터.
+   방송국 자체의 브랜드/채널 이름(station.name)은 절대 이 사전을 거치지 않는다 — 고유명사이므로 원어 그대로 유지. */
+var COUNTRY_NAMES={
+KR:{en:"South Korea",ko:"대한민국",ja:"韓国",'zh-TW':"韓國",'zh-CN':"韩国",es:"Corea del Sur",fr:"Corée du Sud",de:"Südkorea",pt:"Coreia do Sul",it:"Corea del Sud",ru:"Южная Корея",ar:"كوريا الجنوبية",tr:"Güney Kore",id:"Korea Selatan",th:"เกาหลีใต้",vi:"Hàn Quốc",hi:"दक्षिण कोरिया",pl:"Korea Południowa",nl:"Zuid-Korea",sv:"Sydkorea",uk:"Південна Корея",el:"Νότια Κορέα"},
+KP:{en:"North Korea",ko:"북한",ja:"北朝鮮",'zh-TW':"北韓",'zh-CN':"朝鲜",es:"Corea del Norte",fr:"Corée du Nord",de:"Nordkorea",pt:"Coreia do Norte",it:"Corea del Nord",ru:"Северная Корея",ar:"كوريا الشمالية",tr:"Kuzey Kore",id:"Korea Utara",th:"เกาหลีเหนือ",vi:"Triều Tiên",hi:"उत्तर कोरिया",pl:"Korea Północna",nl:"Noord-Korea",sv:"Nordkorea",uk:"Північна Корея",el:"Βόρεια Κορέα"},
+JP:{en:"Japan",ko:"일본",ja:"日本",'zh-TW':"日本",'zh-CN':"日本",es:"Japón",fr:"Japon",de:"Japan",pt:"Japão",it:"Giappone",ru:"Япония",ar:"اليابان",tr:"Japonya",id:"Jepang",th:"ญี่ปุ่น",vi:"Nhật Bản",hi:"जापान",pl:"Japonia",nl:"Japan",sv:"Japan",uk:"Японія",el:"Ιαπωνία"},
+CN:{en:"China",ko:"중국",ja:"中国",'zh-TW':"中國",'zh-CN':"中国",es:"China",fr:"Chine",de:"China",pt:"China",it:"Cina",ru:"Китай",ar:"الصين",tr:"Çin",id:"Tiongkok",th:"จีน",vi:"Trung Quốc",hi:"चीन",pl:"Chiny",nl:"China",sv:"Kina",uk:"Китай",el:"Κίνα"},
+TW:{en:"Taiwan",ko:"대만",ja:"台湾",'zh-TW':"臺灣",'zh-CN':"台湾",es:"Taiwán",fr:"Taïwan",de:"Taiwan",pt:"Taiwan",it:"Taiwan",ru:"Тайвань",ar:"تايوان",tr:"Tayvan",id:"Taiwan",th:"ไต้หวัน",vi:"Đài Loan",hi:"ताइवान",pl:"Tajwan",nl:"Taiwan",sv:"Taiwan",uk:"Тайвань",el:"Ταϊβάν"},
+HK:{en:"Hong Kong",ko:"홍콩",ja:"香港",'zh-TW':"香港",'zh-CN':"香港",es:"Hong Kong",fr:"Hong Kong",de:"Hongkong",pt:"Hong Kong",it:"Hong Kong",ru:"Гонконг",ar:"هونغ كونغ",tr:"Hong Kong",id:"Hong Kong",th:"ฮ่องกง",vi:"Hồng Kông",hi:"हॉन्ग कॉन्ग",pl:"Hongkong",nl:"Hongkong",sv:"Hongkong",uk:"Гонконг",el:"Χονγκ Κονγκ"},
+IN:{en:"India",ko:"인도",ja:"インド",'zh-TW':"印度",'zh-CN':"印度",es:"India",fr:"Inde",de:"Indien",pt:"Índia",it:"India",ru:"Индия",ar:"الهند",tr:"Hindistan",id:"India",th:"อินเดีย",vi:"Ấn Độ",hi:"भारत",pl:"Indie",nl:"India",sv:"Indien",uk:"Індія",el:"Ινδία"},
+ID:{en:"Indonesia",ko:"인도네시아",ja:"インドネシア",'zh-TW':"印尼",'zh-CN':"印度尼西亚",es:"Indonesia",fr:"Indonésie",de:"Indonesien",pt:"Indonésia",it:"Indonesia",ru:"Индонезия",ar:"إندونيسيا",tr:"Endonezya",id:"Indonesia",th:"อินโดนีเซีย",vi:"Indonesia",hi:"इंडोनेशिया",pl:"Indonezja",nl:"Indonesië",sv:"Indonesien",uk:"Індонезія",el:"Ινδονησία"},
+VN:{en:"Vietnam",ko:"베트남",ja:"ベトナム",'zh-TW':"越南",'zh-CN':"越南",es:"Vietnam",fr:"Viêt Nam",de:"Vietnam",pt:"Vietnã",it:"Vietnam",ru:"Вьетнам",ar:"فيتنام",tr:"Vietnam",id:"Vietnam",th:"เวียดนาม",vi:"Việt Nam",hi:"वियतनाम",pl:"Wietnam",nl:"Vietnam",sv:"Vietnam",uk:"В'єтнам",el:"Βιετνάμ"},
+TH:{en:"Thailand",ko:"태국",ja:"タイ",'zh-TW':"泰國",'zh-CN':"泰国",es:"Tailandia",fr:"Thaïlande",de:"Thailand",pt:"Tailândia",it:"Tailandia",ru:"Таиланд",ar:"تايلاند",tr:"Tayland",id:"Thailand",th:"ไทย",vi:"Thái Lan",hi:"थाईलैंड",pl:"Tajlandia",nl:"Thailand",sv:"Thailand",uk:"Таїланд",el:"Ταϊλάνδη"},
+PH:{en:"Philippines",ko:"필리핀",ja:"フィリピン",'zh-TW':"菲律賓",'zh-CN':"菲律宾",es:"Filipinas",fr:"Philippines",de:"Philippinen",pt:"Filipinas",it:"Filippine",ru:"Филиппины",ar:"الفلبين",tr:"Filipinler",id:"Filipina",th:"ฟิลิปปินส์",vi:"Philippines",hi:"फिलीपींस",pl:"Filipiny",nl:"Filipijnen",sv:"Filippinerna",uk:"Філіппіни",el:"Φιλιππίνες"},
+MY:{en:"Malaysia",ko:"말레이시아",ja:"マレーシア",'zh-TW':"馬來西亞",'zh-CN':"马来西亚",es:"Malasia",fr:"Malaisie",de:"Malaysia",pt:"Malásia",it:"Malesia",ru:"Малайзия",ar:"ماليزيا",tr:"Malezya",id:"Malaysia",th:"มาเลเซีย",vi:"Malaysia",hi:"मलेशिया",pl:"Malezja",nl:"Maleisië",sv:"Malaysia",uk:"Малайзія",el:"Μαλαισία"},
+SG:{en:"Singapore",ko:"싱가포르",ja:"シンガポール",'zh-TW':"新加坡",'zh-CN':"新加坡",es:"Singapur",fr:"Singapour",de:"Singapur",pt:"Singapura",it:"Singapore",ru:"Сингапур",ar:"سنغافورة",tr:"Singapur",id:"Singapura",th:"สิงคโปร์",vi:"Singapore",hi:"सिंगापुर",pl:"Singapur",nl:"Singapore",sv:"Singapore",uk:"Сингапур",el:"Σιγκαπούρη"},
+PK:{en:"Pakistan",ko:"파키스탄",ja:"パキスタン",'zh-TW':"巴基斯坦",'zh-CN':"巴基斯坦",es:"Pakistán",fr:"Pakistan",de:"Pakistan",pt:"Paquistão",it:"Pakistan",ru:"Пакистан",ar:"باكستان",tr:"Pakistan",id:"Pakistan",th:"ปากีสถาน",vi:"Pakistan",hi:"पाकिस्तान",pl:"Pakistan",nl:"Pakistan",sv:"Pakistan",uk:"Пакистан",el:"Πακιστάν"},
+BD:{en:"Bangladesh",ko:"방글라데시",ja:"バングラデシュ",'zh-TW':"孟加拉",'zh-CN':"孟加拉国",es:"Bangladés",fr:"Bangladesh",de:"Bangladesch",pt:"Bangladesh",it:"Bangladesh",ru:"Бангладеш",ar:"بنغلاديش",tr:"Bangladeş",id:"Bangladesh",th:"บังกลาเทศ",vi:"Bangladesh",hi:"बांग्लादेश",pl:"Bangladesz",nl:"Bangladesh",sv:"Bangladesh",uk:"Бангладеш",el:"Μπανγκλαντές"},
+LK:{en:"Sri Lanka",ko:"스리랑카",ja:"スリランカ",'zh-TW':"斯里蘭卡",'zh-CN':"斯里兰卡",es:"Sri Lanka",fr:"Sri Lanka",de:"Sri Lanka",pt:"Sri Lanka",it:"Sri Lanka",ru:"Шри-Ланка",ar:"سريلانكا",tr:"Sri Lanka",id:"Sri Lanka",th:"ศรีลังกา",vi:"Sri Lanka",hi:"श्रीलंका",pl:"Sri Lanka",nl:"Sri Lanka",sv:"Sri Lanka",uk:"Шрі-Ланка",el:"Σρι Λάνκα"},
+IR:{en:"Iran",ko:"이란",ja:"イラン",'zh-TW':"伊朗",'zh-CN':"伊朗",es:"Irán",fr:"Iran",de:"Iran",pt:"Irã",it:"Iran",ru:"Иран",ar:"إيران",tr:"İran",id:"Iran",th:"อิหร่าน",vi:"Iran",hi:"ईरान",pl:"Iran",nl:"Iran",sv:"Iran",uk:"Іран",el:"Ιράν"},
+IQ:{en:"Iraq",ko:"이라크",ja:"イラク",'zh-TW':"伊拉克",'zh-CN':"伊拉克",es:"Irak",fr:"Irak",de:"Irak",pt:"Iraque",it:"Iraq",ru:"Ирак",ar:"العراق",tr:"Irak",id:"Irak",th:"อิรัก",vi:"Iraq",hi:"इराक",pl:"Irak",nl:"Irak",sv:"Irak",uk:"Ірак",el:"Ιράκ"},
+SA:{en:"Saudi Arabia",ko:"사우디아라비아",ja:"サウジアラビア",'zh-TW':"沙烏地阿拉伯",'zh-CN':"沙特阿拉伯",es:"Arabia Saudita",fr:"Arabie saoudite",de:"Saudi-Arabien",pt:"Arábia Saudita",it:"Arabia Saudita",ru:"Саудовская Аравия",ar:"المملكة العربية السعودية",tr:"Suudi Arabistan",id:"Arab Saudi",th:"ซาอุดีอาระเบีย",vi:"Ả Rập Xê Út",hi:"सऊदी अरब",pl:"Arabia Saudyjska",nl:"Saoedi-Arabië",sv:"Saudiarabien",uk:"Саудівська Аравія",el:"Σαουδική Αραβία"},
+AE:{en:"United Arab Emirates",ko:"아랍에미리트",ja:"アラブ首長国連邦",'zh-TW':"阿拉伯聯合大公國",'zh-CN':"阿拉伯联合酋长国",es:"Emiratos Árabes Unidos",fr:"Émirats arabes unis",de:"Vereinigte Arabische Emirate",pt:"Emirados Árabes Unidos",it:"Emirati Arabi Uniti",ru:"Объединённые Арабские Эмираты",ar:"الإمارات العربية المتحدة",tr:"Birleşik Arap Emirlikleri",id:"Uni Emirat Arab",th:"สหรัฐอาหรับเอมิเรตส์",vi:"Các Tiểu Vương quốc Ả Rập Thống nhất",hi:"संयुक्त अरब अमीरात",pl:"Zjednoczone Emiraty Arabskie",nl:"Verenigde Arabische Emiraten",sv:"Förenade Arabemiraten",uk:"Об'єднані Арабські Емірати",el:"Ηνωμένα Αραβικά Εμιράτα"},
+IL:{en:"Israel",ko:"이스라엘",ja:"イスラエル",'zh-TW':"以色列",'zh-CN':"以色列",es:"Israel",fr:"Israël",de:"Israel",pt:"Israel",it:"Israele",ru:"Израиль",ar:"إسرائيل",tr:"İsrail",id:"Israel",th:"อิสราเอล",vi:"Israel",hi:"इज़राइल",pl:"Izrael",nl:"Israël",sv:"Israel",uk:"Ізраїль",el:"Ισραήλ"},
+TR:{en:"Turkey",ko:"튀르키예",ja:"トルコ",'zh-TW':"土耳其",'zh-CN':"土耳其",es:"Turquía",fr:"Turquie",de:"Türkei",pt:"Turquia",it:"Turchia",ru:"Турция",ar:"تركيا",tr:"Türkiye",id:"Turki",th:"ตุรกี",vi:"Thổ Nhĩ Kỳ",hi:"तुर्की",pl:"Turcja",nl:"Turkije",sv:"Turkiet",uk:"Туреччина",el:"Τουρκία"},
+US:{en:"United States",ko:"미국",ja:"アメリカ合衆国",'zh-TW':"美國",'zh-CN':"美国",es:"Estados Unidos",fr:"États-Unis",de:"Vereinigte Staaten",pt:"Estados Unidos",it:"Stati Uniti",ru:"США",ar:"الولايات المتحدة",tr:"Amerika Birleşik Devletleri",id:"Amerika Serikat",th:"สหรัฐอเมริกา",vi:"Hoa Kỳ",hi:"संयुक्त राज्य अमेरिका",pl:"Stany Zjednoczone",nl:"Verenigde Staten",sv:"USA",uk:"Сполучені Штати",el:"Ηνωμένες Πολιτείες"},
+CA:{en:"Canada",ko:"캐나다",ja:"カナダ",'zh-TW':"加拿大",'zh-CN':"加拿大",es:"Canadá",fr:"Canada",de:"Kanada",pt:"Canadá",it:"Canada",ru:"Канада",ar:"كندا",tr:"Kanada",id:"Kanada",th:"แคนาดา",vi:"Canada",hi:"कनाडा",pl:"Kanada",nl:"Canada",sv:"Kanada",uk:"Канада",el:"Καναδάς"},
+MX:{en:"Mexico",ko:"멕시코",ja:"メキシコ",'zh-TW':"墨西哥",'zh-CN':"墨西哥",es:"México",fr:"Mexique",de:"Mexiko",pt:"México",it:"Messico",ru:"Мексика",ar:"المكسيك",tr:"Meksika",id:"Meksiko",th:"เม็กซิโก",vi:"Mexico",hi:"मेक्सिको",pl:"Meksyk",nl:"Mexico",sv:"Mexiko",uk:"Мексика",el:"Μεξικό"},
+BR:{en:"Brazil",ko:"브라질",ja:"ブラジル",'zh-TW':"巴西",'zh-CN':"巴西",es:"Brasil",fr:"Brésil",de:"Brasilien",pt:"Brasil",it:"Brasile",ru:"Бразилия",ar:"البرازيل",tr:"Brezilya",id:"Brasil",th:"บราซิล",vi:"Brazil",hi:"ब्राज़ील",pl:"Brazylia",nl:"Brazilië",sv:"Brasilien",uk:"Бразилія",el:"Βραζιλία"},
+AR:{en:"Argentina",ko:"아르헨티나",ja:"アルゼンチン",'zh-TW':"阿根廷",'zh-CN':"阿根廷",es:"Argentina",fr:"Argentine",de:"Argentinien",pt:"Argentina",it:"Argentina",ru:"Аргентина",ar:"الأرجنتين",tr:"Arjantin",id:"Argentina",th:"อาร์เจนตินา",vi:"Argentina",hi:"अर्जेंटीना",pl:"Argentyna",nl:"Argentinië",sv:"Argentina",uk:"Аргентина",el:"Αργεντινή"},
+CL:{en:"Chile",ko:"칠레",ja:"チリ",'zh-TW':"智利",'zh-CN':"智利",es:"Chile",fr:"Chili",de:"Chile",pt:"Chile",it:"Cile",ru:"Чили",ar:"تشيلي",tr:"Şili",id:"Chili",th:"ชิลี",vi:"Chile",hi:"चिली",pl:"Chile",nl:"Chili",sv:"Chile",uk:"Чилі",el:"Χιλή"},
+CO:{en:"Colombia",ko:"콜롬비아",ja:"コロンビア",'zh-TW':"哥倫比亞",'zh-CN':"哥伦比亚",es:"Colombia",fr:"Colombie",de:"Kolumbien",pt:"Colômbia",it:"Colombia",ru:"Колумбия",ar:"كولومبيا",tr:"Kolombiya",id:"Kolombia",th:"โคลอมเบีย",vi:"Colombia",hi:"कोलंबिया",pl:"Kolumbia",nl:"Colombia",sv:"Colombia",uk:"Колумбія",el:"Κολομβία"},
+PE:{en:"Peru",ko:"페루",ja:"ペルー",'zh-TW':"秘魯",'zh-CN':"秘鲁",es:"Perú",fr:"Pérou",de:"Peru",pt:"Peru",it:"Perù",ru:"Перу",ar:"بيرو",tr:"Peru",id:"Peru",th:"เปรู",vi:"Peru",hi:"पेरू",pl:"Peru",nl:"Peru",sv:"Peru",uk:"Перу",el:"Περού"},
+VE:{en:"Venezuela",ko:"베네수엘라",ja:"ベネズエラ",'zh-TW':"委內瑞拉",'zh-CN':"委内瑞拉",es:"Venezuela",fr:"Venezuela",de:"Venezuela",pt:"Venezuela",it:"Venezuela",ru:"Венесуэла",ar:"فنزويلا",tr:"Venezuela",id:"Venezuela",th:"เวเนซุเอลา",vi:"Venezuela",hi:"वेनेज़ुएला",pl:"Wenezuela",nl:"Venezuela",sv:"Venezuela",uk:"Венесуела",el:"Βενεζουέλα"},
+EC:{en:"Ecuador",ko:"에콰도르",ja:"エクアドル",'zh-TW':"厄瓜多",'zh-CN':"厄瓜多尔",es:"Ecuador",fr:"Équateur",de:"Ecuador",pt:"Equador",it:"Ecuador",ru:"Эквадор",ar:"الإكوادور",tr:"Ekvador",id:"Ekuador",th:"เอกวาดอร์",vi:"Ecuador",hi:"इक्वाडोर",pl:"Ekwador",nl:"Ecuador",sv:"Ecuador",uk:"Еквадор",el:"Ισημερινός"},
+UY:{en:"Uruguay",ko:"우루과이",ja:"ウルグアイ",'zh-TW':"烏拉圭",'zh-CN':"乌拉圭",es:"Uruguay",fr:"Uruguay",de:"Uruguay",pt:"Uruguai",it:"Uruguay",ru:"Уругвай",ar:"أوروغواي",tr:"Uruguay",id:"Uruguay",th:"อุรุกวัย",vi:"Uruguay",hi:"उरुग्वे",pl:"Urugwaj",nl:"Uruguay",sv:"Uruguay",uk:"Уругвай",el:"Ουρουγουάη"},
+CR:{en:"Costa Rica",ko:"코스타리카",ja:"コスタリカ",'zh-TW':"哥斯大黎加",'zh-CN':"哥斯达黎加",es:"Costa Rica",fr:"Costa Rica",de:"Costa Rica",pt:"Costa Rica",it:"Costa Rica",ru:"Коста-Рика",ar:"كوستاريكا",tr:"Kosta Rika",id:"Kosta Rika",th:"คอสตาริกา",vi:"Costa Rica",hi:"कोस्टा रिका",pl:"Kostaryka",nl:"Costa Rica",sv:"Costa Rica",uk:"Коста-Рика",el:"Κόστα Ρίκα"},
+CU:{en:"Cuba",ko:"쿠바",ja:"キューバ",'zh-TW':"古巴",'zh-CN':"古巴",es:"Cuba",fr:"Cuba",de:"Kuba",pt:"Cuba",it:"Cuba",ru:"Куба",ar:"كوبا",tr:"Küba",id:"Kuba",th:"คิวบา",vi:"Cuba",hi:"क्यूबा",pl:"Kuba",nl:"Cuba",sv:"Kuba",uk:"Куба",el:"Κούβα"},
+DO:{en:"Dominican Republic",ko:"도미니카 공화국",ja:"ドミニカ共和国",'zh-TW':"多明尼加",'zh-CN':"多米尼加共和国",es:"República Dominicana",fr:"République dominicaine",de:"Dominikanische Republik",pt:"República Dominicana",it:"Repubblica Dominicana",ru:"Доминиканская Республика",ar:"جمهورية الدومينيكان",tr:"Dominik Cumhuriyeti",id:"Republik Dominika",th:"สาธารณรัฐโดมินิกัน",vi:"Cộng hòa Dominica",hi:"डोमिनिकन गणराज्य",pl:"Dominikana",nl:"Dominicaanse Republiek",sv:"Dominikanska republiken",uk:"Домініканська Республіка",el:"Δομινικανή Δημοκρατία"},
+GB:{en:"United Kingdom",ko:"영국",ja:"イギリス",'zh-TW':"英國",'zh-CN':"英国",es:"Reino Unido",fr:"Royaume-Uni",de:"Vereinigtes Königreich",pt:"Reino Unido",it:"Regno Unito",ru:"Великобритания",ar:"المملكة المتحدة",tr:"Birleşik Krallık",id:"Britania Raya",th:"สหราชอาณาจักร",vi:"Vương quốc Anh",hi:"यूनाइटेड किंगडम",pl:"Wielka Brytania",nl:"Verenigd Koninkrijk",sv:"Storbritannien",uk:"Велика Британія",el:"Ηνωμένο Βασίλειο"},
+FR:{en:"France",ko:"프랑스",ja:"フランス",'zh-TW':"法國",'zh-CN':"法国",es:"Francia",fr:"France",de:"Frankreich",pt:"França",it:"Francia",ru:"Франция",ar:"فرنسا",tr:"Fransa",id:"Prancis",th:"ฝรั่งเศส",vi:"Pháp",hi:"फ़्रांस",pl:"Francja",nl:"Frankrijk",sv:"Frankrike",uk:"Франція",el:"Γαλλία"},
+DE:{en:"Germany",ko:"독일",ja:"ドイツ",'zh-TW':"德國",'zh-CN':"德国",es:"Alemania",fr:"Allemagne",de:"Deutschland",pt:"Alemanha",it:"Germania",ru:"Германия",ar:"ألمانيا",tr:"Almanya",id:"Jerman",th:"เยอรมนี",vi:"Đức",hi:"जर्मनी",pl:"Niemcy",nl:"Duitsland",sv:"Tyskland",uk:"Німеччина",el:"Γερμανία"},
+ES:{en:"Spain",ko:"스페인",ja:"スペイン",'zh-TW':"西班牙",'zh-CN':"西班牙",es:"España",fr:"Espagne",de:"Spanien",pt:"Espanha",it:"Spagna",ru:"Испания",ar:"إسبانيا",tr:"İspanya",id:"Spanyol",th:"สเปน",vi:"Tây Ban Nha",hi:"स्पेन",pl:"Hiszpania",nl:"Spanje",sv:"Spanien",uk:"Іспанія",el:"Ισπανία"},
+IT:{en:"Italy",ko:"이탈리아",ja:"イタリア",'zh-TW':"義大利",'zh-CN':"意大利",es:"Italia",fr:"Italie",de:"Italien",pt:"Itália",it:"Italia",ru:"Италия",ar:"إيطاليا",tr:"İtalya",id:"Italia",th:"อิตาลี",vi:"Ý",hi:"इटली",pl:"Włochy",nl:"Italië",sv:"Italien",uk:"Італія",el:"Ιταλία"},
+PT:{en:"Portugal",ko:"포르투갈",ja:"ポルトガル",'zh-TW':"葡萄牙",'zh-CN':"葡萄牙",es:"Portugal",fr:"Portugal",de:"Portugal",pt:"Portugal",it:"Portogallo",ru:"Португалия",ar:"البرتغال",tr:"Portekiz",id:"Portugal",th:"โปรตุเกส",vi:"Bồ Đào Nha",hi:"पुर्तगाल",pl:"Portugalia",nl:"Portugal",sv:"Portugal",uk:"Португалія",el:"Πορτογαλία"},
+NL:{en:"Netherlands",ko:"네덜란드",ja:"オランダ",'zh-TW':"荷蘭",'zh-CN':"荷兰",es:"Países Bajos",fr:"Pays-Bas",de:"Niederlande",pt:"Países Baixos",it:"Paesi Bassi",ru:"Нидерланды",ar:"هولندا",tr:"Hollanda",id:"Belanda",th:"เนเธอร์แลนด์",vi:"Hà Lan",hi:"नीदरलैंड",pl:"Holandia",nl:"Nederland",sv:"Nederländerna",uk:"Нідерланди",el:"Ολλανδία"},
+BE:{en:"Belgium",ko:"벨기에",ja:"ベルギー",'zh-TW':"比利時",'zh-CN':"比利时",es:"Bélgica",fr:"Belgique",de:"Belgien",pt:"Bélgica",it:"Belgio",ru:"Бельгия",ar:"بلجيكا",tr:"Belçika",id:"Belgia",th:"เบลเยียม",vi:"Bỉ",hi:"बेल्जियम",pl:"Belgia",nl:"België",sv:"Belgien",uk:"Бельгія",el:"Βέλγιο"},
+CH:{en:"Switzerland",ko:"스위스",ja:"スイス",'zh-TW':"瑞士",'zh-CN':"瑞士",es:"Suiza",fr:"Suisse",de:"Schweiz",pt:"Suíça",it:"Svizzera",ru:"Швейцария",ar:"سويسرا",tr:"İsviçre",id:"Swiss",th:"สวิตเซอร์แลนด์",vi:"Thụy Sĩ",hi:"स्विट्ज़रलैंड",pl:"Szwajcaria",nl:"Zwitserland",sv:"Schweiz",uk:"Швейцарія",el:"Ελβετία"},
+AT:{en:"Austria",ko:"오스트리아",ja:"オーストリア",'zh-TW':"奧地利",'zh-CN':"奥地利",es:"Austria",fr:"Autriche",de:"Österreich",pt:"Áustria",it:"Austria",ru:"Австрия",ar:"النمسا",tr:"Avusturya",id:"Austria",th:"ออสเตรีย",vi:"Áo",hi:"ऑस्ट्रिया",pl:"Austria",nl:"Oostenrijk",sv:"Österrike",uk:"Австрія",el:"Αυστρία"},
+SE:{en:"Sweden",ko:"스웨덴",ja:"スウェーデン",'zh-TW':"瑞典",'zh-CN':"瑞典",es:"Suecia",fr:"Suède",de:"Schweden",pt:"Suécia",it:"Svezia",ru:"Швеция",ar:"السويد",tr:"İsveç",id:"Swedia",th:"สวีเดน",vi:"Thụy Điển",hi:"स्वीडन",pl:"Szwecja",nl:"Zweden",sv:"Sverige",uk:"Швеція",el:"Σουηδία"},
+NO:{en:"Norway",ko:"노르웨이",ja:"ノルウェー",'zh-TW':"挪威",'zh-CN':"挪威",es:"Noruega",fr:"Norvège",de:"Norwegen",pt:"Noruega",it:"Norvegia",ru:"Норвегия",ar:"النرويج",tr:"Norveç",id:"Norwegia",th:"นอร์เวย์",vi:"Na Uy",hi:"नॉर्वे",pl:"Norwegia",nl:"Noorwegen",sv:"Norge",uk:"Норвегія",el:"Νορβηγία"},
+DK:{en:"Denmark",ko:"덴마크",ja:"デンマーク",'zh-TW':"丹麥",'zh-CN':"丹麦",es:"Dinamarca",fr:"Danemark",de:"Dänemark",pt:"Dinamarca",it:"Danimarca",ru:"Дания",ar:"الدنمارك",tr:"Danimarka",id:"Denmark",th:"เดนมาร์ก",vi:"Đan Mạch",hi:"डेनमार्क",pl:"Dania",nl:"Denemarken",sv:"Danmark",uk:"Данія",el:"Δανία"},
+FI:{en:"Finland",ko:"핀란드",ja:"フィンランド",'zh-TW':"芬蘭",'zh-CN':"芬兰",es:"Finlandia",fr:"Finlande",de:"Finnland",pt:"Finlândia",it:"Finlandia",ru:"Финляндия",ar:"فنلندا",tr:"Finlandiya",id:"Finlandia",th:"ฟินแลนด์",vi:"Phần Lan",hi:"फ़िनलैंड",pl:"Finlandia",nl:"Finland",sv:"Finland",uk:"Фінляндія",el:"Φινλανδία"},
+IE:{en:"Ireland",ko:"아일랜드",ja:"アイルランド",'zh-TW':"愛爾蘭",'zh-CN':"爱尔兰",es:"Irlanda",fr:"Irlande",de:"Irland",pt:"Irlanda",it:"Irlanda",ru:"Ирландия",ar:"أيرلندا",tr:"İrlanda",id:"Irlandia",th:"ไอร์แลนด์",vi:"Ireland",hi:"आयरलैंड",pl:"Irlandia",nl:"Ierland",sv:"Irland",uk:"Ірландія",el:"Ιρλανδία"},
+PL:{en:"Poland",ko:"폴란드",ja:"ポーランド",'zh-TW':"波蘭",'zh-CN':"波兰",es:"Polonia",fr:"Pologne",de:"Polen",pt:"Polônia",it:"Polonia",ru:"Польша",ar:"بولندا",tr:"Polonya",id:"Polandia",th:"โปแลนด์",vi:"Ba Lan",hi:"पोलैंड",pl:"Polska",nl:"Polen",sv:"Polen",uk:"Польща",el:"Πολωνία"},
+CZ:{en:"Czechia",ko:"체코",ja:"チェコ",'zh-TW':"捷克",'zh-CN':"捷克",es:"República Checa",fr:"Tchéquie",de:"Tschechien",pt:"Chéquia",it:"Repubblica Ceca",ru:"Чехия",ar:"التشيك",tr:"Çekya",id:"Ceko",th:"เช็กเกีย",vi:"Séc",hi:"चेकिया",pl:"Czechy",nl:"Tsjechië",sv:"Tjeckien",uk:"Чехія",el:"Τσεχία"},
+HU:{en:"Hungary",ko:"헝가리",ja:"ハンガリー",'zh-TW':"匈牙利",'zh-CN':"匈牙利",es:"Hungría",fr:"Hongrie",de:"Ungarn",pt:"Hungria",it:"Ungheria",ru:"Венгрия",ar:"المجر",tr:"Macaristan",id:"Hungaria",th:"ฮังการี",vi:"Hungary",hi:"हंगरी",pl:"Węgry",nl:"Hongarije",sv:"Ungern",uk:"Угорщина",el:"Ουγγαρία"},
+RO:{en:"Romania",ko:"루마니아",ja:"ルーマニア",'zh-TW':"羅馬尼亞",'zh-CN':"罗马尼亚",es:"Rumania",fr:"Roumanie",de:"Rumänien",pt:"Romênia",it:"Romania",ru:"Румыния",ar:"رومانيا",tr:"Romanya",id:"Rumania",th:"โรมาเนีย",vi:"Romania",hi:"रोमानिया",pl:"Rumunia",nl:"Roemenië",sv:"Rumänien",uk:"Румунія",el:"Ρουμανία"},
+GR:{en:"Greece",ko:"그리스",ja:"ギリシャ",'zh-TW':"希臘",'zh-CN':"希腊",es:"Grecia",fr:"Grèce",de:"Griechenland",pt:"Grécia",it:"Grecia",ru:"Греция",ar:"اليونان",tr:"Yunanistan",id:"Yunani",th:"กรีซ",vi:"Hy Lạp",hi:"यूनान",pl:"Grecja",nl:"Griekenland",sv:"Grekland",uk:"Греція",el:"Ελλάδα"},
+RU:{en:"Russia",ko:"러시아",ja:"ロシア",'zh-TW':"俄羅斯",'zh-CN':"俄罗斯",es:"Rusia",fr:"Russie",de:"Russland",pt:"Rússia",it:"Russia",ru:"Россия",ar:"روسيا",tr:"Rusya",id:"Rusia",th:"รัสเซีย",vi:"Nga",hi:"रूस",pl:"Rosja",nl:"Rusland",sv:"Ryssland",uk:"Росія",el:"Ρωσία"},
+UA:{en:"Ukraine",ko:"우크라이나",ja:"ウクライナ",'zh-TW':"烏克蘭",'zh-CN':"乌克兰",es:"Ucrania",fr:"Ukraine",de:"Ukraine",pt:"Ucrânia",it:"Ucraina",ru:"Украина",ar:"أوكرانيا",tr:"Ukrayna",id:"Ukraina",th:"ยูเครน",vi:"Ukraina",hi:"यूक्रेन",pl:"Ukraina",nl:"Oekraïne",sv:"Ukraina",uk:"Україна",el:"Ουκρανία"},
+AU:{en:"Australia",ko:"호주",ja:"オーストラリア",'zh-TW':"澳洲",'zh-CN':"澳大利亚",es:"Australia",fr:"Australie",de:"Australien",pt:"Austrália",it:"Australia",ru:"Австралия",ar:"أستراليا",tr:"Avustralya",id:"Australia",th:"ออสเตรเลีย",vi:"Úc",hi:"ऑस्ट्रेलिया",pl:"Australia",nl:"Australië",sv:"Australien",uk:"Австралія",el:"Αυστραλία"},
+NZ:{en:"New Zealand",ko:"뉴질랜드",ja:"ニュージーランド",'zh-TW':"紐西蘭",'zh-CN':"新西兰",es:"Nueva Zelanda",fr:"Nouvelle-Zélande",de:"Neuseeland",pt:"Nova Zelândia",it:"Nuova Zelanda",ru:"Новая Зеландия",ar:"نيوزيلندا",tr:"Yeni Zelanda",id:"Selandia Baru",th:"นิวซีแลนด์",vi:"New Zealand",hi:"न्यूज़ीलैंड",pl:"Nowa Zelandia",nl:"Nieuw-Zeeland",sv:"Nya Zeeland",uk:"Нова Зеландія",el:"Νέα Ζηλανδία"},
+ZA:{en:"South Africa",ko:"남아프리카공화국",ja:"南アフリカ",'zh-TW':"南非",'zh-CN':"南非",es:"Sudáfrica",fr:"Afrique du Sud",de:"Südafrika",pt:"África do Sul",it:"Sudafrica",ru:"Южно-Африканская Республика",ar:"جنوب أفريقيا",tr:"Güney Afrika",id:"Afrika Selatan",th:"แอฟริกาใต้",vi:"Nam Phi",hi:"दक्षिण अफ़्रीका",pl:"Republika Południowej Afryki",nl:"Zuid-Afrika",sv:"Sydafrika",uk:"Південно-Африканська Республіка",el:"Νότια Αφρική"},
+EG:{en:"Egypt",ko:"이집트",ja:"エジプト",'zh-TW':"埃及",'zh-CN':"埃及",es:"Egipto",fr:"Égypte",de:"Ägypten",pt:"Egito",it:"Egitto",ru:"Египет",ar:"مصر",tr:"Mısır",id:"Mesir",th:"อียิปต์",vi:"Ai Cập",hi:"मिस्र",pl:"Egipt",nl:"Egypte",sv:"Egypten",uk:"Єгипет",el:"Αίγυπτος"},
+NG:{en:"Nigeria",ko:"나이지리아",ja:"ナイジェリア",'zh-TW':"奈及利亞",'zh-CN':"尼日利亚",es:"Nigeria",fr:"Nigeria",de:"Nigeria",pt:"Nigéria",it:"Nigeria",ru:"Нигерия",ar:"نيجيريا",tr:"Nijerya",id:"Nigeria",th:"ไนจีเรีย",vi:"Nigeria",hi:"नाइजीरिया",pl:"Nigeria",nl:"Nigeria",sv:"Nigeria",uk:"Нігерія",el:"Νιγηρία"},
+KE:{en:"Kenya",ko:"케냐",ja:"ケニア",'zh-TW':"肯亞",'zh-CN':"肯尼亚",es:"Kenia",fr:"Kenya",de:"Kenia",pt:"Quênia",it:"Kenya",ru:"Кения",ar:"كينيا",tr:"Kenya",id:"Kenya",th:"เคนยา",vi:"Kenya",hi:"केन्या",pl:"Kenia",nl:"Kenia",sv:"Kenya",uk:"Кенія",el:"Κένυα"},
+MA:{en:"Morocco",ko:"모로코",ja:"モロッコ",'zh-TW':"摩洛哥",'zh-CN':"摩洛哥",es:"Marruecos",fr:"Maroc",de:"Marokko",pt:"Marrocos",it:"Marocco",ru:"Марокко",ar:"المغرب",tr:"Fas",id:"Maroko",th:"โมร็อกโก",vi:"Maroc",hi:"मोरक्को",pl:"Maroko",nl:"Marokko",sv:"Marocko",uk:"Марокко",el:"Μαρόκο"}
+};
+
+/* countryCode(ISO alpha-2)를 현재 UI 언어로 번역, 사전에 없으면 원래 country 문자열 그대로 표시.
+   station.name(방송사 고유명사)은 이 함수를 절대 거치지 않는다. */
+function translateCountryName(countryCode,fallback){
+  var entry=countryCode&&COUNTRY_NAMES[String(countryCode).toUpperCase()];
+  if(!entry)return fallback||'';
+  var lang=resolveLang(ST.lang);
+  return entry[lang]||entry.en||fallback||'';
+}
 
 function resolveLang(code){
   if(code&&code!=='auto'&&translations[code])return code;
@@ -1059,8 +1138,9 @@ function renderAbout(){
   el.innerHTML='<strong>Wild Peaks Radio v2.0</strong><br>'+t('aboutDesc')+'<br><br>'+t('aboutDataLabel')+': <strong>radio-browser.info</strong><br>'+t('about3dLabel')+': <strong>Three.js r128</strong>';
 }
 
-function countryStationsLabel(country){
-  return t('countryStations',{country:country||t('sheetDefaultCity')});
+function countryStationsLabel(cl){
+  var name=translateCountryName(cl&&cl.countrycode,cl&&cl.country);
+  return t('countryStations',{country:name||t('sheetDefaultCity')});
 }
 
 /* 현재 화면 상태를 새 언어로 다시 그린다: 재생 중이 아니면 기본 안내문, 즐겨찾기/시트가
@@ -1070,6 +1150,8 @@ function refreshDynamicUI(){
     document.getElementById('p-city').textContent=t('playerDefaultCity');
     document.getElementById('p-country').textContent=t('playerDefaultCountry');
     document.getElementById('p-station').textContent=t('playerDefaultStation');
+  }else{
+    document.getElementById('p-city').textContent=translateCountryName(ST.current.countrycode,ST.current.country)||'Unknown';
   }
   if(document.getElementById('tab-fav').classList.contains('open'))renderFav();
   if(document.getElementById('sheet').classList.contains('open')&&ST.currentCluster){
