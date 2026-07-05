@@ -365,10 +365,20 @@ function initGlobe(){
   scene.add(new THREE.AmbientLight(0xffffff,0.45));
   var sun=new THREE.DirectionalLight(0xffffff,1.0);sun.position.set(5,3,5);scene.add(sun);
 
-  window.addEventListener('resize',function(){
+  // 캔버스 크기를 #globe-wrap의 실제 현재 크기와 동기화한다. 창 자체가 리사이즈될 때뿐 아니라,
+  // 재생 바(#player)의 내용에 따라 높이가 바뀌는 등 #globe-wrap의 크기가 window resize 이벤트
+  // 없이도 바뀔 수 있어서, 그 경우 캔버스 크기가 오래된 값으로 남아있으면 렌더러가 실제 화면
+  // 중앙과 다른 지점을 "화면 중앙"으로 계산하게 된다 — 그 결과 화면 중앙에 고정된 점선 원과
+  // 실제로 그 좌표를 겨냥해 회전한 지구본 위 마커(현재 재생 중 빨간 점) 사이에 몇 픽셀의
+  // 수직 오차가 생기는 문제가 있었다. ResizeObserver로 #globe-wrap 자체의 크기 변화를 직접
+  // 감지해서 항상 캔버스를 최신 크기로 맞춘다.
+  function syncRendererSize(){
     var W2=wrap.clientWidth,H2=wrap.clientHeight;
+    if(!W2||!H2)return;
     cam.aspect=W2/H2;cam.updateProjectionMatrix();ren.setSize(W2,H2);
-  });
+  }
+  window.addEventListener('resize',syncRendererSize);
+  if(window.ResizeObserver)new ResizeObserver(syncRendererSize).observe(wrap);
   cv.addEventListener('pointerdown',onMD);
   cv.addEventListener('pointermove',onMM);
   cv.addEventListener('pointerup',onMU);
