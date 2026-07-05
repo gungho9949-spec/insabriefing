@@ -107,6 +107,15 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .tab-body{flex:1;overflow-y:auto;padding:16px;padding-bottom:76px;}
 .sinput{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-size:16px;outline:none;margin-bottom:14px;}
 .sinput::placeholder{color:var(--sub);}
+.feat-hd{font-size:14px;font-weight:700;color:#fff;margin-top:16px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.feat-hd:first-child{margin-top:0;}
+.feat-card{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.05);border-radius:10px;padding:12px 16px;margin-bottom:8px;cursor:pointer;transition:background 0.15s ease;}
+.feat-card:hover,.feat-card:active{background:rgba(255,255,255,0.09);}
+.feat-flag{font-size:24px;flex-shrink:0;line-height:1;}
+.feat-body{flex:1;min-width:0;}
+.feat-name{font-size:14px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.feat-meta{font-size:12px;color:rgba(255,255,255,0.45);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.feat-play{font-size:14px;color:var(--green);flex-shrink:0;}
 .sinput:focus{border-color:rgba(0,232,122,0.4);}
 .fav-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:10px;color:var(--sub);text-align:center;}
 .fav-empty .icon{font-size:52px;}
@@ -238,6 +247,7 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
   <div class="tab-hd"><button class="tab-back" onclick="closeTab('search')">‹</button><div class="tab-ttl" data-i18n="tabTtlSearch">검색</div></div>
   <div class="tab-body">
     <input class="sinput" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="방송국 또는 도시명 검색…" oninput="doSearch(this.value)">
+    <div id="featured-stations"></div>
     <div id="search-results"></div>
   </div>
 </div>
@@ -1014,7 +1024,9 @@ var searchTimer=null;
 function doSearch(q){
   clearTimeout(searchTimer);
   var el=document.getElementById('search-results');
-  if(!q.trim()){el.innerHTML='';return;}
+  var featEl=document.getElementById('featured-stations');
+  if(!q.trim()){el.innerHTML='';if(featEl)featEl.style.display='';return;}
+  if(featEl)featEl.style.display='none';
   searchTimer=setTimeout(function(){
     el.innerHTML='<div style="color:var(--sub);font-size:12px;padding:8px 0;">'+esc(t('searchSearching'))+'</div>';
     fetch(apiBase+'/json/stations/search?name='+encodeURIComponent(q)+'&limit=30&hidebroken=true')
@@ -1032,6 +1044,65 @@ function doSearch(q){
     })
     .catch(function(){el.innerHTML='<div style="color:var(--sub);font-size:12px;">'+esc(t('searchError'))+'</div>';});
   },380);
+}
+
+/* FEATURED STATIONS (검색 탭 인기 방송국 큐레이션) */
+// city/description은 사람이 작성한 한국어 고정 텍스트라 Lo-fi 채널 데이터와 같은 방식으로
+// 배열로만 관리한다(다국어 처리 대상 아님). lat/lon/country/countrycode는 원본 데이터에는
+// 없지만, 기존 play()/updateNowPlayingMarker()/updateClock() 로직이 정상 동작하도록(지도 마커
+// 표시, 현지 시간 표시 등) 실제 도시 좌표와 ISO 국가 코드를 추가로 붙였다.
+var featuredStations=[
+  {category:'music',categoryLabel:'🎵 전세계 인기 음악',name:'BBC Radio 1',city:'런던, 영국',description:'영국 1위 팝/댄스 라디오',streamUrl:'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_one',flag:'🇬🇧',lat:51.5074,lon:-0.1278,country:'United Kingdom',countrycode:'GB'},
+  {category:'music',categoryLabel:'🎵 전세계 인기 음악',name:'NRJ France',city:'파리, 프랑스',description:'유럽 최대 팝 음악 채널',streamUrl:'https://scdn.nrjaudio.fm/adwzcm/fr/30001/mp3_128.mp3',flag:'🇫🇷',lat:48.8566,lon:2.3522,country:'France',countrycode:'FR'},
+  {category:'music',categoryLabel:'🎵 전세계 인기 음악',name:'Radio FG',city:'파리, 프랑스',description:'일렉트로닉 & 댄스 뮤직',streamUrl:'https://radiofg.impek.com/fg',flag:'🇫🇷',lat:48.8566,lon:2.3522,country:'France',countrycode:'FR'},
+  {category:'music',categoryLabel:'🎵 전세계 인기 음악',name:'SomaFM Groove Salad',city:'샌프란시스코, 미국',description:'편안한 일렉트로닉 앰비언트',streamUrl:'https://ice1.somafm.com/groovesalad-256-mp3',flag:'🇺🇸',lat:37.7749,lon:-122.4194,country:'United States',countrycode:'US'},
+  {category:'music',categoryLabel:'🎵 전세계 인기 음악',name:'Ibiza Global Radio',city:'이비자, 스페인',description:'세계 최고의 클럽 & EDM',streamUrl:'https://streaming.ibizaglobalradio.com/8024/stream',flag:'🇪🇸',lat:38.9067,lon:1.4206,country:'Spain',countrycode:'ES'},
+  {category:'news',categoryLabel:'📰 글로벌 뉴스',name:'BBC World Service',city:'런던, 영국',description:'세계 최고 권위 영어 뉴스',streamUrl:'https://stream.live.vc.bbcmedia.co.uk/bbc_world_service',flag:'🇬🇧',lat:51.5074,lon:-0.1278,country:'United Kingdom',countrycode:'GB'},
+  {category:'news',categoryLabel:'📰 글로벌 뉴스',name:'NPR News',city:'워싱턴, 미국',description:'미국 공영 라디오 뉴스',streamUrl:'https://npr-ice.streamguys1.com/live.mp3',flag:'🇺🇸',lat:38.9072,lon:-77.0369,country:'United States',countrycode:'US'},
+  {category:'news',categoryLabel:'📰 글로벌 뉴스',name:'Deutsche Welle',city:'베를린, 독일',description:'독일 국제 방송 영어 뉴스',streamUrl:'https://dw-streams.medialaan.io/dwstream4/livestream/index-audio-only.mp3',flag:'🇩🇪',lat:52.5200,lon:13.4050,country:'Germany',countrycode:'DE'},
+  {category:'news',categoryLabel:'📰 글로벌 뉴스',name:'RFI English',city:'파리, 프랑스',description:'프랑스 국제 라디오 영어',streamUrl:'https://live02.rfi.fr/rfi-anglais-128.mp3',flag:'🇫🇷',lat:48.8566,lon:2.3522,country:'France',countrycode:'FR'},
+  {category:'news',categoryLabel:'📰 글로벌 뉴스',name:'ABC News Radio',city:'뉴욕, 미국',description:'미국 ABC 24시간 뉴스',streamUrl:'https://aberdeenabcnews.streamguys1.com/live',flag:'🇺🇸',lat:40.7128,lon:-74.0060,country:'United States',countrycode:'US'},
+  {category:'talk',categoryLabel:'🎙️ 토크 & 문화',name:'BBC Radio 4',city:'런던, 영국',description:'교양, 드라마, 다큐멘터리',streamUrl:'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_fourfm',flag:'🇬🇧',lat:51.5074,lon:-0.1278,country:'United Kingdom',countrycode:'GB'},
+  {category:'talk',categoryLabel:'🎙️ 토크 & 문화',name:'France Culture',city:'파리, 프랑스',description:'철학, 예술, 문화 토크',streamUrl:'https://icecast.radiofrance.fr/franceculture-midfi.mp3',flag:'🇫🇷',lat:48.8566,lon:2.3522,country:'France',countrycode:'FR'},
+  {category:'talk',categoryLabel:'🎙️ 토크 & 문화',name:'Radio Swiss Jazz',city:'베른, 스위스',description:'24시간 재즈 전문 채널',streamUrl:'https://stream.srg-ssr.ch/m/rsj/mp3_128',flag:'🇨🇭',lat:46.9480,lon:7.4474,country:'Switzerland',countrycode:'CH'},
+  {category:'asia',categoryLabel:'🌏 아시아 인기',name:'KBS World Radio',city:'서울, 한국',description:'한국 국제 방송',streamUrl:'https://kbswworld.kbs.co.kr:8443/live/pc/kbsworldradio.m3u8',flag:'🇰🇷',lat:37.5665,lon:126.9780,country:'South Korea',countrycode:'KR'},
+  {category:'asia',categoryLabel:'🌏 아시아 인기',name:'NHK World Radio Japan',city:'도쿄, 일본',description:'일본 국제 방송 영어',streamUrl:'https://nhkworld.stream.force4.net/nhkwradio_englishstream',flag:'🇯🇵',lat:35.6762,lon:139.6503,country:'Japan',countrycode:'JP'},
+  {category:'asia',categoryLabel:'🌏 아시아 인기',name:'AIR India',city:'뭄바이, 인도',description:'인도 국영 라디오',streamUrl:'https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8',flag:'🇮🇳',lat:19.0760,lon:72.8777,country:'India',countrycode:'IN'},
+  {category:'asia',categoryLabel:'🌏 아시아 인기',name:'Radio Taiwan International',city:'타이베이, 대만',description:'대만 국제 방송 영어',streamUrl:'https://rtiaudio.cna.com.tw/en.mp3',flag:'🇹🇼',lat:25.0330,lon:121.5654,country:'Taiwan',countrycode:'TW'}
+];
+
+function renderFeaturedStations(){
+  var el=document.getElementById('featured-stations');
+  if(!el)return;
+  el.innerHTML='';
+  var cats=[];
+  featuredStations.forEach(function(st){if(cats.indexOf(st.category)===-1)cats.push(st.category);});
+  cats.forEach(function(cat){
+    var items=featuredStations.filter(function(st){return st.category===cat;});
+    var hd=document.createElement('div');
+    hd.className='feat-hd';
+    hd.textContent=items[0].categoryLabel;
+    el.appendChild(hd);
+    items.forEach(function(st){
+      var card=document.createElement('div');
+      card.className='feat-card';
+      card.innerHTML='<div class="feat-flag">'+st.flag+'</div>'+
+        '<div class="feat-body"><div class="feat-name">'+esc(st.name)+'</div><div class="feat-meta">'+esc(st.city)+' · '+esc(st.description)+'</div></div>'+
+        '<div class="feat-play">▶</div>';
+      card.onclick=function(){playFeaturedStation(st);};
+      el.appendChild(card);
+    });
+  });
+}
+
+// 스트림 URL이 재생되지 않아도(CORS/방송국 자체 문제 등) 조용히 넘어가도록 기존 play()와
+// 동일하게 audio.play().catch()로 에러를 흡수한다(play() 내부에서 이미 그렇게 처리됨).
+function playFeaturedStation(st){
+  var s={name:st.name,url:st.streamUrl,lat:st.lat,lon:st.lon,country:st.country,countrycode:st.countrycode,state:st.description,codec:'',bitrate:0,uuid:'featured-'+st.category+'-'+st.name.replace(/\s+/g,'-')};
+  play(s);
+  ST.sheetList=[s];
+  closeTab('search');
+  showToast(t('toastPlaySearch',{name:s.name}));
 }
 
 /* LOFI ZONE */
@@ -1340,6 +1411,7 @@ function unlockAudio(){
 
 initSettings();
 applyTranslations();
+renderFeaturedStations();
 // CDN에서 three.js 로드가 안 되거나(네트워크/차단) WebGL을 못 쓰는 환경이면
 // initGlobe()가 여기서 예외를 던지는데, try/catch가 없으면 스크립트 실행이
 // 여기서 멈춰버려 그 아래 정의된 enterApp() 관련 로직까지 영향을 줄 수 있었다.
