@@ -368,7 +368,7 @@ function initGlobe(){
   // 마커가 주변 다른 방송국 점들을 가리지 않도록 한다.
   nowPlayingMarker=new THREE.Mesh(
     new THREE.SphereGeometry(getDotRadius(),16,16),
-    new THREE.MeshBasicMaterial({color:0xff4d7e})
+    new THREE.MeshBasicMaterial({color:0xff4d7e,transparent:true,depthWrite:false})
   );
   nowPlayingMarker.visible=false;
   globe.add(nowPlayingMarker);
@@ -674,6 +674,12 @@ function updateNowPlayingMarker(s){
   if(!nowPlayingMarker||!s||isNaN(s.lat)||isNaN(s.lon)){if(nowPlayingMarker)nowPlayingMarker.visible=false;return;}
   nowPlayingMarker.position.copy(ll2v(s.lat,s.lon,1.024));
   nowPlayingMarker.visible=true;
+  // 새로 재생을 시작한 방송국에도 현재 활성화된 언어/유형 필터를 바로 반영한다(즉시 적용,
+  // 필터 버튼을 누를 때의 0.3s 보간은 applyDotVisuals()에서 별도로 처리).
+  var lf=ST.languageFilter,tf=ST.typeFilter;
+  var curMatch=(lf==='all'&&tf==='all')||((lf==='all'||s.language===lf)&&(tf==='all'||s.type===tf));
+  nowPlayingMarker.material.opacity=curMatch?1.0:0.15;
+  nowPlayingMarker.scale.setScalar(curMatch?1.0:0.6);
 }
 
 // Three.js SphereGeometry 기본 UV 매핑과 일치하는 좌표계
@@ -864,6 +870,17 @@ function applyDotVisuals(){
     dot.userData._targetOpacity=match?1.0:0.15;
     dot.userData._targetScale=match?1.0:0.6;
   });
+  // 현재 재생 중인 방송국의 빨간 마커도 다른 점들과 동일한 필터 조건을 적용한다.
+  // 필터에 안 맞으면 흐리게(opacity 0.15, scale 0.6)만 처리하고, 재생 자체와 하단
+  // 재생 바는 그대로 유지한다(오디오/재생 로직은 건드리지 않음).
+  if(nowPlayingMarker&&ST.current){
+    var s=ST.current;
+    var curMatch=showAll||((lf==='all'||s.language===lf)&&(tf==='all'||s.type===tf));
+    nowPlayingMarker.userData._startOpacity=nowPlayingMarker.material.opacity;
+    nowPlayingMarker.userData._startScale=nowPlayingMarker.scale.x;
+    nowPlayingMarker.userData._targetOpacity=curMatch?1.0:0.15;
+    nowPlayingMarker.userData._targetScale=curMatch?1.0:0.6;
+  }
   cancelAnimationFrame(_filterAnimId);
   var t0=performance.now();
   (function step(now){
@@ -874,6 +891,11 @@ function applyDotVisuals(){
       dot.material.opacity=ud._startOpacity+(ud._targetOpacity-ud._startOpacity)*e;
       dot.scale.setScalar(ud._startScale+(ud._targetScale-ud._startScale)*e);
     });
+    if(nowPlayingMarker&&nowPlayingMarker.userData._targetOpacity!==undefined){
+      var mud=nowPlayingMarker.userData;
+      nowPlayingMarker.material.opacity=mud._startOpacity+(mud._targetOpacity-mud._startOpacity)*e;
+      nowPlayingMarker.scale.setScalar(mud._startScale+(mud._targetScale-mud._startScale)*e);
+    }
     if(e<1)_filterAnimId=requestAnimationFrame(step);
   })(t0);
   return matchCount;
