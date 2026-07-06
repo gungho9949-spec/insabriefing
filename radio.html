@@ -376,7 +376,12 @@ function initGlobe(){
   atmo=new THREE.Mesh(new THREE.SphereGeometry(1.045,64,64),new THREE.ShaderMaterial({
     vertexShader:'varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
     fragmentShader:'varying vec3 vN;void main(){float i=pow(0.55-dot(vN,vec3(0,0,1)),2.0);gl_FragColor=vec4(0.15,0.45,1.0,1.0)*i*0.9;}',
-    side:THREE.FrontSide,blending:THREE.AdditiveBlending,transparent:true
+    // depthWrite:false — 언어/유형 필터를 위해 방송국 점 재질을 transparent:true로 바꾸면서
+    // 점들도 이 대기광(atmo) 셸과 같은 "투명 오브젝트" 렌더 큐에 들어가게 됐다. atmo는 반지름
+    // 1.045로 점(1.018)보다 카메라에 더 가까운데, depthWrite가 기본값 true라서 화면상 거의
+    // 안 보이는 앞면 부분까지도 깊이값을 써버려 그 뒤의(더 먼) 점들이 깊이 테스트에서 통째로
+    // 걸러지는 문제가 있었다. 대기광처럼 순수 발광 효과는 깊이를 쓰지 않아야 한다.
+    side:THREE.FrontSide,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false
   }));
   scene.add(atmo);
   scene.add(new THREE.AmbientLight(0xffffff,0.45));
@@ -731,7 +736,7 @@ function buildDots(){
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
     var pos=ll2v(cl.lat,cl.lon,1.018);
-    var m=new THREE.Mesh(new THREE.SphereGeometry(dotR,16,16),new THREE.MeshBasicMaterial({color:getTypeColor(cl.type),transparent:true}));
+    var m=new THREE.Mesh(new THREE.SphereGeometry(dotR,16,16),new THREE.MeshBasicMaterial({color:getTypeColor(cl.type),transparent:true,depthWrite:false}));
     m.position.copy(pos);m.userData={cluster:cl};globe.add(m);
     var hit=new THREE.Mesh(new THREE.SphereGeometry(hitR,8,8),new THREE.MeshBasicMaterial({visible:false}));
     hit.position.copy(pos);hit.userData={cluster:cl,visualDot:m};globe.add(hit);
