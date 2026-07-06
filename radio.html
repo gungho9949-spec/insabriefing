@@ -809,6 +809,10 @@ function buildDots(){
   // 새로 만든 점들에도 현재 활성화된 언어/유형 필터를 즉시 반영한다(필터가 켜진 상태에서
   // 전세계 방송국이 나중에 추가로 로드되는 경우, 새 점만 필터 없이 밝게 보이는 걸 방지).
   applyDotVisuals();
+  // 라이브 탭을 보고 있는 도중에 방송국 데이터가 뒤늦게 로드/갱신되면 새로 만들어진 점들이
+  // 기본값(보임) 상태로 생성되어 웹캠 점과 함께 라디오 녹색 점이 겹쳐 보이는 문제가 있었다.
+  // 방금 새로 만든 점들도 현재 모드에 맞춰 즉시 숨겨준다.
+  if(ST.mode==='live')hideRadioMarkers();
 }
 
 function clusterStations(stations){
@@ -1668,6 +1672,26 @@ function closeLiveVideo(){
 
 // 라디오 탭(#player, 방송국 점, 필터 바 등)과 라이브캠 탭은 같은 지구본/캔버스를 공유하므로
 // .tab 오버레이를 여는 대신 지구본 위에 보여줄 점 데이터와 하단 바만 서로 바꿔치기한다.
+// 라디오 방송국 점/웹캠 점 표시를 서로 독립적인 이름의 함수로 분리했다. buildDots()가
+// 방송국 데이터를 새로 불러와 점을 다시 만들 때도(라이브 탭을 보고 있는 도중에 전세계
+// 방송국 로딩이 뒤늦게 끝나는 경우 포함) 이 함수들을 통해 항상 현재 모드에 맞는
+// 표시 상태로 즉시 맞춰준다.
+function hideRadioMarkers(){
+  ST.dots.forEach(function(hit){hit.userData.visualDot.visible=false;});
+  if(nowPlayingMarker)nowPlayingMarker.visible=false;
+}
+function showRadioMarkers(){
+  ST.dots.forEach(function(hit){hit.userData.visualDot.visible=true;});
+  if(ST.current)updateNowPlayingMarker(ST.current);
+}
+function hideWebcamMarkers(){
+  liveDots.forEach(function(hit){hit.visible=false;hit.userData.visualDot.visible=false;});
+  if(_liveHoverDot){_liveHoverDot.material.color.setHex(0xffffff);_liveHoverDot=null;}
+}
+function showWebcamMarkers(){
+  liveDots.forEach(function(hit){hit.visible=true;hit.userData.visualDot.visible=true;});
+}
+
 function enterLiveMode(){
   ST.mode='live';
   document.getElementById('filter-bar').style.display='none';
@@ -1679,9 +1703,8 @@ function enterLiveMode(){
   document.getElementById('live-player-bar').style.display='block';
   renderLivePill();
   buildLiveDots();
-  liveDots.forEach(function(hit){hit.visible=true;hit.userData.visualDot.visible=true;});
-  ST.dots.forEach(function(hit){hit.userData.visualDot.visible=false;});
-  if(nowPlayingMarker)nowPlayingMarker.visible=false;
+  hideRadioMarkers();
+  showWebcamMarkers();
 }
 function exitLiveMode(){
   ST.mode='radio';
@@ -1693,10 +1716,8 @@ function exitLiveMode(){
   document.getElementById('player').style.display='';
   document.getElementById('live-topbar').style.display='none';
   document.getElementById('live-player-bar').style.display='none';
-  if(_liveHoverDot){_liveHoverDot.material.color.setHex(0xffffff);_liveHoverDot=null;}
-  liveDots.forEach(function(hit){hit.visible=false;hit.userData.visualDot.visible=false;});
-  ST.dots.forEach(function(hit){hit.userData.visualDot.visible=true;});
-  if(ST.current)updateNowPlayingMarker(ST.current);
+  hideWebcamMarkers();
+  showRadioMarkers();
 }
 
 /* SETTINGS */
