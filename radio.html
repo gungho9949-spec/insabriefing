@@ -43,16 +43,6 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .sbtn.live-btn.active{background:rgba(77,166,255,0.2);color:#4da6ff;border-color:rgba(77,166,255,0.3);}
 .sbtn::after{content:attr(data-tip);position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);background:rgba(12,19,32,0.92);color:#fff;font-size:11px;padding:5px 10px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s ease;}
 .sbtn:hover::after{opacity:1;}
-#filter-bar{position:absolute;top:0;left:0;right:0;z-index:12;background:rgba(8,11,20,0.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:8px 12px;pointer-events:none;}
-.filter-row-wrap{display:flex;align-items:center;gap:6px;pointer-events:none;}
-.filter-row-wrap+.filter-row-wrap{margin-top:6px;}
-.filter-row-icon{flex-shrink:0;font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;}
-.filter-row{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;pointer-events:auto;}
-.filter-row::-webkit-scrollbar{display:none;}
-.fbtn{flex:0 0 auto;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:20px;padding:5px 12px;font-size:12px;cursor:pointer;white-space:nowrap;transition:all 0.15s ease;}
-.fbtn.on{background:#00e87a;border-color:#00e87a;color:#080B14;font-weight:700;}
-#filter-info{position:absolute;bottom:8px;left:0;right:0;z-index:11;text-align:center;font-size:11px;color:rgba(255,255,255,0.5);pointer-events:none;opacity:0;transition:opacity 0.3s ease;}
-#filter-info.show{opacity:1;}
 #lock-badge{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:rgba(12,19,32,0.88);border:1px solid rgba(0,232,122,0.35);border-radius:20px;padding:4px 14px;font-size:10px;color:var(--green);letter-spacing:2px;pointer-events:none;z-index:10;display:none;}
 #lock-badge.show{display:block;}
 #center-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border:2px dashed rgba(255,255,255,0.7);border-radius:50%;pointer-events:none;z-index:8;animation:ringPulse 1.8s ease-in-out infinite;opacity:0;transition:opacity 0.8s ease,border-color 0.2s,box-shadow 0.2s;}
@@ -211,11 +201,7 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 <div id="app">
   <div id="globe-wrap">
     <canvas id="globe-canvas"></canvas>
-    <div id="filter-bar">
-      <div class="filter-row-wrap"><span class="filter-row-icon" data-i18n="filterLang">🌐 언어</span><div class="filter-row" id="lang-filter-row"></div></div>
-      <div class="filter-row-wrap"><span class="filter-row-icon" data-i18n="filterType">📻 유형</span><div class="filter-row" id="type-filter-row"></div></div>
-    </div>
-    <div id="filter-info"></div>
+
     <div id="loading-ring"><div class="ring"></div><div class="ring-txt" data-i18n="loading">Loading</div></div>
     <div id="center-ring"></div>
     <div id="side-btns">
@@ -353,8 +339,7 @@ var ST={
   stationsReady:false,
   pendingStation:null,
   timerId:null,sheetTimerId:null,
-  _lastRingCluster:null,
-  languageFilter:'all',typeFilter:'all'
+  _lastRingCluster:null
 };
 var isWebcamOpen=false;
 
@@ -735,12 +720,8 @@ function updateNowPlayingMarker(s){
   if(!nowPlayingMarker||!s||isNaN(s.lat)||isNaN(s.lon)){if(nowPlayingMarker)nowPlayingMarker.visible=false;return;}
   nowPlayingMarker.position.copy(ll2v(s.lat,s.lon,1.024));
   nowPlayingMarker.visible=true;
-  // 새로 재생을 시작한 방송국에도 현재 활성화된 언어/유형 필터를 바로 반영한다(즉시 적용,
-  // 필터 버튼을 누를 때의 0.3s 보간은 applyDotVisuals()에서 별도로 처리).
-  var lf=ST.languageFilter,tf=ST.typeFilter;
-  var curMatch=(lf==='all'&&tf==='all')||((lf==='all'||s.language===lf)&&(tf==='all'||s.type===tf));
-  nowPlayingMarker.material.opacity=curMatch?1.0:0.15;
-  nowPlayingMarker.scale.setScalar(curMatch?1.0:0.6);
+  nowPlayingMarker.material.opacity=1.0;
+  nowPlayingMarker.scale.setScalar(1.0);
 }
 
 // Three.js SphereGeometry 기본 UV 매핑과 일치하는 좌표계
@@ -809,9 +790,6 @@ function buildDots(){
     hit.position.copy(pos);hit.userData={cluster:cl,visualDot:m};globe.add(hit);
     ST.dots.push(hit);
   }
-  // 새로 만든 점들에도 현재 활성화된 언어/유형 필터를 즉시 반영한다(필터가 켜진 상태에서
-  // 전세계 방송국이 나중에 추가로 로드되는 경우, 새 점만 필터 없이 밝게 보이는 걸 방지).
-  applyDotVisuals();
 }
 
 function clusterStations(stations){
@@ -854,127 +832,6 @@ function classifyType(raw){
 
 var TYPE_COLORS={music:0x00e87a,news:0x00e87a,talk:0x00e87a,mixed:0x00e87a};
 function getTypeColor(type){return TYPE_COLORS[type]!==undefined?TYPE_COLORS[type]:TYPE_COLORS.mixed;}
-
-var FILTER_LANGS=[
-  {code:'all',flag:'',label:''},
-  {code:'en',flag:'🇺🇸',label:'English'},
-  {code:'ja',flag:'🇯🇵',label:'日本語'},
-  {code:'es',flag:'🇪🇸',label:'Español'},
-  {code:'fr',flag:'🇫🇷',label:'Français'},
-  {code:'zh',flag:'🇨🇳',label:'中文'},
-  {code:'hi',flag:'🇮🇳',label:'हिंदी'},
-  {code:'de',flag:'🇩🇪',label:'Deutsch'},
-  {code:'pt',flag:'🇧🇷',label:'Português'},
-  {code:'ar',flag:'🇸🇦',label:'العربية'}
-];
-var FILTER_TYPES=[
-  {code:'all',key:'filterAll'},
-  {code:'music',key:'filterMusic'},
-  {code:'news',key:'filterNews'},
-  {code:'talk',key:'filterTalk'}
-];
-
-function renderFilterBar(){
-  var langRow=document.getElementById('lang-filter-row');
-  var typeRow=document.getElementById('type-filter-row');
-  if(!langRow||!typeRow)return;
-  langRow.innerHTML='';
-  FILTER_LANGS.forEach(function(l){
-    var b=document.createElement('button');
-    b.className='fbtn'+(ST.languageFilter===l.code?' on':'');
-    b.textContent=l.code==='all'?t('filterAll'):(l.flag+' '+l.label);
-    b.onclick=function(){selectLanguageFilter(l.code);};
-    langRow.appendChild(b);
-  });
-  typeRow.innerHTML='';
-  FILTER_TYPES.forEach(function(ty){
-    var b=document.createElement('button');
-    b.className='fbtn'+(ST.typeFilter===ty.code?' on':'');
-    b.textContent=t(ty.key);
-    b.onclick=function(){selectTypeFilter(ty.code);};
-    typeRow.appendChild(b);
-  });
-}
-
-var _filterDebounceT=null;
-function selectLanguageFilter(code){
-  ST.languageFilter=code;
-  renderFilterBar();
-  scheduleApplyFilters();
-}
-function selectTypeFilter(code){
-  ST.typeFilter=code;
-  renderFilterBar();
-  scheduleApplyFilters();
-}
-// 필터 버튼을 빠르게 연속으로 누르면 마지막 선택만 실제로 적용되도록 200ms 디바운스한다.
-function scheduleApplyFilters(){
-  clearTimeout(_filterDebounceT);
-  _filterDebounceT=setTimeout(applyFilters,200);
-}
-
-// 지구본 점 데이터를 다시 만들지 않고(성능), 이미 존재하는 점들의 재질 opacity와
-// scale만 목표값으로 부드럽게(0.3s) 보간한다. buildDots()가 새 점을 만들 때도
-// 현재 필터를 그대로 반영하기 위해 재사용한다(그때는 안내 문구를 띄우지 않는다).
-var _filterAnimId=null;
-function applyDotVisuals(){
-  var lf=ST.languageFilter,tf=ST.typeFilter;
-  var showAll=(lf==='all'&&tf==='all');
-  var matchCount=0;
-  ST.dots.forEach(function(hit){
-    var cl=hit.userData.cluster;
-    var dot=hit.userData.visualDot||hit;
-    var match=showAll||((lf==='all'||cl.language===lf)&&(tf==='all'||cl.type===tf));
-    if(match)matchCount++;
-    dot.userData._startOpacity=dot.material.opacity;
-    dot.userData._startScale=dot.scale.x;
-    dot.userData._targetOpacity=match?1.0:0.15;
-    dot.userData._targetScale=match?1.0:0.6;
-  });
-  // 현재 재생 중인 방송국의 빨간 마커도 다른 점들과 동일한 필터 조건을 적용한다.
-  // 필터에 안 맞으면 흐리게(opacity 0.15, scale 0.6)만 처리하고, 재생 자체와 하단
-  // 재생 바는 그대로 유지한다(오디오/재생 로직은 건드리지 않음).
-  if(nowPlayingMarker&&ST.current){
-    var s=ST.current;
-    var curMatch=showAll||((lf==='all'||s.language===lf)&&(tf==='all'||s.type===tf));
-    nowPlayingMarker.userData._startOpacity=nowPlayingMarker.material.opacity;
-    nowPlayingMarker.userData._startScale=nowPlayingMarker.scale.x;
-    nowPlayingMarker.userData._targetOpacity=curMatch?1.0:0.15;
-    nowPlayingMarker.userData._targetScale=curMatch?1.0:0.6;
-  }
-  cancelAnimationFrame(_filterAnimId);
-  var t0=performance.now();
-  (function step(now){
-    var e=Math.min((now-t0)/300,1);
-    ST.dots.forEach(function(hit){
-      var dot=hit.userData.visualDot||hit;
-      var ud=dot.userData;
-      dot.material.opacity=ud._startOpacity+(ud._targetOpacity-ud._startOpacity)*e;
-      dot.scale.setScalar(ud._startScale+(ud._targetScale-ud._startScale)*e);
-    });
-    if(nowPlayingMarker&&nowPlayingMarker.userData._targetOpacity!==undefined){
-      var mud=nowPlayingMarker.userData;
-      nowPlayingMarker.material.opacity=mud._startOpacity+(mud._targetOpacity-mud._startOpacity)*e;
-      nowPlayingMarker.scale.setScalar(mud._startScale+(mud._targetScale-mud._startScale)*e);
-    }
-    if(e<1)_filterAnimId=requestAnimationFrame(step);
-  })(t0);
-  return matchCount;
-}
-function applyFilters(){
-  var count=applyDotVisuals();
-  showFilterInfo(count,ST.languageFilter==='all'&&ST.typeFilter==='all');
-}
-
-var _filterInfoT=null;
-function showFilterInfo(count,showAll){
-  var el=document.getElementById('filter-info');
-  if(!el)return;
-  el.textContent=showAll?t('filterShowingAll'):(count+t('filterStationSuffix'));
-  el.classList.add('show');
-  clearTimeout(_filterInfoT);
-  _filterInfoT=setTimeout(function(){el.classList.remove('show');},2000);
-}
 
 /* API */
 var apiBase='https://de1.api.radio-browser.info';
@@ -1898,7 +1755,6 @@ function refreshDynamicUI(){
   var _tabLofiEl2=document.getElementById('tab-lofi');
   if(_tabLofiEl2&&_tabLofiEl2.classList.contains('open'))renderMoodRow();
   renderFeaturedStations();
-  renderFilterBar();
   // 웹캠 패널이 열려있는 동안 언어 변경 시 도시명을 즉시 현재 언어로 다시 그린다.
   if(currentWebcam){
     var _wcLang=resolveLang(ST.lang);
@@ -1982,7 +1838,6 @@ function unlockAudio(){
 initSettings();
 applyTranslations();
 renderFeaturedStations();
-renderFilterBar();
 // CDN에서 three.js 로드가 안 되거나(네트워크/차단) WebGL을 못 쓰는 환경이면
 // initGlobe()가 여기서 예외를 던지는데, try/catch가 없으면 스크립트 실행이
 // 여기서 멈춰버려 그 아래 정의된 enterApp() 관련 로직까지 영향을 줄 수 있었다.
