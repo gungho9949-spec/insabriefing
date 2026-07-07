@@ -176,6 +176,9 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .webcam-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#000;color:rgba(255,255,255,0.6);padding:20px;text-align:center;font-size:12px;}
 .webcam-fallback.hidden{display:none;}
 .webcam-fallback-btn{background:var(--green);color:#080B14;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;text-decoration:none;}
+.webcam-credit{text-align:center;font-size:10px;color:rgba(255,255,255,0.3);padding:4px;flex-shrink:0;}
+.webcam-credit a{color:rgba(255,255,255,0.5);text-decoration:none;}
+.webcam-credit.hidden{display:none;}
 .webcam-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
 .webcam-nav-btn{background:none;border:none;color:rgba(255,255,255,0.7);font-size:12px;cursor:pointer;padding:6px 10px;display:flex;align-items:center;gap:6px;}
 .webcam-nav-btn:hover{color:#fff;}
@@ -265,6 +268,9 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
     <span id="webcam-nav-index" class="webcam-nav-center"></span>
     <button class="webcam-nav-btn" onclick="nextWebcam()"><span id="webcam-next-text" data-i18n="liveNext">다음</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
   </div>
+  <div id="webcam-credit" class="webcam-credit hidden">
+    Powered by <a href="https://windy.com" target="_blank">Windy.com</a>
+  </div>
 </div>
 <div id="nav">
   <button class="nbtn on" data-t="globe" onclick="switchTab('globe')"><span class="ni">🌍</span><span data-i18n="navExplore">라디오</span></button>
@@ -332,6 +338,9 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
+const WINDY_API_KEY='pIEIA44iepaxAdnmgy8FS5Stwevgdy1t';
+const YOUTUBE_API_KEY=null;
+
 var ST={
   stations:[],clusters:[],dots:[],
   current:null,currentCluster:null,sheetList:[],
@@ -1552,9 +1561,123 @@ function loadWebcamByIndex(index){
 // onload는 iframe 문서 자체가 로드되면 호출되므로, YouTube가 "이 동영상은 볼 수 없습니다"
 // 같은 자체 오류 페이지를 보여주는 경우는(네트워크 상으로는 정상 로드) 감지할 수 없다 —
 // 교차 출처 제한 때문에 부모 페이지가 iframe 내부를 들여다볼 수 없는 브라우저 자체의 한계.
-function loadWebcamSrc(webcam){
-  webcamSourceIndex=0;
-  tryWebcamSource(webcam,0);
+var _failedSources={};
+function isSourceFailed(key){return !!_failedSources[key];}
+function markSourceFailed(key){_failedSources[key]=true;}
+function hideWebcamMarker(webcamId){
+  for(var _i=0;_i<liveDots.length;_i++){
+    if(liveDots[_i].userData.webcam&&liveDots[_i].userData.webcam.id===webcamId){
+      var _vd=liveDots[_i].userData.visualDot;if(_vd)_vd.visible=false;break;
+    }
+  }
+}
+
+async function loadWebcamSrc(webcam){
+  const iframe=document.getElementById('webcam-iframe');
+  const loading=document.getElementById('webcam-loading');
+  const fallback=document.getElementById('webcam-fallback');
+  clearTimeout(webcamFallbackTimer);
+  iframe.src='';
+  iframe.dataset.loaded='false';
+  loading.style.display='flex';
+  fallback.classList.add('hidden');
+
+  const validSources=(webcam.sources||[]).filter(
+    s=>!isSourceFailed(webcam.id+'_'+(s.id||s.url))
+  );
+  if(validSources.length>0){
+    const success=await trySourcesInOrder(webcam,validSources,0);
+    if(success)return;
+  }
+
+  const windyResult=await findWindyWebcam(webcam.lat,webcam.lng);
+  if(windyResult){
+    iframe.src=windyResult.url;
+    setupIframeTimeout(webcam,iframe,8000);
+    const credit=document.getElementById('webcam-credit');
+    if(credit)credit.classList.remove('hidden');
+    return;
+  }
+
+  hideWebcamAndMove(webcam);
+}
+
+async function findWindyWebcam(lat,lng){
+  if(!WINDY_API_KEY)return null;
+  try{
+    const url='https://api.windy.com/webcams/api/v3/webcams'
+      +'?lat='+lat+'&lng='+lng+'&radius=50&limit=5&include=player,location'
+      +'&key='+WINDY_API_KEY;
+    const res=await fetch(url);
+    const data=await res.json();
+    if(data.webcams&&data.webcams.length>0){
+      const liveWebcam=data.webcams.find(
+        w=>w.player&&w.player.live&&w.player.live.available&&w.player.live.embed
+      );
+      if(liveWebcam)return{url:liveWebcam.player.live.embed,title:liveWebcam.title};
+    }
+  }catch(e){console.log('[Windy] 검색 실패:',lat,lng);}
+  return null;
+}
+
+async function trySourcesInOrder(webcam,sources,index){
+  if(index>=sources.length)return false;
+  const iframe=document.getElementById('webcam-iframe');
+  const source=sources[index];
+  iframe.src=buildSourceUrl(source);
+  iframe.dataset.loaded='false';
+  const success=await waitForIframe(iframe,7000);
+  if(success){
+    document.getElementById('webcam-loading').style.display='none';
+    const credit=document.getElementById('webcam-credit');
+    if(credit)credit.classList.add('hidden');
+    return true;
+  }
+  markSourceFailed(webcam.id+'_'+(source.id||source.url));
+  return await trySourcesInOrder(webcam,sources,index+1);
+}
+
+function waitForIframe(iframe,timeout){
+  return new Promise(function(resolve){
+    var timer=setTimeout(function(){iframe.onload=null;resolve(false);},timeout);
+    iframe.onload=function(){clearTimeout(timer);iframe.dataset.loaded='true';resolve(true);};
+  });
+}
+
+function setupIframeTimeout(webcam,iframe,timeout){
+  clearTimeout(webcamFallbackTimer);
+  webcamFallbackTimer=setTimeout(function(){
+    if(iframe.dataset.loaded!=='true')hideWebcamAndMove(webcam);
+  },timeout);
+  iframe.onload=function(){
+    clearTimeout(webcamFallbackTimer);
+    iframe.dataset.loaded='true';
+    document.getElementById('webcam-loading').style.display='none';
+  };
+}
+
+function buildSourceUrl(source){
+  switch(source.type){
+    case 'youtube_channel':
+      return 'https://www.youtube.com/embed/live_stream?channel='+source.id+'&autoplay=1&mute=1&controls=1&rel=0';
+    case 'youtube_video':
+      return 'https://www.youtube.com/embed/'+source.id+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1';
+    case 'iframe':
+      return source.url;
+    default:
+      return 'https://www.youtube.com/embed/'+source.id+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1';
+  }
+}
+
+function hideWebcamAndMove(webcam){
+  webcam.hidden=true;
+  hideWebcamMarker(webcam.id);
+  document.getElementById('webcam-loading').style.display='none';
+  const next=webcamData.find(function(w,i){return !w.hidden&&i>currentWebcamIndex;})
+    ||webcamData.find(function(w){return !w.hidden;});
+  if(next){
+    setTimeout(function(){loadWebcamByIndex(webcamData.findIndex(function(w){return w.id===next.id;}));},500);
+  }
 }
 
 function tryWebcamSource(webcam,index){
