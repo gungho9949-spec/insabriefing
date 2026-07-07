@@ -1348,29 +1348,51 @@ function stopLofiPlayback(){
 
 /* LIVE CAM (방구석 세계여행) */
 var webcamData=[
-  // 🇺🇸 미국
+  // 🇺🇸 뉴욕
   {id:'nyc-timesquare',city:'New York',cityKo:'뉴욕 타임스퀘어',country:'USA',flag:'🇺🇸',lat:40.7580,lng:-73.9855,
-    sources:[{type:'youtube_video',id:'Q0uLV52xGZE'},{type:'youtube_video',id:'z-jYdOIKcTQ'},{type:'youtube_video',id:'UVftxDFol90'},{type:'youtube_channel',id:'UC6qrG3W8SMK0jior2olka3g'}]},
+    sources:[{type:'youtube_video',id:'Q0uLV52xGZE'},{type:'youtube_video',id:'z-jYdOIKcTQ'},{type:'youtube_channel',id:'UC6qrG3W8SMK0jior2olka3g'}]},
   {id:'nyc-wtc',city:'New York',cityKo:'뉴욕 세계무역센터',country:'USA',flag:'🇺🇸',lat:40.7127,lng:-74.0134,
     sources:[{type:'youtube_video',id:'5C9oM7C2Q9k'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
   {id:'nyc-liberty',city:'New York',cityKo:'뉴욕 자유의 여신상',country:'USA',flag:'🇺🇸',lat:40.6892,lng:-74.0445,
     sources:[{type:'youtube_video',id:'cWR8KGKftUw'},{type:'youtube_video',id:'Qk8pA1UWNNo'}]},
   {id:'nyc-coney-island',city:'New York',cityKo:'뉴욕 코니아일랜드',country:'USA',flag:'🇺🇸',lat:40.5755,lng:-73.9707,
     sources:[{type:'youtube_video',id:'H67j7H-7QD0'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
+  // 🇺🇸 워싱턴 DC
   {id:'dc-washington',city:'Washington D.C.',cityKo:'워싱턴 기념탑',country:'USA',flag:'🇺🇸',lat:38.8895,lng:-77.0353,
     sources:[{type:'youtube_video',id:'oDCAAfOSqvA'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
+  // 🇺🇸 라스베이거스
+  {id:'lasvegas-bellagio',city:'Las Vegas',cityKo:'라스베이거스 벨라지오',country:'USA',flag:'🇺🇸',lat:36.1126,lng:-115.1767,
+    sources:[{type:'youtube_video',id:'KJuGU7v5oYw'},{type:'youtube_video',id:'M1ThjawPug8'},{type:'youtube_video',id:'_rmUXOHSf0w'}]},
+  {id:'lasvegas-fremont',city:'Las Vegas',cityKo:'라스베이거스 프리몬트 스트리트',country:'USA',flag:'🇺🇸',lat:36.1699,lng:-115.1420,
+    sources:[{type:'youtube_video',id:'2-WiWMLgfBs'},{type:'youtube_video',id:'iJ4cQs4Y-zU'}]},
+  // 🇺🇸 뉴올리언스
   {id:'new-orleans',city:'New Orleans',cityKo:'뉴올리언스 버번스트리트',country:'USA',flag:'🇺🇸',lat:29.9584,lng:-90.0644,
     sources:[{type:'youtube_video',id:'Ksrleaxxxhw'},{type:'youtube_video',id:'C32EiZiQPkQ'}]},
+  // 🇺🇸 내슈빌
   {id:'nashville',city:'Nashville',cityKo:'내슈빌 브로드웨이',country:'USA',flag:'🇺🇸',lat:36.1612,lng:-86.7775,
     sources:[{type:'youtube_video',id:'0VEHYjPMEi4'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
-  {id:'florida-naples',city:'Naples FL',cityKo:'플로리다 네이플스',country:'USA',flag:'🇺🇸',lat:26.1301,lng:-81.8029,
-    sources:[{type:'youtube_video',id:'5C6iuPLsOjs'},{type:'youtube_video',id:'YEAhxXd-TiY'}]},
-  {id:'florida-lauderdale',city:'Lauderdale',cityKo:'로더데일 해변',country:'USA',flag:'🇺🇸',lat:26.1901,lng:-80.1180,
-    sources:[{type:'youtube_video',id:'YEAhxXd-TiY'},{type:'youtube_video',id:'5C6iuPLsOjs'}]},
-  {id:'hawaii-waikiki',city:'Honolulu',cityKo:'하와이 와이키키',country:'USA',flag:'🇺🇸',lat:21.2769,lng:-157.8296,
-    sources:[{type:'youtube_video',id:'z_Dn0wGfGSU'},{type:'youtube_video',id:'vqC7y3IWuV4'}]},
+  // 🇺🇸 시카고
   {id:'chicago',city:'Chicago',cityKo:'시카고 스카이덱',country:'USA',flag:'🇺🇸',lat:41.8789,lng:-87.6359,
     sources:[{type:'youtube_video',id:'O0UGT7AT3aw'},{type:'youtube_video',id:'QHUNW6pVNIk'}]},
+  // 🇺🇸 볼티모어
+  {id:'baltimore-aquarium',city:'Baltimore',cityKo:'볼티모어 수족관',country:'USA',flag:'🇺🇸',lat:39.2843,lng:-76.6059,
+    sources:[{type:'youtube_video',id:'KSxc-N67TU4'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
+  // 🇺🇸 머틀비치
+  {id:'myrtle-beach',city:'Myrtle Beach',cityKo:'머틀비치 해변',country:'USA',flag:'🇺🇸',lat:33.6890,lng:-78.8867,
+    sources:[{type:'youtube_video',id:'RG_-aRFPQSU'},{type:'youtube_video',id:'YEAhxXd-TiY'}]},
+  // 🇺🇸 플로리다
+  {id:'florida-palmbeach',city:'Palm Beach',cityKo:'팜비치 해변',country:'USA',flag:'🇺🇸',lat:26.7056,lng:-80.0364,
+    sources:[{type:'youtube_video',id:'IjUf3jkLFlc'},{type:'youtube_video',id:'YEAhxXd-TiY'}]},
+  {id:'florida-naples',city:'Naples FL',cityKo:'플로리다 네이플스',country:'USA',flag:'🇺🇸',lat:26.1301,lng:-81.8029,
+    sources:[{type:'youtube_video',id:'5C6iuPLsOjs'},{type:'youtube_video',id:'skM8DTCx3gM'}]},
+  {id:'florida-fortmyers',city:'Fort Myers',cityKo:'포트마이어스',country:'USA',flag:'🇺🇸',lat:26.6406,lng:-81.8723,
+    sources:[{type:'youtube_video',id:'skM8DTCx3gM'},{type:'youtube_video',id:'5C6iuPLsOjs'}]},
+  {id:'florida-lauderdale',city:'Lauderdale',cityKo:'로더데일 해변',country:'USA',flag:'🇺🇸',lat:26.1901,lng:-80.1180,
+    sources:[{type:'youtube_video',id:'YEAhxXd-TiY'},{type:'youtube_video',id:'IjUf3jkLFlc'}]},
+  // 🇺🇸 하와이
+  {id:'hawaii-waikiki',city:'Honolulu',cityKo:'하와이 와이키키',country:'USA',flag:'🇺🇸',lat:21.2769,lng:-157.8296,
+    sources:[{type:'youtube_video',id:'z_Dn0wGfGSU'},{type:'youtube_video',id:'vqC7y3IWuV4'}]},
+  // 🇺🇸 오리건
   {id:'oregon-gold-beach',city:'Gold Beach',cityKo:'오리건 골드비치',country:'USA',flag:'🇺🇸',lat:42.4068,lng:-124.4234,
     sources:[{type:'youtube_video',id:'wjA8EOc7LBQ'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
   // 🇨🇦 캐나다
@@ -1384,7 +1406,7 @@ var webcamData=[
     sources:[{type:'youtube_video',id:'3nyPER2kzqk'},{type:'youtube_video',id:'2UYUFoxWWIc'}]},
   // 🇮🇱 이스라엘
   {id:'jerusalem',city:'Jerusalem',cityKo:'예루살렘 서쪽 벽',country:'Israel',flag:'🇮🇱',lat:31.7767,lng:35.2345,
-    sources:[{type:'youtube_video',id:'77akujLn4k8'},{type:'youtube_video',id:'0jEa0FOw6vE'},{type:'youtube_video',id:'y4k2lXk1MBw'}]},
+    sources:[{type:'youtube_video',id:'77akujLn4k8'},{type:'youtube_video',id:'0jEa0FOw6vE'}]},
   // 🇫🇷 프랑스
   {id:'paris-eiffel',city:'Paris',cityKo:'파리 에펠탑',country:'France',flag:'🇫🇷',lat:48.8584,lng:2.2945,
     sources:[{type:'youtube_video',id:'3_g_Rsn6UHY'},{type:'youtube_video',id:'jMBpNMRuFOI'},{type:'youtube_channel',id:'UC2WMV4vCYurHdHPd9pCqYSg'}]},
