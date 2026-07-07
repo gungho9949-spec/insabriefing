@@ -1468,18 +1468,101 @@ function stopLofiPlayback(){
 
 /* LIVE CAM (방구석 세계여행) */
 var webcamData=[
-  {id:'nyc-timesquare',city:'New York',cityKo:'뉴욕 타임스퀘어',country:'USA',flag:'🇺🇸',lat:40.7580,lng:-73.9855,embedId:'VGnFLdQW39A',fallbackId:null},
-  {id:'nyc-earthcam',city:'New York',cityKo:'뉴욕 EarthCam',country:'USA',flag:'🇺🇸',lat:40.7579,lng:-73.9854,embedId:'wLIgJSCnLrk',fallbackId:'VGnFLdQW39A'},
-  {id:'houston-skyline',city:'Houston',cityKo:'휴스턴',country:'USA',flag:'🇺🇸',lat:29.7604,lng:-95.3698,embedId:'fix2LD9onS0',fallbackId:'VGnFLdQW39A'},
-  {id:'tokyo-shibuya',city:'Tokyo',cityKo:'도쿄 시부야',country:'Japan',flag:'🇯🇵',lat:35.6595,lng:139.7004,embedId:'dFqCGSN4yiI',fallbackId:null},
-  {id:'tokyo-shinjuku',city:'Tokyo',cityKo:'도쿄 신주쿠',country:'Japan',flag:'🇯🇵',lat:35.6938,lng:139.7034,embedId:'aSXE1ZBkRiI',fallbackId:'dFqCGSN4yiI'},
-  {id:'london-abbey-road',city:'London',cityKo:'런던 애비로드',country:'UK',flag:'🇬🇧',lat:51.5320,lng:-0.1778,embedId:'Xq0ElKpFPaQ',fallbackId:null},
-  {id:'dublin-earthcam',city:'Dublin',cityKo:'더블린',country:'Ireland',flag:'🇮🇪',lat:53.3498,lng:-6.2603,embedId:'dY7RHhqQpBo',fallbackId:null},
-  {id:'venice-rolling',city:'Venice',cityKo:'베네치아',country:'Italy',flag:'🇮🇹',lat:45.4408,lng:12.3155,embedId:'bJ9Bla-YMVE',fallbackId:null},
-  {id:'paris-eiffel',city:'Paris',cityKo:'파리 에펠탑',country:'France',flag:'🇫🇷',lat:48.8584,lng:2.2945,embedId:'3_g_Rsn6UHY',fallbackId:'jMBpNMRuFOI'},
-  {id:'seoul-namsan',city:'Seoul',cityKo:'서울 남산',country:'Korea',flag:'🇰🇷',lat:37.5512,lng:126.9882,embedId:'bQTFX_yBEyA',fallbackId:null},
-  {id:'bangkok-sukhumvit',city:'Bangkok',cityKo:'방콕 수쿰빗',country:'Thailand',flag:'🇹🇭',lat:13.7448,lng:100.5350,embedId:'sF9OsNc79jk',fallbackId:null},
-  {id:'jamaica-ocho-rios',city:'Ocho Rios',cityKo:'자메이카',country:'Jamaica',flag:'🇯🇲',lat:18.4070,lng:-77.1037,embedId:'z3rD9GSnNFQ',fallbackId:'VGnFLdQW39A'}
+  // 🇺🇸 미국 — EarthCam 공식 확인
+  {id:'nyc-timesquare-4k',city:'New York',cityKo:'뉴욕 타임스퀘어 4K',country:'USA',flag:'🇺🇸',lat:40.7580,lng:-73.9855,
+    sources:[{type:'video',id:'Q0uLV52xGZE'},{type:'video',id:'JQ_jwk_7OVE'},{type:'video',id:'z-jYdOIKcTQ'}]},
+  {id:'nyc-wtc',city:'New York',cityKo:'뉴욕 월드트레이드센터',country:'USA',flag:'🇺🇸',lat:40.7127,lng:-74.0134,
+    sources:[{type:'video',id:'5C9oM7C2Q9k'},{type:'video',id:'Q0uLV52xGZE'}]},
+  {id:'nyc-liberty',city:'New York',cityKo:'뉴욕 자유의 여신상',country:'USA',flag:'🇺🇸',lat:40.6892,lng:-74.0445,
+    sources:[{type:'video',id:'cWR8KGKftUw'},{type:'video',id:'Qk8pA1UWNNo'}]},
+  {id:'new-orleans-street',city:'New Orleans',cityKo:'뉴올리언스 버번스트리트',country:'USA',flag:'🇺🇸',lat:29.9584,lng:-90.0644,
+    sources:[{type:'video',id:'Ksrleaxxxhw'},{type:'video',id:'C32EiZiQPkQ'}]},
+  {id:'hawaii-waikiki',city:'Honolulu',cityKo:'하와이 와이키키',country:'USA',flag:'🇺🇸',lat:21.2769,lng:-157.8296,
+    sources:[{type:'video',id:'vqC7y3IWuV4'},{type:'video',id:'z_Dn0wGfGSU'}]},
+  {id:'las-vegas-bellagio',city:'Las Vegas',cityKo:'라스베이거스 벨라지오',country:'USA',flag:'🇺🇸',lat:36.1126,lng:-115.1767,
+    sources:[{type:'video',id:'KJuGU7v5oYw'},{type:'video',id:'_rmUXOHSf0w'}]},
+  {id:'chicago-skydeck',city:'Chicago',cityKo:'시카고 스카이덱',country:'USA',flag:'🇺🇸',lat:41.8789,lng:-87.6359,
+    sources:[{type:'video',id:'O0UGT7AT3aw'},{type:'video',id:'QHUNW6pVNIk'}]},
+  {id:'chicago-midway',city:'Chicago',cityKo:'시카고 미드웨이 공항',country:'USA',flag:'🇺🇸',lat:41.7868,lng:-87.7522,
+    sources:[{type:'video',id:'0ZzPWoeZzuI'},{type:'video',id:'O0UGT7AT3aw'}]},
+  // 🇨🇦 캐나다
+  {id:'niagara-falls',city:'Niagara Falls',cityKo:'나이아가라 폭포',country:'Canada',flag:'🇨🇦',lat:43.0896,lng:-79.0849,
+    sources:[{type:'video',id:'qx7gry390YA'}]},
+  // 🇲🇽 멕시코
+  {id:'mexico-cancun',city:'Cancun',cityKo:'칸쿤 해변',country:'Mexico',flag:'🇲🇽',lat:21.1619,lng:-86.8515,
+    sources:[{type:'video',id:'WY11q0oD6LQ'},{type:'video',id:'qx7gry390YA'}]},
+  // 🇯🇲 자메이카
+  {id:'jamaica-ocho-rios',city:'Ocho Rios',cityKo:'자메이카 오초리오스',country:'Jamaica',flag:'🇯🇲',lat:18.4070,lng:-77.1037,
+    sources:[{type:'video',id:'z3rD9GSnNFQ'}]},
+  // 🇬🇧 영국
+  {id:'london-abbey-road',city:'London',cityKo:'런던 애비로드',country:'UK',flag:'🇬🇧',lat:51.5320,lng:-0.1778,
+    sources:[{type:'video',id:'M3EYAY2MftI'},{type:'video',id:'j-d93A6v73Q'}]},
+  // 🇮🇪 아일랜드
+  {id:'dublin-templebar',city:'Dublin',cityKo:'더블린 템플바',country:'Ireland',flag:'🇮🇪',lat:53.3454,lng:-6.2638,
+    sources:[{type:'video',id:'3nyPER2kzqk'},{type:'video',id:'2UYUFoxWWIc'}]},
+  // 🇫🇷 프랑스
+  {id:'paris-eiffel',city:'Paris',cityKo:'파리 에펠탑',country:'France',flag:'🇫🇷',lat:48.8584,lng:2.2945,
+    sources:[{type:'video',id:'3_g_Rsn6UHY'},{type:'video',id:'jMBpNMRuFOI'},{type:'channel',id:'UC2WMV4vCYurHdHPd9pCqYSg'}]},
+  // 🇮🇹 이탈리아
+  {id:'rome-trevi',city:'Rome',cityKo:'로마 트레비 분수',country:'Italy',flag:'🇮🇹',lat:41.9009,lng:12.4833,
+    sources:[{type:'video',id:'j39vIidsIJI'},{type:'video',id:'lzIa_zCR8BQ'},{type:'channel',id:'UC2WMV4vCYurHdHPd9pCqYSg'}]},
+  {id:'venice',city:'Venice',cityKo:'베네치아 수상 도시',country:'Italy',flag:'🇮🇹',lat:45.4408,lng:12.3155,
+    sources:[{type:'video',id:'bJ9Bla-YMVE'},{type:'video',id:'j39vIidsIJI'}]},
+  {id:'italy-top',city:'Italy',cityKo:'이탈리아 명소 모음',country:'Italy',flag:'🇮🇹',lat:41.8719,lng:12.5674,
+    sources:[{type:'video',id:'wMT2aNcP4Wg'}]},
+  // 🇪🇸 스페인
+  {id:'spain-top',city:'Spain',cityKo:'스페인 명소 모음',country:'Spain',flag:'🇪🇸',lat:40.4168,lng:-3.7038,
+    sources:[{type:'video',id:'NHRDdaH4LpU'}]},
+  // 🇬🇷 그리스
+  {id:'athens-acropolis',city:'Athens',cityKo:'아테네 아크로폴리스',country:'Greece',flag:'🇬🇷',lat:37.9715,lng:23.7267,
+    sources:[{type:'video',id:'5p-s-1453Us'},{type:'channel',id:'UC2WMV4vCYurHdHPd9pCqYSg'}]},
+  // 🇭🇺 헝가리
+  {id:'budapest',city:'Budapest',cityKo:'부다페스트',country:'Hungary',flag:'🇭🇺',lat:47.4979,lng:19.0402,
+    sources:[{type:'channel',id:'UC6qrG3W8SMK0jior2olka3g'},{type:'video',id:'3nyPER2kzqk'}]},
+  // 🇮🇱 이스라엘
+  {id:'jerusalem-western-wall',city:'Jerusalem',cityKo:'예루살렘 서쪽 벽',country:'Israel',flag:'🇮🇱',lat:31.7767,lng:35.2345,
+    sources:[{type:'video',id:'0jEa0FOw6vE'},{type:'video',id:'wyMx0d7q0mo'},{type:'video',id:'KW4j3FcnDRc'}]},
+  // 🇯🇵 일본
+  {id:'tokyo-shibuya',city:'Tokyo',cityKo:'도쿄 시부야 스크램블',country:'Japan',flag:'🇯🇵',lat:35.6595,lng:139.7004,
+    sources:[{type:'video',id:'dFqCGSN4yiI'},{type:'video',id:'oCJ6pJqhPGg'}]},
+  {id:'tokyo-shinjuku',city:'Tokyo',cityKo:'도쿄 신주쿠',country:'Japan',flag:'🇯🇵',lat:35.6938,lng:139.7034,
+    sources:[{type:'video',id:'zxSBTz67csI'},{type:'video',id:'dFqCGSN4yiI'}]},
+  {id:'tokyo-skytree',city:'Tokyo',cityKo:'도쿄 스카이트리',country:'Japan',flag:'🇯🇵',lat:35.7101,lng:139.8107,
+    sources:[{type:'video',id:'NMcOB_Sh1L4'},{type:'video',id:'dFqCGSN4yiI'}]},
+  {id:'mt-fuji',city:'Mount Fuji',cityKo:'후지산',country:'Japan',flag:'🇯🇵',lat:35.3606,lng:138.7274,
+    sources:[{type:'video',id:'jlGKCM9pHXo'},{type:'video',id:'dFqCGSN4yiI'}]},
+  {id:'osaka-dotonbori',city:'Osaka',cityKo:'오사카 도톤보리',country:'Japan',flag:'🇯🇵',lat:34.6688,lng:135.5013,
+    sources:[{type:'video',id:'fIXwjhyNHXo'},{type:'video',id:'dFqCGSN4yiI'}]},
+  // 🇰🇷 한국
+  {id:'seoul-namsan',city:'Seoul',cityKo:'서울 남산타워',country:'Korea',flag:'🇰🇷',lat:37.5512,lng:126.9882,
+    sources:[{type:'video',id:'bQTFX_yBEyA'},{type:'video',id:'Q0uLV52xGZE'}]},
+  // 🇨🇳 중국
+  {id:'shanghai-bund',city:'Shanghai',cityKo:'상하이 와이탄',country:'China',flag:'🇨🇳',lat:31.2304,lng:121.4737,
+    sources:[{type:'video',id:'ABzJHBgLAK8'},{type:'video',id:'dFqCGSN4yiI'}]},
+  // 🇹🇭 태국
+  {id:'bangkok-sukhumvit',city:'Bangkok',cityKo:'방콕 수쿰빗',country:'Thailand',flag:'🇹🇭',lat:13.7448,lng:100.5350,
+    sources:[{type:'video',id:'sF9OsNc79jk'},{type:'video',id:'Q0uLV52xGZE'}]},
+  // 🇸🇬 싱가포르
+  {id:'singapore-marinabay',city:'Singapore',cityKo:'싱가포르 마리나베이',country:'Singapore',flag:'🇸🇬',lat:1.2834,lng:103.8607,
+    sources:[{type:'video',id:'domJ0djVmgI'},{type:'video',id:'Q0uLV52xGZE'}]},
+  // 🇮🇳 인도
+  {id:'india-varanasi',city:'Varanasi',cityKo:'인도 바라나시 갠지스강',country:'India',flag:'🇮🇳',lat:25.3176,lng:82.9739,
+    sources:[{type:'video',id:'K29HHCYt8nQ'},{type:'video',id:'Q0uLV52xGZE'}]},
+  // 🇦🇺 호주
+  {id:'sydney-opera',city:'Sydney',cityKo:'시드니 오페라하우스',country:'Australia',flag:'🇦🇺',lat:-33.8568,lng:151.2153,
+    sources:[{type:'video',id:'ZbkDhYKgSfk'},{type:'video',id:'Q0uLV52xGZE'}]},
+  // 🇿🇦 남아프리카
+  {id:'cape-town',city:'Cape Town',cityKo:'케이프타운',country:'South Africa',flag:'🇿🇦',lat:-33.9249,lng:18.4241,
+    sources:[{type:'video',id:'aqz-KE-bpKQ'},{type:'video',id:'Q0uLV52xGZE'}]},
+  // 🇧🇷 브라질
+  {id:'rio-copacabana',city:'Rio de Janeiro',cityKo:'리우 코파카바나',country:'Brazil',flag:'🇧🇷',lat:-22.9711,lng:-43.1823,
+    sources:[{type:'video',id:'LqKhGIGQd7A'},{type:'video',id:'Q0uLV52xGZE'}]},
+  // 🇦🇪 UAE
+  {id:'dubai-burj',city:'Dubai',cityKo:'두바이 부르즈칼리파',country:'UAE',flag:'🇦🇪',lat:25.1972,lng:55.2744,
+    sources:[{type:'video',id:'kHBEnpf9jA0'},{type:'video',id:'Q0uLV52xGZE'}]},
+  // 🌍 글로벌 모음
+  {id:'world-top-1200',city:'World',cityKo:'전세계 1200개 명소',country:'Global',flag:'🌍',lat:0,lng:0,
+    sources:[{type:'video',id:'EFum1rGUdkk'}]}
 ];
 
 // 라디오 탭의 Three.js 지구본(scene/globe/cam/ren 등)을 그대로 재사용한다. 웹캠 점은
@@ -1521,9 +1604,21 @@ function checkLiveHover(e){
   if(hitDot&&hitDot!==_liveHoverDot){hitDot.material.color.setHex(0xffd700);_liveHoverDot=hitDot;}
 }
 
+function buildEmbedSrc(webcam,sourceIndex){
+  var src=webcam.sources?webcam.sources[sourceIndex||0]:null;
+  if(src){
+    if(src.type==='channel'){
+      return 'https://www.youtube.com/embed/live_stream?channel='+src.id+'&autoplay=1&mute=1&controls=1&rel=0';
+    }
+    return 'https://www.youtube.com/embed/'+src.id+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1';
+  }
+  return 'https://www.youtube.com/embed/'+webcam.embedId+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1';
+}
+
 /* WEBCAM PANEL */
 var currentWebcam=null;
 var currentWebcamIndex=0;
+var webcamSourceIndex=0;
 var webcamFallbackTimer=null;
 
 function updateWebcamMarkers(){
@@ -1587,26 +1682,35 @@ function loadWebcamByIndex(index){
 // 같은 자체 오류 페이지를 보여주는 경우는(네트워크 상으로는 정상 로드) 감지할 수 없다 —
 // 교차 출처 제한 때문에 부모 페이지가 iframe 내부를 들여다볼 수 없는 브라우저 자체의 한계.
 function loadWebcamSrc(webcam){
+  webcamSourceIndex=0;
+  tryWebcamSource(webcam,0);
+}
+
+function tryWebcamSource(webcam,index){
   var iframe=document.getElementById('webcam-iframe');
   var loadingEl=document.getElementById('webcam-loading');
   var fallbackEl=document.getElementById('webcam-fallback');
   if(!iframe)return;
-  iframe.src='';
+  clearTimeout(webcamFallbackTimer);
   if(loadingEl)loadingEl.style.display='';
   if(fallbackEl)fallbackEl.classList.add('hidden');
   iframe.dataset.loaded='false';
-  iframe.src='https://www.youtube.com/embed/'+webcam.embedId+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1';
-  clearTimeout(webcamFallbackTimer);
+  iframe.src=buildEmbedSrc(webcam,index);
   webcamFallbackTimer=setTimeout(function(){
     if(iframe.dataset.loaded!=='true'){
-      if(webcam.fallbackId){
-        iframe.src='https://www.youtube.com/embed/'+webcam.fallbackId+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1';
+      var nextIndex=index+1;
+      var hasNext=webcam.sources&&nextIndex<webcam.sources.length;
+      if(hasNext){
+        tryWebcamSource(webcam,nextIndex);
       } else {
         if(loadingEl)loadingEl.style.display='none';
         if(fallbackEl){
           fallbackEl.classList.remove('hidden');
           var link=document.getElementById('webcam-fallback-link');
-          if(link)link.href='https://www.youtube.com/watch?v='+webcam.embedId;
+          if(link){
+            var firstId=(webcam.sources&&webcam.sources[0])?webcam.sources[0].id:(webcam.embedId||'');
+            link.href='https://www.youtube.com/watch?v='+firstId;
+          }
         }
       }
     }
