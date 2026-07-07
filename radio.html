@@ -37,12 +37,16 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 #globe-wrap{flex:1;position:relative;overflow:hidden;cursor:grab;touch-action:none;}
 #globe-wrap:active{cursor:grabbing;}
 #globe-canvas{display:block;width:100%;height:100%;}
-#side-btns{position:fixed;right:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:10;}
+#side-btns{position:fixed;right:16px;top:calc(50% - 80px);transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:10;}
 .sbtn{position:relative;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s ease;}
 .sbtn:hover,.sbtn:active{background:rgba(255,255,255,0.15);}
-.sbtn.live-btn.active{background:rgba(77,166,255,0.2);color:#4da6ff;border-color:rgba(77,166,255,0.3);}
 .sbtn::after{content:attr(data-tip);position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);background:rgba(12,19,32,0.92);color:#fff;font-size:11px;padding:5px 10px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s ease;}
 .sbtn:hover::after{opacity:1;}
+#live-toggle-btn{position:fixed;right:16px;bottom:140px;width:52px;height:52px;border-radius:50%;background:rgba(255,50,50,0.85);border:2px solid rgba(255,100,100,0.6);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 0 rgba(255,50,50,0.5);animation:liveBtnPulse 2s infinite;transition:all 0.2s;z-index:500;}
+#live-toggle-btn::after{content:'LIVE';position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;color:rgba(255,100,100,0.9);letter-spacing:1px;white-space:nowrap;}
+@keyframes liveBtnPulse{0%{box-shadow:0 0 0 0 rgba(255,50,50,0.5);}70%{box-shadow:0 0 0 12px rgba(255,50,50,0);}100%{box-shadow:0 0 0 0 rgba(255,50,50,0);}}
+#live-toggle-btn.active{background:rgba(255,50,50,1);animation:none;box-shadow:0 0 20px rgba(255,50,50,0.6);}
+#live-toggle-btn:hover{transform:scale(1.1);background:rgba(255,70,70,1);}
 #lock-badge{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:rgba(12,19,32,0.88);border:1px solid rgba(0,232,122,0.35);border-radius:20px;padding:4px 14px;font-size:10px;color:var(--green);letter-spacing:2px;pointer-events:none;z-index:10;display:none;}
 #lock-badge.show{display:block;}
 #center-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border:2px dashed rgba(255,255,255,0.7);border-radius:50%;pointer-events:none;z-index:8;animation:ringPulse 1.8s ease-in-out infinite;opacity:0;transition:opacity 0.8s ease,border-color 0.2s,box-shadow 0.2s;}
@@ -208,8 +212,8 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
       <div class="sbtn" onclick="gotoMyLocation()" data-tip="내 위치" data-i18n-tip="btnLocate"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg></div>
       <div class="sbtn" onclick="shareStation()" data-tip="공유" data-i18n-tip="btnShare"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
       <div class="sbtn" id="btn-lock" onclick="toggleLock()" data-tip="방송국 고정 해제됨"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></div>
-      <button id="live-toggle-btn" class="sbtn live-btn" onclick="toggleWebcamPanel()" data-tip="라이브캠"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.87v6.26a1 1 0 0 1-1.447.894L15 14"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></button>
     </div>
+    <button id="live-toggle-btn" onclick="toggleWebcamPanel()"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.87v6.26a1 1 0 0 1-1.447.894L15 14"/><rect x="2" y="7" width="13" height="10" rx="2"/></svg></button>
   </div>
   <div id="player" onclick="onPlayerTap()">
     <div class="p-brand">Wild Peaks Radio</div>
@@ -408,8 +412,8 @@ function initGlobe(){
   // 일반 초록 점과 반지름을 똑같이 맞춰서(색만 빨간색으로 바뀜), 촘촘한 지역에서
   // 마커가 주변 다른 방송국 점들을 가리지 않도록 한다.
   nowPlayingMarker=new THREE.Mesh(
-    new THREE.SphereGeometry(getDotRadius(),16,16),
-    new THREE.MeshBasicMaterial({color:0xff4444,transparent:true,depthWrite:false})
+    new THREE.SphereGeometry(getDotRadius()*1.2,16,16),
+    new THREE.MeshBasicMaterial({color:0xff3333,transparent:true,depthWrite:false})
   );
   nowPlayingMarker.visible=false;
   globe.add(nowPlayingMarker);
@@ -472,6 +476,16 @@ function loop(){
     if(Math.abs(diff)<0.005){cam.position.z=zoomTarget;zoomTarget=null;}
   }
   checkCenterRing();
+  if(liveDots.length){
+    var _ft=Date.now()/600;
+    var _fo=0.4+0.6*(0.5+0.5*Math.sin(_ft));
+    for(var _li=0;_li<liveDots.length;_li++){
+      var _ld=liveDots[_li].userData.visualDot;
+      if(!_ld)continue;
+      var _lsel=currentWebcam&&liveDots[_li].userData.webcam.id===currentWebcam.id;
+      _ld.material.opacity=_lsel?1.0:_fo;
+    }
+  }
   ren.render(scene,cam);
 }
 
@@ -779,7 +793,7 @@ function flyTo(lat,lon,zoom){
 function buildDots(){
   for(var i=0;i<ST.dots.length;i++)globe.remove(ST.dots[i]);
   ST.dots=[];
-  var dotR=getDotRadius();
+  var dotR=getDotRadius()*1.2;
   var hitR=dotR*6;
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
@@ -1429,11 +1443,11 @@ var _liveHoverDot=null;
 
 function buildLiveDots(){
   if(liveDots.length)return; // 정적 데이터라 한 번만 만들면 된다
-  var dotR=getDotRadius()*1.5,hitR=dotR*4;
+  var dotR=getDotRadius()*1.8,hitR=dotR*4;
   for(var i=0;i<webcamData.length;i++){
     var w=webcamData[i];
     var pos=ll2v(w.lat,w.lng,1.018);
-    var m=new THREE.Mesh(new THREE.SphereGeometry(dotR,16,16),new THREE.MeshBasicMaterial({color:0x4da6ff,transparent:true,depthWrite:false}));
+    var m=new THREE.Mesh(new THREE.SphereGeometry(dotR,16,16),new THREE.MeshBasicMaterial({color:0xffd700,transparent:true,depthWrite:false}));
     m.position.copy(pos);m.userData={index:i,webcam:w};
     globe.add(m);
     var hit=new THREE.Mesh(new THREE.SphereGeometry(hitR,8,8),new THREE.MeshBasicMaterial({visible:false}));
@@ -1455,10 +1469,10 @@ function checkLiveHover(e){
   if(_liveHoverDot&&_liveHoverDot!==hitDot){
     var hoverWebcam=_liveHoverDot.userData&&_liveHoverDot.userData.webcam;
     var hoverSelected=currentWebcam&&hoverWebcam&&currentWebcam.id===hoverWebcam.id;
-    _liveHoverDot.material.color.setHex(hoverSelected?0xffd700:0x4da6ff);
+    _liveHoverDot.material.color.setHex(hoverSelected?0xff3333:0xffd700);
     _liveHoverDot=null;
   }
-  if(hitDot&&hitDot!==_liveHoverDot){hitDot.material.color.setHex(0xffd700);_liveHoverDot=hitDot;}
+  if(hitDot&&hitDot!==_liveHoverDot){hitDot.material.color.setHex(0xffffff);_liveHoverDot=hitDot;}
 }
 
 function buildEmbedSrc(webcam,sourceIndex){
@@ -1482,7 +1496,7 @@ function updateWebcamMarkers(){
   liveDots.forEach(function(hit){
     var dot=hit.userData.visualDot;
     var isSelected=currentWebcam&&currentWebcam.id===hit.userData.webcam.id;
-    dot.material.color.setHex(isSelected?0xffd700:0x4da6ff);
+    dot.material.color.setHex(isSelected?0xff3333:0xffd700);
   });
 }
 
@@ -1509,7 +1523,7 @@ function closeWebcamPanel(){
   isWebcamOpen=false;
   var btn=document.getElementById('live-toggle-btn');
   if(btn)btn.classList.remove('active');
-  if(_liveHoverDot){_liveHoverDot.material.color.setHex(0x4da6ff);_liveHoverDot=null;}
+  if(_liveHoverDot){_liveHoverDot.material.color.setHex(0xffd700);_liveHoverDot=null;}
   setTimeout(function(){
     panel.classList.add('hidden');
     var iframe=document.getElementById('webcam-iframe');
@@ -1790,7 +1804,7 @@ function setDotSize(s){
   document.querySelectorAll('.szbtn').forEach(function(b){b.classList.toggle('on',b.dataset.s===s);});
   buildDots();
   // 재생 마커도 새 점 크기에 맞춰 반지름을 다시 만든다(일반 점과 항상 같은 크기 유지).
-  if(nowPlayingMarker){nowPlayingMarker.geometry.dispose();nowPlayingMarker.geometry=new THREE.SphereGeometry(getDotRadius(),16,16);}
+  if(nowPlayingMarker){nowPlayingMarker.geometry.dispose();nowPlayingMarker.geometry=new THREE.SphereGeometry(getDotRadius()*1.2,16,16);}
 }
 
 /* TABS */
