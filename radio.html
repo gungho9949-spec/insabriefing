@@ -160,29 +160,30 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 .lofi-ch-desc{font-size:11px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .lofi-ch-badge{position:absolute;top:8px;right:10px;background:var(--green);color:#000;font-size:9px;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:0.5px;}
 .lofi-credit{font-size:10px;color:var(--sub);text-align:center;line-height:1.7;margin-top:14px;padding-bottom:10px;}
-/* LIVE CAM TAB */
-#live-topbar{position:absolute;top:0;left:0;right:0;z-index:12;background:rgba(8,11,20,0.55);padding:14px 16px 10px;text-align:center;pointer-events:none;}
-.live-brand{font-size:13px;font-weight:800;letter-spacing:1px;color:#fff;}
-.live-title{font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;}
-.live-pill{display:inline-block;margin-top:8px;font-size:11px;color:rgba(255,255,255,0.5);background:rgba(8,11,20,0.6);border-radius:20px;padding:4px 12px;}
-#live-player-bar{background:rgba(8,11,20,0.97);border-top:0.5px solid rgba(255,255,255,0.08);flex-shrink:0;padding-bottom:60px;}
-#live-video-wrap{max-height:0;overflow:hidden;transition:max-height 0.3s ease;background:#000;display:flex;flex-direction:column;}
-#live-video-wrap.open{max-height:40vh;}
-.live-video-hd{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.05);flex-shrink:0;gap:10px;}
-.live-video-title{font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
-.live-badge{display:inline-block;font-size:10px;font-weight:700;color:var(--green);background:rgba(0,232,122,0.12);border-radius:10px;padding:2px 8px;margin-left:6px;vertical-align:middle;}
-.live-video-actions{display:flex;gap:8px;flex-shrink:0;}
-.live-act-btn{background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:11px;padding:4px 10px;border-radius:14px;cursor:pointer;}
-.live-video-body{flex:1;position:relative;min-height:0;}
-#live-iframe{width:100%;height:100%;border:none;display:block;}
-#live-video-error{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:rgba(255,255,255,0.6);background:#000;padding:20px;}
-#live-video-error.show{display:flex;}
-.live-error-msg{font-size:12px;text-align:center;}
-.live-fallback-btn{background:var(--green);color:#080B14;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;text-decoration:none;}
-.live-ctrl-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;gap:10px;}
-.live-nav-btn{background:none;border:none;color:rgba(255,255,255,0.7);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;padding:6px;flex-shrink:0;}
-.live-nav-btn:hover{color:#fff;}
-.live-ctrl-city{flex:1;text-align:center;font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+/* WEBCAM PANEL */
+.webcam-panel{position:fixed;bottom:60px;left:0;right:0;height:40vh;background:rgba(6,8,15,0.97);border-top:1px solid rgba(255,255,255,0.1);border-radius:16px 16px 0 0;z-index:400;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);}
+.webcam-panel.show{transform:translateY(0);}
+.webcam-panel.hidden{display:none;}
+.webcam-panel.collapsed .webcam-video-wrap,.webcam-panel.collapsed .webcam-nav{display:none;}
+.webcam-titlebar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
+.webcam-titlebar-left{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;}
+.webcam-titlebar-right{display:flex;gap:8px;flex-shrink:0;}
+.webcam-live-dot{width:7px;height:7px;border-radius:50%;background:#ff4444;animation:wcPulse 1.5s infinite;flex-shrink:0;}
+@keyframes wcPulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.webcam-city{font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.webcam-country{font-size:11px;color:rgba(255,255,255,0.45);white-space:nowrap;flex-shrink:0;}
+.webcam-tbtn{background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.8);font-size:11px;padding:5px 10px;border-radius:14px;cursor:pointer;}
+.webcam-tbtn:hover{background:rgba(255,255,255,0.18);}
+.webcam-video-wrap{flex:1;position:relative;background:#000;overflow:hidden;}
+#webcam-iframe{width:100%;height:100%;border:none;display:block;}
+#webcam-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:rgba(255,255,255,0.45);font-size:12px;}
+#webcam-fallback{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#000;color:rgba(255,255,255,0.6);padding:20px;text-align:center;font-size:12px;}
+#webcam-fallback.show{display:flex;}
+.webcam-fallback-btn{background:var(--green);color:#080B14;font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;text-decoration:none;}
+.webcam-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
+.webcam-nav-btn{background:none;border:none;color:rgba(255,255,255,0.7);font-size:12px;cursor:pointer;padding:6px;display:flex;align-items:center;gap:4px;}
+.webcam-nav-btn:hover{color:#fff;}
+.webcam-nav-center{flex:1;text-align:center;font-size:12px;color:rgba(255,255,255,0.45);}
 #toast{position:fixed;bottom:150px;left:50%;transform:translateX(-50%) translateY(12px);background:rgba(12,19,32,0.94);border:1px solid var(--border);border-radius:22px;padding:9px 20px;font-size:12px;color:var(--text);pointer-events:none;opacity:0;transition:all 0.28s;z-index:500;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 ::-webkit-scrollbar{width:2px;}
@@ -220,11 +221,6 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
       <div class="sbtn" onclick="shareStation()" data-tip="공유" data-i18n-tip="btnShare"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
       <div class="sbtn" id="btn-lock" onclick="toggleLock()" data-tip="방송국 고정 해제됨"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></div>
     </div>
-    <div id="live-topbar" style="display:none;">
-      <div class="live-brand">📹 WILD PEAKS LIVE</div>
-      <div class="live-title" data-i18n="liveTitle">전세계 실시간 풍경</div>
-      <div class="live-pill" id="live-pill"></div>
-    </div>
   </div>
   <div id="player" onclick="onPlayerTap()">
     <div class="p-brand">Wild Peaks Radio</div>
@@ -248,28 +244,31 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
       <button class="cbtn" onclick="event.stopPropagation();nextStation()">⏭</button>
     </div>
   </div>
-  <div id="live-player-bar" style="display:none;">
-    <div id="live-video-wrap">
-      <div class="live-video-hd">
-        <div class="live-video-title"><span id="live-city-label" data-i18n="liveLoading">라이브 연결 중...</span> <span class="live-badge">📹 <span data-i18n="liveTab">라이브</span></span></div>
-        <div class="live-video-actions">
-          <button class="live-act-btn" onclick="toggleLiveCollapse()" id="live-collapse-btn">접기</button>
-          <button class="live-act-btn" onclick="closeLiveVideo()">✕</button>
-        </div>
-      </div>
-      <div class="live-video-body" id="live-video-body">
-        <iframe id="live-iframe" src="about:blank" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen frameborder="0"></iframe>
-        <div id="live-video-error">
-          <div class="live-error-msg">📡 <span data-i18n="liveError">다른 소스로 전환 중...</span></div>
-          <a id="live-fallback-link" class="live-fallback-btn" target="_blank" rel="noopener"><span data-i18n="liveWatch">유튜브에서 보기</span> →</a>
-        </div>
-      </div>
+</div>
+<div id="webcam-panel" class="webcam-panel hidden">
+  <div class="webcam-titlebar">
+    <div class="webcam-titlebar-left">
+      <span class="webcam-live-dot"></span>
+      <span id="webcam-city-label" class="webcam-city">-</span>
+      <span id="webcam-country-label" class="webcam-country"></span>
     </div>
-    <div class="live-ctrl-row">
-      <button class="live-nav-btn" onclick="prevWebcam()">⏮ <span data-i18n="livePrev">이전</span></button>
-      <div class="live-ctrl-city" id="live-ctrl-city">-</div>
-      <button class="live-nav-btn" onclick="nextWebcam()"><span data-i18n="liveNext">다음</span> ⏭</button>
+    <div class="webcam-titlebar-right">
+      <button class="webcam-tbtn" id="webcam-collapse-btn" onclick="toggleWebcamCollapse()">접기</button>
+      <button class="webcam-tbtn" onclick="closeWebcamPanel()">✕</button>
     </div>
+  </div>
+  <div class="webcam-video-wrap" id="webcam-video-wrap">
+    <iframe id="webcam-iframe" src="" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen frameborder="0"></iframe>
+    <div id="webcam-loading">📡 연결 중...</div>
+    <div id="webcam-fallback">
+      <div>영상을 불러올 수 없습니다</div>
+      <a id="webcam-fallback-link" class="webcam-fallback-btn" target="_blank" rel="noopener">유튜브에서 보기 →</a>
+    </div>
+  </div>
+  <div class="webcam-nav">
+    <button class="webcam-nav-btn" onclick="prevWebcam()">⏮ 이전</button>
+    <span id="webcam-nav-label" class="webcam-nav-center"></span>
+    <button class="webcam-nav-btn" onclick="nextWebcam()">다음 ⏭</button>
   </div>
 </div>
 <div id="nav">
@@ -356,7 +355,7 @@ var ST={
   timerId:null,sheetTimerId:null,
   _lastRingCluster:null,
   languageFilter:'all',typeFilter:'all',
-  mode:'radio',liveIndex:-1
+  webcamPanelOpen:false
 };
 
 // 스플래시 탭 핸들러와 오디오 엘리먼트는 스크립트 최상단, THREE.js/3D 초기화보다
@@ -425,7 +424,7 @@ function initGlobe(){
   // 마커가 주변 다른 방송국 점들을 가리지 않도록 한다.
   nowPlayingMarker=new THREE.Mesh(
     new THREE.SphereGeometry(getDotRadius(),16,16),
-    new THREE.MeshBasicMaterial({color:0xff4d7e,transparent:true,depthWrite:false})
+    new THREE.MeshBasicMaterial({color:0xff4444,transparent:true,depthWrite:false})
   );
   nowPlayingMarker.visible=false;
   globe.add(nowPlayingMarker);
@@ -587,23 +586,26 @@ function verifyClusterMatchesScreenPos(cl,screenX,screenY,context){
 }
 
 function handleTap(cx,cy){
-  if(ST.mode==='live'){handleLiveTap(cx,cy);return;}
   var rect=ren.domElement.getBoundingClientRect();
   mXY.x=((cx-rect.left)/rect.width)*2-1;
   mXY.y=-((cy-rect.top)/rect.height)*2+1;
   ray.setFromCamera(mXY,cam);
+  // 웹캠 파란 점을 먼저 체크한다. 파란 점을 탭하면 패널 열기 + 영상 로드.
+  if(liveDots.length){
+    var lhits=ray.intersectObjects(liveDots).filter(function(h){return isPointVisibleFromCamera(h.point);});
+    if(lhits.length){
+      var widx=lhits[0].object.userData.index;
+      if(!ST.webcamPanelOpen)openWebcamPanel();
+      loadWebcamByIndex(widx);
+      return;
+    }
+  }
+  // 라디오 녹색 점 체크
   var hits=ray.intersectObjects(ST.dots);
-  // intersectObjects는 카메라에서의 "거리"로만 정렬할 뿐, 지구본 반대쪽(뒷면)에
-  // 가려져 실제로는 안 보이는 히트-구체까지 그대로 반환한다. 탭 지점이 앞면 점의
-  // 판정 범위를 살짝 벗어나면, 광선이 지구 내부를 관통해 반대편(대척점 부근)의
-  // 무관한 방송국을 맞히는 경우가 있었다 — 예: 한국을 탭했는데 우루과이가,
-  // 중국을 탭했는데 아르헨티나가 선택되는 버그가 바로 이 때문이었다.
   hits=hits.filter(function(h){return isPointVisibleFromCamera(h.point);});
   if(hits.length){
     var cl=hits[0].object.userData.cluster;
     verifyClusterMatchesScreenPos(cl,cx,cy,'탭');
-    // 라디오 가든 방식: 중앙 팝업 없이 해당 클러스터의 첫 방송을 바로 재생한다.
-    // 전체 목록은 하단 바의 ☰ 버튼으로 열리는 왼쪽 사이드 패널(openSheet)에서만 보여준다.
     ST.currentCluster=cl;ST.sheetList=cl.stations;
     if(!ST.locked&&cl.stations.length>0)play(cl.stations[0]);
   }
@@ -622,7 +624,6 @@ function checkCenterRing(){
   var now=Date.now();
   if(now-_ringLast<100)return;
   _ringLast=now;
-  if(ST.mode==='live')return;
   if(!ST.dots.length||drag)return;
   // 지구본 화면이 다른 전체화면 탭(즐겨찾기/Lo-fi/검색/설정)이나 왼쪽 방송국 목록
   // 패널에 가려져 안 보이는 동안에는 화면 중앙 자동 잠금이 백그라운드에서 계속
@@ -811,10 +812,6 @@ function buildDots(){
   // 새로 만든 점들에도 현재 활성화된 언어/유형 필터를 즉시 반영한다(필터가 켜진 상태에서
   // 전세계 방송국이 나중에 추가로 로드되는 경우, 새 점만 필터 없이 밝게 보이는 걸 방지).
   applyDotVisuals();
-  // 라이브 탭을 보고 있는 도중에 방송국 데이터가 뒤늦게 로드/갱신되면 새로 만들어진 점들이
-  // 기본값(보임) 상태로 생성되어 웹캠 점과 함께 라디오 녹색 점이 겹쳐 보이는 문제가 있었다.
-  // 방금 새로 만든 점들도 현재 모드에 맞춰 즉시 숨겨준다.
-  if(ST.mode==='live')hideRadioMarkers();
 }
 
 function clusterStations(stations){
@@ -1471,42 +1468,18 @@ function stopLofiPlayback(){
 
 /* LIVE CAM (방구석 세계여행) */
 var webcamData=[
-  {id:'nyc-timesquare-1',city:'New York',cityKo:'뉴욕 타임스퀘어',country:'USA',flag:'🇺🇸',lat:40.7580,lng:-73.9855,embedId:'VGnFLdQW39A',fallbackId:'xMDCEYrMZwY'},
-  {id:'nyc-earthcam',city:'New York',cityKo:'뉴욕 타임스퀘어 EarthCam',country:'USA',flag:'🇺🇸',lat:40.7579,lng:-73.9855,embedId:'wLIgJSCnLrk',fallbackId:'VGnFLdQW39A'},
-  {id:'nyc-bryant-park',city:'New York',cityKo:'뉴욕 브라이언트 파크',country:'USA',flag:'🇺🇸',lat:40.7536,lng:-73.9832,embedId:'pKWFJ7RwpQM',fallbackId:'VGnFLdQW39A'},
-  {id:'nyc-liberty',city:'New York',cityKo:'뉴욕 자유의 여신상',country:'USA',flag:'🇺🇸',lat:40.6892,lng:-74.0445,embedId:'WqbLv9A9VEg',fallbackId:'VGnFLdQW39A'},
-  {id:'sf-golden-gate',city:'San Francisco',cityKo:'샌프란시스코 금문교',country:'USA',flag:'🇺🇸',lat:37.8199,lng:-122.4783,embedId:'IuTXySAmlEc',fallbackId:'VGnFLdQW39A'},
-  {id:'la-venice-beach',city:'Los Angeles',cityKo:'로스앤젤레스 베니스 비치',country:'USA',flag:'🇺🇸',lat:33.9850,lng:-118.4695,embedId:'AdUw5RdyZxI',fallbackId:'VGnFLdQW39A'},
-  {id:'houston-skyline',city:'Houston',cityKo:'휴스턴 스카이라인',country:'USA',flag:'🇺🇸',lat:29.7604,lng:-95.3698,embedId:'fix2LD9onS0',fallbackId:'VGnFLdQW39A'},
-  {id:'new-orleans',city:'New Orleans',cityKo:'뉴올리언스 거리',country:'USA',flag:'🇺🇸',lat:29.9511,lng:-90.0715,embedId:'xyWsEBEypDo',fallbackId:'VGnFLdQW39A'},
-  {id:'tokyo-shibuya',city:'Tokyo',cityKo:'도쿄 시부야 스크램블',country:'Japan',flag:'🇯🇵',lat:35.6595,lng:139.7004,embedId:'dFqCGSN4yiI',fallbackId:'oCJ6pJqhPGg'},
-  {id:'tokyo-shinjuku',city:'Tokyo',cityKo:'도쿄 신주쿠 가부키초',country:'Japan',flag:'🇯🇵',lat:35.6938,lng:139.7034,embedId:'zxSBTz67csI',fallbackId:'dFqCGSN4yiI'},
-  {id:'tokyo-harajuku',city:'Tokyo',cityKo:'도쿄 하라주쿠',country:'Japan',flag:'🇯🇵',lat:35.6702,lng:139.7026,embedId:'KNuHCPAbpnA',fallbackId:'dFqCGSN4yiI'},
-  {id:'tokyo-ginza',city:'Tokyo',cityKo:'도쿄 긴자',country:'Japan',flag:'🇯🇵',lat:35.6717,lng:139.7649,embedId:'dUlBnTMTMxA',fallbackId:'dFqCGSN4yiI'},
-  {id:'tokyo-dome',city:'Tokyo',cityKo:'도쿄돔 시티',country:'Japan',flag:'🇯🇵',lat:35.7056,lng:139.7519,embedId:'KKd1bVQWhLk',fallbackId:'dFqCGSN4yiI'},
-  {id:'sapporo-odori',city:'Sapporo',cityKo:'삿포로 오도리파크',country:'Japan',flag:'🇯🇵',lat:43.0618,lng:141.3545,embedId:'vUQOnPWxBfQ',fallbackId:'dFqCGSN4yiI'},
-  {id:'fukuoka-hakata',city:'Fukuoka',cityKo:'후쿠오카 하카타역',country:'Japan',flag:'🇯🇵',lat:33.5904,lng:130.4200,embedId:'Iio_oaFnZIM',fallbackId:'dFqCGSN4yiI'},
-  {id:'london-abbey-road',city:'London',cityKo:'런던 애비로드',country:'UK',flag:'🇬🇧',lat:51.5320,lng:-0.1778,embedId:'Xq0ElKpFPaQ',fallbackId:'JhF4BDMastU'},
-  {id:'london-tower',city:'London',cityKo:'런던 타워브릿지',country:'UK',flag:'🇬🇧',lat:51.5055,lng:-0.0754,embedId:'JhF4BDMastU',fallbackId:'Xq0ElKpFPaQ'},
-  {id:'dublin-earthcam',city:'Dublin',cityKo:'더블린 시내',country:'Ireland',flag:'🇮🇪',lat:53.3498,lng:-6.2603,embedId:'dY7RHhqQpBo',fallbackId:'JhF4BDMastU'},
-  {id:'venice-rolling',city:'Venice',cityKo:'베네치아 수상 도시',country:'Italy',flag:'🇮🇹',lat:45.4408,lng:12.3155,embedId:'bJ9Bla-YMVE',fallbackId:'JhF4BDMastU'},
-  {id:'rome-colosseum',city:'Rome',cityKo:'로마 콜로세움',country:'Italy',flag:'🇮🇹',lat:41.8902,lng:12.4922,embedId:'AvQDKWKHM3o',fallbackId:'bJ9Bla-YMVE'},
-  {id:'paris-eiffel',city:'Paris',cityKo:'파리 에펠탑',country:'France',flag:'🇫🇷',lat:48.8584,lng:2.2945,
-    sources:[
-      {type:'youtube',embedId:'3_g_Rsn6UHY',label:'Meteo Paris 공식'},
-      {type:'youtube',embedId:'jMBpNMRuFOI',label:'Paris Live Cam'},
-      {type:'iframe',src:'https://www.earthcam.com/france/paris/?cam=eiffeltower',label:'EarthCam 공식 (최고 화질)'},
-      {type:'iframe',src:'https://www.skylinewebcams.com/en/webcam/france/ile-de-france/paris/eiffel-tower.html',label:'SkylineWebcams (유럽 전문)'}
-    ],
-    embedId:'3_g_Rsn6UHY',fallbackId:'jMBpNMRuFOI'},
-  {id:'seoul-namsan',city:'Seoul',cityKo:'서울 남산타워',country:'Korea',flag:'🇰🇷',lat:37.5512,lng:126.9882,embedId:'bQTFX_yBEyA',fallbackId:'VGnFLdQW39A'},
-  {id:'bangkok-sukhumvit',city:'Bangkok',cityKo:'방콕 수쿰빗',country:'Thailand',flag:'🇹🇭',lat:13.7448,lng:100.5350,embedId:'sF9OsNc79jk',fallbackId:'SNggmeilXDQ'},
-  {id:'koh-samui',city:'Koh Samui',cityKo:'코사무이 해변',country:'Thailand',flag:'🇹🇭',lat:9.5120,lng:100.0136,embedId:'kzKCxPL1gNs',fallbackId:'sF9OsNc79jk'},
-  {id:'davao-street',city:'Davao',cityKo:'다바오 거리',country:'Philippines',flag:'🇵🇭',lat:7.1907,lng:125.4553,embedId:'BUVPF7ZLSec',fallbackId:'sF9OsNc79jk'},
-  {id:'taiwan-daxi',city:'Daxi',cityKo:'타이완 다시 올드스트리트',country:'Taiwan',flag:'🇹🇼',lat:24.8887,lng:121.2876,embedId:'fBMFWVRoMHk',fallbackId:'dFqCGSN4yiI'},
-  {id:'canmore-mainstreet',city:'Canmore',cityKo:'캐나다 캔모어',country:'Canada',flag:'🇨🇦',lat:51.0894,lng:-115.3596,embedId:'N7NrXNdKliM',fallbackId:'VGnFLdQW39A'},
-  {id:'jamaica-ocho-rios',city:'Ocho Rios',cityKo:'자메이카 오초리오스',country:'Jamaica',flag:'🇯🇲',lat:18.4070,lng:-77.1037,embedId:'z3rD9GSnNFQ',fallbackId:'VGnFLdQW39A'},
-  {id:'earthtv-world',city:'World',cityKo:'전세계 어스TV',country:'Global',flag:'🌍',lat:0,lng:0,embedId:'rFa29sFogIY',fallbackId:'VGnFLdQW39A'}
+  {id:'nyc-timesquare',city:'New York',cityKo:'뉴욕 타임스퀘어',country:'USA',flag:'🇺🇸',lat:40.7580,lng:-73.9855,embedId:'VGnFLdQW39A',fallbackId:null},
+  {id:'nyc-earthcam',city:'New York',cityKo:'뉴욕 EarthCam',country:'USA',flag:'🇺🇸',lat:40.7579,lng:-73.9854,embedId:'wLIgJSCnLrk',fallbackId:'VGnFLdQW39A'},
+  {id:'houston-skyline',city:'Houston',cityKo:'휴스턴',country:'USA',flag:'🇺🇸',lat:29.7604,lng:-95.3698,embedId:'fix2LD9onS0',fallbackId:'VGnFLdQW39A'},
+  {id:'tokyo-shibuya',city:'Tokyo',cityKo:'도쿄 시부야',country:'Japan',flag:'🇯🇵',lat:35.6595,lng:139.7004,embedId:'dFqCGSN4yiI',fallbackId:null},
+  {id:'tokyo-shinjuku',city:'Tokyo',cityKo:'도쿄 신주쿠',country:'Japan',flag:'🇯🇵',lat:35.6938,lng:139.7034,embedId:'aSXE1ZBkRiI',fallbackId:'dFqCGSN4yiI'},
+  {id:'london-abbey-road',city:'London',cityKo:'런던 애비로드',country:'UK',flag:'🇬🇧',lat:51.5320,lng:-0.1778,embedId:'Xq0ElKpFPaQ',fallbackId:null},
+  {id:'dublin-earthcam',city:'Dublin',cityKo:'더블린',country:'Ireland',flag:'🇮🇪',lat:53.3498,lng:-6.2603,embedId:'dY7RHhqQpBo',fallbackId:null},
+  {id:'venice-rolling',city:'Venice',cityKo:'베네치아',country:'Italy',flag:'🇮🇹',lat:45.4408,lng:12.3155,embedId:'bJ9Bla-YMVE',fallbackId:null},
+  {id:'paris-eiffel',city:'Paris',cityKo:'파리 에펠탑',country:'France',flag:'🇫🇷',lat:48.8584,lng:2.2945,embedId:'3_g_Rsn6UHY',fallbackId:'jMBpNMRuFOI'},
+  {id:'seoul-namsan',city:'Seoul',cityKo:'서울 남산',country:'Korea',flag:'🇰🇷',lat:37.5512,lng:126.9882,embedId:'bQTFX_yBEyA',fallbackId:null},
+  {id:'bangkok-sukhumvit',city:'Bangkok',cityKo:'방콕 수쿰빗',country:'Thailand',flag:'🇹🇭',lat:13.7448,lng:100.5350,embedId:'sF9OsNc79jk',fallbackId:null},
+  {id:'jamaica-ocho-rios',city:'Ocho Rios',cityKo:'자메이카',country:'Jamaica',flag:'🇯🇲',lat:18.4070,lng:-77.1037,embedId:'z3rD9GSnNFQ',fallbackId:'VGnFLdQW39A'}
 ];
 
 // 라디오 탭의 Three.js 지구본(scene/globe/cam/ren 등)을 그대로 재사용한다. 웹캠 점은
@@ -1520,206 +1493,145 @@ function buildLiveDots(){
   for(var i=0;i<webcamData.length;i++){
     var w=webcamData[i];
     var pos=ll2v(w.lat,w.lng,1.018);
-    var m=new THREE.Mesh(new THREE.SphereGeometry(dotR,16,16),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,depthWrite:false}));
-    m.position.copy(pos);m.userData={index:i,webcam:w};m.visible=false;
+    var m=new THREE.Mesh(new THREE.SphereGeometry(dotR,16,16),new THREE.MeshBasicMaterial({color:0x4da6ff,transparent:true,depthWrite:false}));
+    m.position.copy(pos);m.userData={index:i,webcam:w};
     globe.add(m);
     var hit=new THREE.Mesh(new THREE.SphereGeometry(hitR,8,8),new THREE.MeshBasicMaterial({visible:false}));
-    hit.position.copy(pos);hit.userData={index:i,webcam:w,visualDot:m};hit.visible=false;
+    hit.position.copy(pos);hit.userData={index:i,webcam:w,visualDot:m};
     globe.add(hit);
     liveDots.push(hit);
   }
 }
 
-function handleLiveTap(cx,cy){
-  var rect=ren.domElement.getBoundingClientRect();
-  mXY.x=((cx-rect.left)/rect.width)*2-1;
-  mXY.y=-((cy-rect.top)/rect.height)*2+1;
-  ray.setFromCamera(mXY,cam);
-  var hits=ray.intersectObjects(liveDots).filter(function(h){return isPointVisibleFromCamera(h.point);});
-  if(hits.length)playWebcam(hits[0].object.userData.index);
-}
-
-// 마우스 호버 시 흰 점을 노란색으로 바꾼다(터치 기기에는 hover 개념이 없어 자연히 영향 없음).
+// 마우스 호버 시 파란 점을 노란색으로 바꾼다(터치 기기에는 hover 개념이 없어 자연히 영향 없음).
 function checkLiveHover(e){
-  if(ST.mode!=='live'||drag)return;
+  if(!ST.webcamPanelOpen||drag)return;
   var rect=ren.domElement.getBoundingClientRect();
   mXY.x=((e.clientX-rect.left)/rect.width)*2-1;
   mXY.y=-((e.clientY-rect.top)/rect.height)*2+1;
   ray.setFromCamera(mXY,cam);
   var hits=ray.intersectObjects(liveDots).filter(function(h){return isPointVisibleFromCamera(h.point);});
   var hitDot=hits.length?hits[0].object.userData.visualDot:null;
-  if(_liveHoverDot&&_liveHoverDot!==hitDot){_liveHoverDot.material.color.setHex(0xffffff);_liveHoverDot=null;}
+  if(_liveHoverDot&&_liveHoverDot!==hitDot){
+    var hoverWebcam=_liveHoverDot.userData&&_liveHoverDot.userData.webcam;
+    var hoverSelected=currentWebcam&&hoverWebcam&&currentWebcam.id===hoverWebcam.id;
+    _liveHoverDot.material.color.setHex(hoverSelected?0xffd700:0x4da6ff);
+    _liveHoverDot=null;
+  }
   if(hitDot&&hitDot!==_liveHoverDot){hitDot.material.color.setHex(0xffd700);_liveHoverDot=hitDot;}
 }
 
-function renderLivePill(){
-  var el=document.getElementById('live-pill');
-  if(!el)return;
-  el.textContent='📹 '+webcamData.length+t('liveHint');
-}
-
-// webcamData 항목을 "시도할 소스 목록"으로 정규화한다. sources 배열이 있으면(파리 등
-// 다중 소스) 그걸 그대로 쓰고, 없으면 embedId→fallbackId 순서의 2단계 목록으로 만든다.
-// 이렇게 하나로 합쳐두면 아래 tryLoadSource()가 단일/다중 소스를 구분할 필요 없이
-// 똑같은 재귀 로직 하나로 "순서대로 시도 → 다 실패하면 안내" 흐름을 처리할 수 있다.
-function getWebcamSources(w){
-  if(w.sources&&w.sources.length)return w.sources;
-  var arr=[{type:'youtube',embedId:w.embedId}];
-  if(w.fallbackId)arr.push({type:'youtube',embedId:w.fallbackId});
-  return arr;
-}
-
-function buildYoutubeEmbedSrc(youtubeId){
-  return 'https://www.youtube.com/embed/'+youtubeId+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1&fs=1';
-}
-
-function playWebcam(index){
-  if(index<0||index>=webcamData.length)return;
-  ST.liveIndex=index;
-  var w=webcamData[index];
-  flyTo(w.lat,w.lng,1.8);
-  var lang=resolveLang(ST.lang);
-  document.getElementById('live-ctrl-city').textContent=w.flag+' '+(lang==='ko'?w.cityKo:w.city);
-  loadWebcam(w);
-  document.getElementById('live-video-wrap').classList.add('open');
-  document.getElementById('live-collapse-btn').textContent='접기';
-}
-
-// 현재 소스 인덱스 추적(작업지시서 3번 로직)
-var currentSourceIndex=0;
+/* WEBCAM PANEL */
 var currentWebcam=null;
-var fallbackTimer=null;
+var currentWebcamIndex=0;
+var _webcamFallbackTimer=null;
 
-function loadWebcam(webcam){
-  currentWebcam=webcam;
-  currentSourceIndex=0;
-  tryLoadSource(webcam,0);
+function updateWebcamMarkers(){
+  liveDots.forEach(function(hit){
+    var dot=hit.userData.visualDot;
+    var isSelected=currentWebcam&&currentWebcam.id===hit.userData.webcam.id;
+    dot.material.color.setHex(isSelected?0xffd700:0x4da6ff);
+  });
 }
 
-// 재생이 안 되면(6초 안에 iframe이 로드되지 않으면) 자동으로 다음 소스를 순서대로
-// 시도하고, 마지막 소스까지 실패하면 "유튜브에서 보기" 안내로 전환한다.
-// 주의: onload는 iframe 문서 자체가 로드되면 호출되므로, YouTube가 "이 동영상은 볼 수
-// 없습니다" 같은 자체 오류 페이지를 보여주는 경우는(네트워크 상으로는 정상 로드) 이
-// 방식으로 감지할 수 없다 — 교차 출처 제한 때문에 부모 페이지가 iframe 내부 내용을
-// 들여다볼 수 없는 브라우저 자체의 한계다. 네트워크 실패/응답 없음은 정상적으로 잡는다.
-function tryLoadSource(webcam,index){
-  var sources=getWebcamSources(webcam);
-  var iframe=document.getElementById('live-iframe');
-  if(index>=sources.length){showLiveFallback(webcam);return;}
-  currentSourceIndex=index;
-  var source=sources[index];
-  iframe.dataset.loaded='false';
-  document.getElementById('live-video-error').classList.remove('show');
-  var lbl=document.getElementById('live-city-label');
-  lbl.removeAttribute('data-i18n');
-  lbl.textContent=t('liveLoading');
-  if(index>0)showToast(t('liveError'));
-  if(source.type==='youtube')iframe.src=buildYoutubeEmbedSrc(source.embedId);
-  else if(source.type==='iframe')iframe.src=source.src;
-  clearTimeout(fallbackTimer);
-  fallbackTimer=setTimeout(function(){
-    if(iframe.dataset.loaded!=='true')tryLoadSource(webcam,index+1);
-  },6000);
-  iframe.onload=function(){
-    iframe.dataset.loaded='true';
-    clearTimeout(fallbackTimer);
-    var lang=resolveLang(ST.lang);
-    lbl.textContent=(lang==='ko'?webcam.cityKo:webcam.city);
-  };
+function openWebcamPanel(){
+  var panel=document.getElementById('webcam-panel');
+  panel.classList.remove('hidden');
+  panel.classList.remove('collapsed');
+  ST.webcamPanelOpen=true;
+  document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',b.dataset.t==='live');});
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){panel.classList.add('show');});
+  });
+  if(!currentWebcam)loadWebcamByIndex(0);
 }
 
-function showLiveFallback(webcam){
-  document.getElementById('live-iframe').src='about:blank';
-  document.getElementById('live-video-error').classList.add('show');
-  var sources=getWebcamSources(webcam);
-  var first=sources[0];
-  document.getElementById('live-fallback-link').href=first.type==='youtube'?('https://www.youtube.com/watch?v='+first.embedId):first.src;
+function closeWebcamPanel(){
+  var panel=document.getElementById('webcam-panel');
+  panel.classList.remove('show');
+  ST.webcamPanelOpen=false;
+  // hover dot 초기화
+  if(_liveHoverDot){_liveHoverDot.material.color.setHex(0x4da6ff);_liveHoverDot=null;}
+  document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',b.dataset.t==='globe');});
+  setTimeout(function(){
+    panel.classList.add('hidden');
+    var iframe=document.getElementById('webcam-iframe');
+    if(iframe)iframe.src='';
+    clearTimeout(_webcamFallbackTimer);
+  },350);
 }
 
-function prevWebcam(){
-  playWebcam(ST.liveIndex<0?0:(ST.liveIndex-1+webcamData.length)%webcamData.length);
-}
-function nextWebcam(){
-  playWebcam(ST.liveIndex<0?0:(ST.liveIndex+1)%webcamData.length);
-}
-
-function toggleLiveCollapse(){
-  var wrap=document.getElementById('live-video-wrap');
-  var btn=document.getElementById('live-collapse-btn');
-  if(wrap.classList.contains('open')){
-    wrap.classList.remove('open');
-    document.getElementById('live-iframe').src='about:blank';
-    clearTimeout(fallbackTimer);
-    btn.textContent='펼치기';
-  }else if(ST.liveIndex>=0){
-    loadWebcam(webcamData[ST.liveIndex]);
-    wrap.classList.add('open');
-    btn.textContent='접기';
+function toggleWebcamCollapse(){
+  var panel=document.getElementById('webcam-panel');
+  var btn=document.getElementById('webcam-collapse-btn');
+  var collapsed=panel.classList.toggle('collapsed');
+  btn.textContent=collapsed?'펼치기':'접기';
+  if(collapsed){
+    var iframe=document.getElementById('webcam-iframe');
+    if(iframe)iframe.src='';
+    clearTimeout(_webcamFallbackTimer);
+  } else if(currentWebcam){
+    loadWebcamSrc(currentWebcam);
   }
 }
 
-function closeLiveVideo(){
-  document.getElementById('live-video-wrap').classList.remove('open');
-  document.getElementById('live-iframe').src='about:blank';
-  document.getElementById('live-video-error').classList.remove('show');
-  clearTimeout(fallbackTimer);
-  ST.liveIndex=-1;
-  currentWebcam=null;
-  var lbl=document.getElementById('live-city-label');
-  lbl.setAttribute('data-i18n','liveLoading');
-  lbl.textContent=t('liveLoading');
-  document.getElementById('live-ctrl-city').textContent='-';
-  document.getElementById('live-collapse-btn').textContent='접기';
+function loadWebcamByIndex(index){
+  if(index<0||index>=webcamData.length)return;
+  currentWebcamIndex=index;
+  var webcam=webcamData[index];
+  currentWebcam=webcam;
+  var lang=resolveLang(ST.lang);
+  var cityEl=document.getElementById('webcam-city-label');
+  var countryEl=document.getElementById('webcam-country-label');
+  var navEl=document.getElementById('webcam-nav-label');
+  if(cityEl)cityEl.textContent=(lang==='ko'?webcam.cityKo:webcam.city);
+  if(countryEl)countryEl.textContent=webcam.flag+' '+webcam.country;
+  if(navEl)navEl.textContent=(index+1)+' / '+webcamData.length;
+  updateWebcamMarkers();
+  loadWebcamSrc(webcam);
+  if(webcam.lat&&webcam.lng)flyTo(webcam.lat,webcam.lng,1.8);
 }
 
-// 라디오 탭(#player, 방송국 점, 필터 바 등)과 라이브캠 탭은 같은 지구본/캔버스를 공유하므로
-// .tab 오버레이를 여는 대신 지구본 위에 보여줄 점 데이터와 하단 바만 서로 바꿔치기한다.
-// 라디오 방송국 점/웹캠 점 표시를 서로 독립적인 이름의 함수로 분리했다. buildDots()가
-// 방송국 데이터를 새로 불러와 점을 다시 만들 때도(라이브 탭을 보고 있는 도중에 전세계
-// 방송국 로딩이 뒤늦게 끝나는 경우 포함) 이 함수들을 통해 항상 현재 모드에 맞는
-// 표시 상태로 즉시 맞춰준다.
-function hideRadioMarkers(){
-  ST.dots.forEach(function(hit){hit.userData.visualDot.visible=false;});
-  if(nowPlayingMarker)nowPlayingMarker.visible=false;
-}
-function showRadioMarkers(){
-  ST.dots.forEach(function(hit){hit.userData.visualDot.visible=true;});
-  if(ST.current)updateNowPlayingMarker(ST.current);
-}
-function hideWebcamMarkers(){
-  liveDots.forEach(function(hit){hit.visible=false;hit.userData.visualDot.visible=false;});
-  if(_liveHoverDot){_liveHoverDot.material.color.setHex(0xffffff);_liveHoverDot=null;}
-}
-function showWebcamMarkers(){
-  liveDots.forEach(function(hit){hit.visible=true;hit.userData.visualDot.visible=true;});
+// onload는 iframe 문서 자체가 로드되면 호출되므로, YouTube가 "이 동영상은 볼 수 없습니다"
+// 같은 자체 오류 페이지를 보여주는 경우는(네트워크 상으로는 정상 로드) 감지할 수 없다 —
+// 교차 출처 제한 때문에 부모 페이지가 iframe 내부를 들여다볼 수 없는 브라우저 자체의 한계.
+function loadWebcamSrc(webcam){
+  var iframe=document.getElementById('webcam-iframe');
+  var loading=document.getElementById('webcam-loading');
+  var fallback=document.getElementById('webcam-fallback');
+  if(!iframe)return;
+  iframe.src='';
+  if(loading)loading.style.display='flex';
+  if(fallback)fallback.classList.remove('show');
+  iframe.dataset.loaded='false';
+  iframe.src='https://www.youtube.com/embed/'+webcam.embedId+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1';
+  clearTimeout(_webcamFallbackTimer);
+  _webcamFallbackTimer=setTimeout(function(){
+    if(iframe.dataset.loaded!=='true'){
+      if(webcam.fallbackId){
+        iframe.src='https://www.youtube.com/embed/'+webcam.fallbackId+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1';
+      } else {
+        if(loading)loading.style.display='none';
+        if(fallback){
+          fallback.classList.add('show');
+          var link=document.getElementById('webcam-fallback-link');
+          if(link)link.href='https://www.youtube.com/watch?v='+webcam.embedId;
+        }
+      }
+    }
+  },6000);
+  iframe.onload=function(){
+    iframe.dataset.loaded='true';
+    clearTimeout(_webcamFallbackTimer);
+    if(loading)loading.style.display='none';
+  };
 }
 
-function enterLiveMode(){
-  ST.mode='live';
-  document.getElementById('filter-bar').style.display='none';
-  document.getElementById('filter-info').style.display='none';
-  document.getElementById('side-btns').style.display='none';
-  document.getElementById('center-ring').style.display='none';
-  document.getElementById('player').style.display='none';
-  document.getElementById('live-topbar').style.display='block';
-  document.getElementById('live-player-bar').style.display='block';
-  renderLivePill();
-  buildLiveDots();
-  hideRadioMarkers();
-  showWebcamMarkers();
+function prevWebcam(){
+  loadWebcamByIndex((currentWebcamIndex-1+webcamData.length)%webcamData.length);
 }
-function exitLiveMode(){
-  ST.mode='radio';
-  closeLiveVideo();
-  document.getElementById('filter-bar').style.display='';
-  document.getElementById('filter-info').style.display='';
-  document.getElementById('side-btns').style.display='';
-  document.getElementById('center-ring').style.display='';
-  document.getElementById('player').style.display='';
-  document.getElementById('live-topbar').style.display='none';
-  document.getElementById('live-player-bar').style.display='none';
-  hideWebcamMarkers();
-  showRadioMarkers();
+function nextWebcam(){
+  loadWebcamByIndex((currentWebcamIndex+1)%webcamData.length);
 }
 
 /* SETTINGS */
@@ -1892,15 +1804,13 @@ function refreshDynamicUI(){
   if(_tabLofiEl2&&_tabLofiEl2.classList.contains('open'))renderMoodRow();
   renderFeaturedStations();
   renderFilterBar();
-  renderLivePill();
-  // 라이브 탭에서 재생 중인 웹캠이 있으면 도시명 표시도 현재 언어(한국어면 cityKo, 그 외엔
-  // 영문 city)에 맞춰 다시 그린다.
+  // 웹캠 패널이 열려있는 동안 언어 변경 시 도시명을 즉시 현재 언어로 다시 그린다.
   if(currentWebcam){
-    var _liveLang=resolveLang(ST.lang);
-    document.getElementById('live-ctrl-city').textContent=currentWebcam.flag+' '+(_liveLang==='ko'?currentWebcam.cityKo:currentWebcam.city);
-    if(document.getElementById('live-iframe').dataset.loaded==='true'){
-      document.getElementById('live-city-label').textContent=(_liveLang==='ko'?currentWebcam.cityKo:currentWebcam.city);
-    }
+    var _wcLang=resolveLang(ST.lang);
+    var _wcCity=document.getElementById('webcam-city-label');
+    if(_wcCity)_wcCity.textContent=(_wcLang==='ko'?currentWebcam.cityKo:currentWebcam.city);
+    var _wcNav=document.getElementById('webcam-nav-label');
+    if(_wcNav)_wcNav.textContent=(currentWebcamIndex+1)+' / '+webcamData.length;
   }
   if(document.getElementById('sheet').classList.contains('open')&&ST.currentCluster){
     document.getElementById('sh-meta').textContent=t('stationCount',{n:ST.currentCluster.stations.length});
@@ -1934,15 +1844,30 @@ function setDotSize(s){
 
 /* TABS */
 function switchTab(t){
-  // tab-lofi는 라이브캠 탭으로 교체되며 HTML이 주석 처리되어 더 이상 존재하지 않는다.
-  // getElementById가 null을 반환하므로 존재할 때만 조회한다(엘리먼트 자체는 남아있는 채로
-  // 재활성화될 수 있으니 함수 자체는 그대로 둔다).
   var _tabLofiEl=document.getElementById('tab-lofi');
   if(t!=='lofi'&&_tabLofiEl&&_tabLofiEl.classList.contains('open'))stopLofiPlayback();
+  // 라이브 버튼: 패널 토글 (전체화면 모드 전환 없이 슬라이드 업/다운)
+  if(t==='live'){
+    if(ST.webcamPanelOpen){closeWebcamPanel();}
+    else{
+      // 전체화면 탭이 열려있으면 먼저 닫기
+      document.querySelectorAll('.tab').forEach(function(p){p.classList.remove('open');});
+      openWebcamPanel();
+    }
+    return;
+  }
+  // 다른 탭 열 때 웹캠 패널이 있으면 즉시 숨김(전체화면 탭이 패널보다 z-index 낮아서 가려짐 방지)
+  if(ST.webcamPanelOpen&&t!=='globe'){
+    var _panel=document.getElementById('webcam-panel');
+    _panel.classList.remove('show');
+    _panel.classList.add('hidden');
+    var _iframe=document.getElementById('webcam-iframe');
+    if(_iframe)_iframe.src='';
+    clearTimeout(_webcamFallbackTimer);
+    ST.webcamPanelOpen=false;
+  }
   document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',b.dataset.t===t);});
   document.querySelectorAll('.tab').forEach(function(p){p.classList.remove('open');});
-  if(t==='live'){enterLiveMode();return;}
-  if(ST.mode==='live')exitLiveMode();
   if(t==='globe')return;
   document.getElementById('tab-'+t).classList.add('open');
   if(t==='fav')renderFav();
@@ -1979,6 +1904,7 @@ var _threeReady=false;
 try{
   initGlobe();
   cam.position.z=12;
+  buildLiveDots(); // 파란 웹캠 점들을 앱 시작부터 지구본에 표시
   _threeReady=true;
 }catch(err){
   console.error('3D 지구본 초기화 실패:',err);
