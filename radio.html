@@ -1374,7 +1374,7 @@ var webcamData=[
     sources:[{type:'youtube_video',id:'_Hot1aH7W_E'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
   // 🇺🇸 라스베이거스
   {id:'lasvegas-bellagio',city:'Las Vegas',cityKo:'라스베이거스 벨라지오',country:'USA',flag:'🇺🇸',lat:36.1126,lng:-115.1767,
-    sources:[{type:'youtube_video',id:'KJuGU7v5oYw'},{type:'youtube_video',id:'M1ThjawPug8'}]},
+    sources:[{type:'youtube_video',id:'KJuGU7v5oYw'},{type:'youtube_video',id:'M1ThjawPug8'},{type:'youtube_video',id:'_rmUXOHSf0w'}]},
   {id:'lasvegas-fremont',city:'Las Vegas',cityKo:'라스베이거스 프리몬트',country:'USA',flag:'🇺🇸',lat:36.1699,lng:-115.1420,
     sources:[{type:'youtube_video',id:'2-WiWMLgfBs'},{type:'youtube_video',id:'iJ4cQs4Y-zU'}]},
   // 🇺🇸 뉴올리언스
@@ -1445,7 +1445,16 @@ var webcamData=[
     sources:[{type:'youtube_video',id:'LqKhGIGQd7A'},{type:'youtube_channel',id:'UC2WMV4vCYurHdHPd9pCqYSg'}]},
   // 🇯🇲 자메이카
   {id:'jamaica',city:'Ocho Rios',cityKo:'자메이카',country:'Jamaica',flag:'🇯🇲',lat:18.4070,lng:-77.1037,
-    sources:[{type:'youtube_video',id:'z3rD9GSnNFQ'},{type:'youtube_video',id:'Q0uLV52xGZE'}]}
+    sources:[{type:'youtube_video',id:'z3rD9GSnNFQ'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
+  // 🇺🇸 알래스카
+  {id:'alaska-bear',city:'Katmai Alaska',cityKo:'알래스카 곰 낚시',country:'USA',flag:'🇺🇸',lat:58.5554,lng:-155.0668,
+    sources:[{type:'youtube_video',id:'q3VZf8QDYNY'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
+  // 🇺🇸 옐로스톤
+  {id:'yellowstone',city:'Yellowstone',cityKo:'옐로스톤 올드페이스풀',country:'USA',flag:'🇺🇸',lat:44.4605,lng:-110.8281,
+    sources:[{type:'youtube_video',id:'gNMPFM3AHHU'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
+  // 🇿🇦 남아프리카
+  {id:'africa-wildlife',city:'Kruger Park',cityKo:'아프리카 야생동물',country:'South Africa',flag:'🇿🇦',lat:-24.0,lng:31.5,
+    sources:[{type:'youtube_video',id:'ydYDqZQpkd4'},{type:'youtube_video',id:'Q0uLV52xGZE'}]}
 ];
 
 // 라디오 탭의 Three.js 지구본(scene/globe/cam/ren 등)을 그대로 재사용한다. 웹캠 점은
@@ -1583,6 +1592,16 @@ function clearWebcamFailCache(){
   if(typeof updateWebcamMarkers==='function')updateWebcamMarkers();
 }
 
+async function isYoutubeEmbeddable(videoId){
+  try{
+    const res=await fetch(
+      'https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v='+videoId+'&format=json',
+      {method:'GET'}
+    );
+    return res.ok;
+  }catch(e){return true;}
+}
+
 async function loadWebcamSrc(webcam){
   const iframe=document.getElementById('webcam-iframe');
   const loading=document.getElementById('webcam-loading');
@@ -1631,14 +1650,25 @@ async function trySourcesInOrder(webcam,sources,index){
   if(index>=sources.length)return false;
   const iframe=document.getElementById('webcam-iframe');
   const source=sources[index];
+
+  if(source.type==='youtube_video'){
+    const embeddable=await isYoutubeEmbeddable(source.id);
+    if(!embeddable){
+      markSourceFailed(webcam.id+'_'+(source.id||''));
+      return await trySourcesInOrder(webcam,sources,index+1);
+    }
+  }
+
   iframe.src=buildSourceUrl(source);
   iframe.dataset.loaded='false';
-  const success=await waitForIframe(iframe,7000);
+
+  const success=await waitForIframe(iframe,8000);
   if(success){
     const loading=document.getElementById('webcam-loading');
     if(loading)loading.style.display='none';
     return true;
   }
+
   markSourceFailed(webcam.id+'_'+(source.id||source.url||''));
   return await trySourcesInOrder(webcam,sources,index+1);
 }
