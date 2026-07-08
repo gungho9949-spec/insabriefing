@@ -602,9 +602,13 @@ function handleTap(cx,cy){
   if(liveDots.length){
     var lhits=ray.intersectObjects(liveDots).filter(function(h){return isPointVisibleFromCamera(h.point);});
     if(lhits.length){
-      var widx=lhits[0].object.userData.index;
+      var hitObj=lhits[0].object;
       if(!isWebcamOpen)openWebcamPanel();
-      loadWebcamByIndex(widx);
+      if(hitObj.userData.isWindy){
+        loadWindyWebcamByIndex(hitObj.userData.index);
+      }else{
+        loadWebcamByIndex(hitObj.userData.index);
+      }
       return;
     }
   }
@@ -1462,6 +1466,102 @@ var webcamData=[
 var liveDots=[];
 var _liveHoverDot=null;
 
+var windyWebcams=[];
+var windyLiveDots=[];
+var currentWindyWebcam=null;
+var currentWindyIndex=0;
+
+async function loadDynamicWindyWebcams(){
+  var CACHE_KEY='wp_windy_dynamic_v1';
+  var EXPIRE=6*60*60*1000;
+  try{
+    var cached=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
+    if(cached&&Date.now()-cached.ts<EXPIRE&&cached.data.length>50){
+      windyWebcams=cached.data;
+      buildWindyDots();
+      console.log('[Windy Dynamic] 캐시에서 로드:',windyWebcams.length+'개');
+      return;
+    }
+  }catch(e){}
+  var allCams=[];
+  var offsets=[0,50,100,150,200,250];
+  for(var i=0;i<offsets.length;i++){
+    try{
+      var url='https://api.windy.com/webcams/api/v3/webcams'
+        +'?limit=50&offset='+offsets[i]
+        +'&orderby=popularity'
+        +'&include=player,location'
+        +'&key='+WINDY_API_KEY;
+      var res=await fetch(url);
+      var data=await res.json();
+      if(!data.webcams||!data.webcams.length)break;
+      data.webcams.forEach(function(cam){
+        if(cam.player&&cam.player.live&&cam.player.live.available&&cam.player.live.embed){
+          if(cam.location&&cam.location.latitude&&cam.location.longitude){
+            allCams.push({
+              id:'windy-'+cam.webcamId,
+              webcamId:cam.webcamId,
+              city:cam.location.city||cam.title||'Unknown',
+              cityKo:cam.location.city||cam.title||'Unknown',
+              country:cam.location.country||'',
+              flag:getCountryFlag(cam.location.country||''),
+              lat:cam.location.latitude,
+              lng:cam.location.longitude,
+              embedUrl:cam.player.live.embed,
+              title:cam.title||''
+            });
+          }
+        }
+      });
+      if(i<offsets.length-1)await new Promise(function(r){setTimeout(r,300);});
+    }catch(e){console.warn('[Windy Dynamic] 요청 실패 offset='+offsets[i],e);}
+  }
+  if(allCams.length>0){
+    windyWebcams=allCams;
+    buildWindyDots();
+    try{localStorage.setItem(CACHE_KEY,JSON.stringify({ts:Date.now(),data:allCams}));}catch(e){}
+    console.log('[Windy Dynamic] 로드 완료:',windyWebcams.length+'개');
+  }
+}
+
+function getCountryFlag(countryCode){
+  if(!countryCode||countryCode.length!==2)return '🌐';
+  var code=countryCode.toUpperCase();
+  return String.fromCodePoint(code.charCodeAt(0)+127397,code.charCodeAt(1)+127397);
+}
+
+function buildWindyDots(){
+  windyLiveDots.forEach(function(hit){globe.remove(hit.userData.visualDot);globe.remove(hit);});
+  windyLiveDots=[];
+  var dotR=getDotRadius()*1.6;
+  var hitR=dotR*5;
+  windyWebcams.forEach(function(w,i){
+    var pos=ll2v(w.lat,w.lng,1.018);
+    var m=new THREE.Mesh(
+      new THREE.SphereGeometry(dotR,16,16),
+      new THREE.MeshBasicMaterial({color:0x00bfff,transparent:true,depthWrite:false})
+    );
+    m.position.copy(pos);
+    m.userData={index:i,webcam:w,visualDot:m};
+    globe.add(m);
+    var hit=new THREE.Mesh(
+      new THREE.SphereGeometry(hitR,8,8),
+      new THREE.MeshBasicMaterial({visible:false})
+    );
+    hit.position.copy(pos);
+    hit.userData={index:i,webcam:w,visualDot:m,isWindy:true};
+    globe.add(hit);
+    windyLiveDots.push(hit);
+  });
+  rebuildAllLiveDots();
+}
+
+function rebuildAllLiveDots(){
+  liveDots.length=0;
+  buildLiveDots();
+  windyLiveDots.forEach(function(d){liveDots.push(d);});
+}
+
 function buildLiveDots(){
   if(liveDots.length)return; // 정적 데이터라 한 번만 만들면 된다
   var dotR=getDotRadius()*1.8,hitR=dotR*4;
@@ -1568,6 +1668,42 @@ function loadWebcamByIndex(index){
   updateWebcamMarkers();
   loadWebcamSrc(webcam);
   if(webcam.lat&&webcam.lng)flyTo(webcam.lat,webcam.lng,1.8);
+}
+
+function loadWindyWebcamByIndex(index){
+  if(index<0||index>=windyWebcams.length)return;
+  currentWindyIndex=index;
+  var w=windyWebcams[index];
+  currentWindyWebcam=w;
+  currentWebcam=null;
+
+  var lang=resolveLang(ST.lang);
+  var cityEl=document.getElementById('webcam-city-label');
+  var flagEl=document.getElementById('webcam-flag-label');
+  var navEl=document.getElementById('webcam-nav-index');
+  if(cityEl)cityEl.textContent=w.city;
+  if(flagEl)flagEl.textContent=w.flag+' '+w.country;
+  if(navEl)navEl.textContent='LIVE '+(index+1)+' / '+windyWebcams.length;
+
+  windyLiveDots.forEach(function(hit){
+    var dot=hit.userData.visualDot;
+    var isSelected=hit.userData.index===index;
+    dot.material.color.setHex(isSelected?0xff3333:0x00bfff);
+  });
+
+  var iframe=document.getElementById('webcam-iframe');
+  var loading=document.getElementById('webcam-loading');
+  var credit=document.getElementById('webcam-credit');
+  if(loading)loading.style.display='flex';
+  iframe.src='';
+  iframe.onload=function(){
+    if(loading)loading.style.display='none';
+    iframe.dataset.loaded='true';
+  };
+  iframe.src=w.embedUrl;
+  if(credit)credit.classList.remove('hidden');
+
+  if(w.lat&&w.lng)flyTo(w.lat,w.lng,1.8);
 }
 
 function hideWebcamMarker(webcamId){
@@ -1748,10 +1884,18 @@ function tryWebcamSource(webcam,index){
 }
 
 function prevWebcam(){
-  loadWebcamByIndex((currentWebcamIndex-1+webcamData.length)%webcamData.length);
+  if(currentWindyWebcam){
+    loadWindyWebcamByIndex((currentWindyIndex-1+windyWebcams.length)%windyWebcams.length);
+  }else{
+    loadWebcamByIndex((currentWebcamIndex-1+webcamData.length)%webcamData.length);
+  }
 }
 function nextWebcam(){
-  loadWebcamByIndex((currentWebcamIndex+1)%webcamData.length);
+  if(currentWindyWebcam){
+    loadWindyWebcamByIndex((currentWindyIndex+1)%windyWebcams.length);
+  }else{
+    loadWebcamByIndex((currentWebcamIndex+1)%webcamData.length);
+  }
 }
 
 /* SETTINGS */
@@ -2030,6 +2174,7 @@ function enterApp(){
     showToast(t('toastWebglError'));
     return;
   }
+  setTimeout(function(){loadDynamicWindyWebcams();},2000);
   // loadStations()는 GPS 결과(성공/실패 어느 쪽이든)가 확정된 "뒤에"만 호출한다.
   // 예전에는 GPS 콜백과 상관없이 곧바로 loadStations()를 불러서, 그 시점에 아직
   // ST.hasGPS가 true가 되기 전이라 "내 지역" 조회가 항상 한국(KR) 기준으로
