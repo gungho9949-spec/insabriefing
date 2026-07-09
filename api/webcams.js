@@ -36,10 +36,9 @@ export default async function handler(req, res) {
     const allCams = results
       .filter(r => r.status === 'fulfilled')
       .flatMap(r => r.value)
-      // player.live는 문자열 URL
+      // player.live 우선, 없으면 player.day 폴백
       .filter(cam =>
-        typeof cam.player?.live === 'string' &&
-        cam.player.live.length > 0 &&
+        (cam.player?.live || cam.player?.day) &&
         cam.location?.latitude &&
         cam.location?.longitude
       )
@@ -50,7 +49,7 @@ export default async function handler(req, res) {
         country: cam.location?.country || '',
         lat: cam.location.latitude,
         lng: cam.location.longitude,
-        embed: cam.player.live,
+        embed: cam.player.live || cam.player.day,
         hls: cam.urls?.hls || null
       }));
 
