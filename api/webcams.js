@@ -3,38 +3,45 @@ export default async function handler(req, res) {
   const headers = { 'x-windy-api-key': WINDY_KEY };
 
   try {
-    // 여러 include 조합 동시 테스트
-    const [r1, r2, r3] = await Promise.all([
-      fetch('https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=0&orderby=popularity&include=player,location', { headers }).then(r => r.json()),
-      fetch('https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=0&orderby=popularity&include=player,location,urls', { headers }).then(r => r.json()),
-      fetch('https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=0&orderby=popularity&include=player,location,images', { headers }).then(r => r.json()),
-    ]);
+    const offsets = Array.from({length: 20}, (_, i) => i * 50);
 
-    // r1: 기본 player
-    const cams1 = r1.webcams || [];
-    const liveCount1 = cams1.filter(c => c.player?.live).length;
+    const results = await Promise.allSettled(
+      offsets.map(offset =>
+        fetch(
+          'https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=' + offset + '&orderby=popularity&include=player,location',
+          { headers }
+        )
+          .then(r => r.json())
+          .then(d => d.webcams || [])
+          .catch(() => [])
+      )
+    );
 
-    // 첫 번째 응답에서 player 키 종류 수집
-    const allPlayerKeys = [...new Set(cams1.flatMap(c => Object.keys(c.player || {})))];
+    const allCams = results
+      .filter(r => r.status === 'fulfilled')
+      .flatMap(r => r.value)
+      // player.live는 문자열 URL
+      .filter(cam =>
+        typeof cam.player?.live === 'string' &&
+        cam.player.live.length > 0 &&
+        cam.location?.latitude &&
+        cam.location?.longitude
+      )
+      .map(cam => ({
+        id: 'windy-' + cam.webcamId,
+        title: cam.title || '',
+        city: cam.location?.city || cam.title || 'Unknown',
+        country: cam.location?.country || '',
+        lat: cam.location.latitude,
+        lng: cam.location.longitude,
+        embed: cam.player.live
+      }));
 
-    // player.live 가 있는 것 샘플
-    const liveSample = cams1.find(c => c.player?.live);
-
-    // r2: urls 포함
-    const cams2 = r2.webcams || [];
-    const urlSample = cams2[0] ? { urlsKeys: Object.keys(cams2[0].urls || {}), playerKeys: Object.keys(cams2[0].player || {}) } : null;
-
+    res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=3600');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.json({
-      r1_total: cams1.length,
-      r1_liveCount: liveCount1,
-      r1_allPlayerKeys: allPlayerKeys,
-      r1_liveSample: liveSample ? { title: liveSample.title, live: liveSample.player.live } : null,
-      r2_urlSample: urlSample,
-      r1_apiKeys: Object.keys(r1),
-    });
+    res.json({ webcams: allCams, total: allCams.length });
+
   } catch(err) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.status(500).json({ error: err.message, stack: err.stack?.split('\n').slice(0,3) });
+    res.status(500).json({ error: err.message, webcams: [] });
   }
 }
