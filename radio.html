@@ -37,8 +37,8 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 #globe-wrap{flex:1;position:relative;overflow:hidden;cursor:grab;touch-action:none;}
 #globe-wrap:active{cursor:grabbing;}
 #globe-canvas{display:block;width:100%;height:100%;}
-#side-btns{position:fixed;right:16px;top:calc(30% - 80px);transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:10;}
-#side-btns.webcam-open{top:calc(18% - 80px);}
+#side-btns{position:fixed;right:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:10;}
+#side-btns.webcam-open{top:30%;}
 .sbtn{position:relative;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s ease;}
 .sbtn:hover,.sbtn:active{background:rgba(255,255,255,0.15);}
 .sbtn::after{content:attr(data-tip);position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);background:rgba(12,19,32,0.92);color:#fff;font-size:11px;padding:5px 10px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s ease;}
