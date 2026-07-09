@@ -2,6 +2,15 @@ export default async function handler(req, res) {
   const WINDY_KEY = 'pIEIA44iepaxAdnmgy8FS5Stwevgdy1t';
   const headers = { 'x-windy-api-key': WINDY_KEY };
 
+  if (req.query && req.query.debug === '1') {
+    const testUrl = 'https://api.windy.com/webcams/api/v3/webcams?limit=2&orderby=popularity&include=player,location,streams&key=' + WINDY_KEY;
+    const testRes = await fetch(testUrl, { headers: { 'x-windy-api-key': WINDY_KEY } });
+    const testData = await testRes.json();
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.json({ status: testRes.status, data: testData });
+    return;
+  }
+
   try {
     const offsets = Array.from({length: 20}, (_, i) => i * 50);
 
