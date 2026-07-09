@@ -1526,30 +1526,36 @@ var currentWindyWebcam=null;
 var currentWindyIndex=0;
 
 async function loadDynamicWindyWebcams(){
-  var LOCAL_KEY='wp_windy_bulk_v1';
+  var LOCAL_KEY='wp_windy_bulk_v2';
   var EXPIRE=24*60*60*1000;
   try{
     var cached=JSON.parse(localStorage.getItem(LOCAL_KEY)||'null');
     if(cached&&Date.now()-cached.ts<EXPIRE&&cached.data&&cached.data.length>100){
       windyWebcams=cached.data;
       buildWindyDots();
-      console.log('[Windy] 로컬 캐시 로드:',windyWebcams.length+'개');
+      console.log('[Windy] 캐시 로드:',windyWebcams.length+'개');
+      showToast('📹 '+windyWebcams.length+'개 라이브캠 준비됨');
       return;
     }
   }catch(e){}
   try{
+    console.log('[Windy] 서버에서 로딩 시작...');
     showToast('🌍 전세계 라이브캠 로딩 중...');
     var res=await fetch('/api/webcams');
     var data=await res.json();
+    console.log('[Windy] 서버 응답:',data.total+'개');
     if(data.webcams&&data.webcams.length>0){
       windyWebcams=data.webcams;
       buildWindyDots();
       try{localStorage.setItem(LOCAL_KEY,JSON.stringify({ts:Date.now(),data:windyWebcams}));}catch(e){}
       showToast('📹 '+windyWebcams.length+'개 라이브캠 로드 완료!');
-      console.log('[Windy] 서버에서 로드:',windyWebcams.length+'개');
+    }else{
+      console.warn('[Windy] 데이터 없음:',data);
+      showToast('⚠️ 라이브캠 로드 실패 — 나중에 다시 시도');
     }
   }catch(err){
-    console.warn('[Windy] 서버 호출 실패:',err);
+    console.error('[Windy] 호출 실패:',err);
+    showToast('⚠️ 서버 연결 실패: '+err.message);
   }
 }
 
@@ -1560,16 +1566,22 @@ function getCountryFlag(countryCode){
 }
 
 function buildWindyDots(){
+  if(!windyWebcams||!windyWebcams.length){
+    console.warn('[Windy] buildWindyDots: windyWebcams가 비어있음');
+    return;
+  }
   windyLiveDots.forEach(function(hit){
-    if(hit.userData.visualDot)globe.remove(hit.userData.visualDot);
+    if(hit.userData&&hit.userData.visualDot)globe.remove(hit.userData.visualDot);
     globe.remove(hit);
   });
+  liveDots=liveDots.filter(function(d){return !d.userData.isWindy;});
   windyLiveDots=[];
   var dotR=getDotRadius()*1.5;
   var hitR=dotR*5;
+  var added=0;
   windyWebcams.forEach(function(w,i){
-    if(isNaN(w.lat)||isNaN(w.lng))return;
-    var pos=ll2v(w.lat,w.lng,1.018);
+    if(isNaN(parseFloat(w.lat))||isNaN(parseFloat(w.lng)))return;
+    var pos=ll2v(parseFloat(w.lat),parseFloat(w.lng),1.018);
     var m=new THREE.Mesh(
       new THREE.SphereGeometry(dotR,16,16),
       new THREE.MeshBasicMaterial({color:0x00bfff,transparent:true,depthWrite:false})
@@ -1585,11 +1597,10 @@ function buildWindyDots(){
     hit.userData={index:i,webcam:w,visualDot:m,isWindy:true};
     globe.add(hit);
     windyLiveDots.push(hit);
+    liveDots.push(hit);
+    added++;
   });
-  windyLiveDots.forEach(function(d){
-    if(liveDots.indexOf(d)===-1)liveDots.push(d);
-  });
-  console.log('[Windy] 지구본에 점 생성:',windyLiveDots.length+'개');
+  console.log('[Windy] 지구본에 점 추가:',added+'개 (전체 liveDots: '+liveDots.length+'개)');
 }
 
 function rebuildAllLiveDots(){
@@ -1726,7 +1737,7 @@ function loadWindyWebcamByIndex(index){
   var navEl=document.getElementById('webcam-nav-index');
   if(cityEl)cityEl.textContent=w.city;
   if(flagEl)flagEl.textContent=flag+' '+(w.country||'');
-  if(navEl)navEl.textContent=(index+1)+' / '+windyWebcams.length;
+  if(navEl)navEl.textContent=(index+1)+' / '+windyWebcams.length+' (LIVE)';
 
   windyLiveDots.forEach(function(hit){
     var dot=hit.userData.visualDot;
