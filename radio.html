@@ -1354,7 +1354,7 @@ function stopLofiPlayback(){
 var webcamData=[
   // 🇺🇸 뉴욕
   {id:'nyc-timesquare',city:'New York',cityKo:'뉴욕 타임스퀘어',country:'USA',flag:'🇺🇸',lat:40.7580,lng:-73.9855,
-    sources:[{type:'youtube_video',id:'Lr-u3vIZ3KE'},{type:'youtube_video',id:'Q0uLV52xGZE'},{type:'youtube_video',id:'z-jYdOIKcTQ'},{type:'youtube_channel',id:'UC6qrG3W8SMK0jior2olka3g'}]},
+    sources:[{type:'youtube_video',id:'Lr-u3vIZ3KE'},{type:'youtube_video',id:'z-jYdOIKcTQ'},{type:'youtube_video',id:'UVftxDFol90'},{type:'youtube_channel',id:'UC6qrG3W8SMK0jior2olka3g'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
   {id:'nyc-wtc',city:'New York',cityKo:'뉴욕 세계무역센터',country:'USA',flag:'🇺🇸',lat:40.7127,lng:-74.0134,
     sources:[{type:'youtube_video',id:'5C9oM7C2Q9k'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
   {id:'nyc-liberty',city:'New York',cityKo:'뉴욕 자유의 여신상',country:'USA',flag:'🇺🇸',lat:40.6892,lng:-74.0445,
@@ -1412,7 +1412,7 @@ var webcamData=[
     sources:[{type:'youtube_video',id:'IU_-Pl9O5jQ'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
   // 🇨🇦 캐나다
   {id:'niagara-falls',city:'Niagara Falls',cityKo:'나이아가라 폭포',country:'Canada',flag:'🇨🇦',lat:43.0896,lng:-79.0849,
-    sources:[{type:'youtube_video',id:'qx7gry390YA'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
+    sources:[{type:'youtube_video',id:'qx7gry390YA'},{type:'youtube_video',id:'Q0uLV52xGZE'},{type:'youtube_video',id:'tPJSzfW_EQ8'}]},
   // 🇬🇧 영국
   {id:'london-abbey-road',city:'London',cityKo:'런던 애비로드',country:'UK',flag:'🇬🇧',lat:51.5320,lng:-0.1778,
     sources:[{type:'youtube_video',id:'j9Sa4uBGGQ0'},{type:'youtube_video',id:'M3EYAY2MftI'},{type:'youtube_video',id:'j-d93A6v73Q'}]},
@@ -1458,7 +1458,24 @@ var webcamData=[
     sources:[{type:'youtube_video',id:'gNMPFM3AHHU'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
   // 🇿🇦 남아프리카
   {id:'africa-wildlife',city:'Kruger Park',cityKo:'아프리카 야생동물',country:'South Africa',flag:'🇿🇦',lat:-24.0,lng:31.5,
-    sources:[{type:'youtube_video',id:'ydYDqZQpkd4'},{type:'youtube_video',id:'Q0uLV52xGZE'}]}
+    sources:[{type:'youtube_video',id:'ydYDqZQpkd4'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
+  // 🇺🇸 추가
+  {id:'nyc-rockefeller',city:'New York',cityKo:'록펠러센터',country:'USA',flag:'🇺🇸',lat:40.7587,lng:-73.9787,
+    sources:[{type:'youtube_video',id:'lGOtMbGjFpM'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
+  {id:'key-west',city:'Key West',cityKo:'키웨스트 선셋',country:'USA',flag:'🇺🇸',lat:24.5551,lng:-81.7800,
+    sources:[{type:'youtube_video',id:'xREIl9t0Pd0'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
+  {id:'savannah-ga',city:'Savannah',cityKo:'사바나 강변',country:'USA',flag:'🇺🇸',lat:32.0835,lng:-81.0998,
+    sources:[{type:'youtube_video',id:'yt_DwsO6I4'},{type:'youtube_video',id:'Q0uLV52xGZE'}]},
+  {id:'chicago-riverwalk',city:'Chicago',cityKo:'시카고 리버워크',country:'USA',flag:'🇺🇸',lat:41.8858,lng:-87.6181,
+    sources:[{type:'youtube_video',id:'QHUNW6pVNIk'},{type:'youtube_video',id:'O0UGT7AT3aw'}]},
+  // 🇬🇧 추가
+  {id:'london-piccadilly',city:'London',cityKo:'피카딜리 서커스',country:'UK',flag:'🇬🇧',lat:51.5099,lng:-0.1337,
+    sources:[{type:'youtube_video',id:'r7FeHfNHKkE'},{type:'youtube_video',id:'M3EYAY2MftI'}]},
+  {id:'belfast',city:'Belfast',cityKo:'벨파스트',country:'UK',flag:'🇬🇧',lat:54.5973,lng:-5.9301,
+    sources:[{type:'youtube_video',id:'iYpEI0RPTJU'},{type:'youtube_channel',id:'UC6qrG3W8SMK0jior2olka3g'}]},
+  // 🇮🇱 추가
+  {id:'tel-aviv',city:'Tel Aviv',cityKo:'텔아비브 해변',country:'Israel',flag:'🇮🇱',lat:32.0853,lng:34.7818,
+    sources:[{type:'youtube_video',id:'0jEa0FOw6vE'},{type:'youtube_channel',id:'UC6qrG3W8SMK0jior2olka3g'}]}
 ];
 
 // 라디오 탭의 Three.js 지구본(scene/globe/cam/ren 등)을 그대로 재사용한다. 웹캠 점은
@@ -1765,6 +1782,16 @@ async function loadWebcamSrc(webcam){
     return;
   }
 
+  var ectvSrc=buildSourceUrl({type:'earthcamtv'});
+  iframe.src=ectvSrc;
+  var ectvOk=await waitForIframe(iframe,8000);
+  if(ectvOk){
+    if(loading)loading.style.display='none';
+    var credit=document.getElementById('webcam-credit');
+    if(credit)credit.classList.remove('hidden');
+    return;
+  }
+
   hideWebcamAndMove(webcam);
 }
 
@@ -1812,8 +1839,35 @@ async function trySourcesInOrder(webcam,sources,index){
 function waitForIframe(iframe,timeout){
   return new Promise(function(resolve){
     var resolved=false;
-    var timer=setTimeout(function(){if(!resolved){resolved=true;iframe.onload=null;resolve(false);}},timeout);
-    iframe.onload=function(){if(!resolved){resolved=true;clearTimeout(timer);iframe.dataset.loaded='true';resolve(true);}};
+
+    function done(success){
+      if(resolved)return;
+      resolved=true;
+      window.removeEventListener('message',onMsg);
+      clearTimeout(timer);
+      iframe.onload=null;
+      resolve(success);
+    }
+
+    function onMsg(e){
+      try{
+        var d=typeof e.data==='string'?JSON.parse(e.data):e.data;
+        if(!d||!d.event)return;
+        if(d.event==='onError'){
+          if(d.info===150||d.info===101||d.info===2)done(false);
+        }
+        if(d.event==='onStateChange'&&d.info===1)done(true);
+      }catch(err){}
+    }
+
+    window.addEventListener('message',onMsg);
+
+    iframe.onload=function(){
+      iframe.dataset.loaded='true';
+      setTimeout(function(){done(true);},3000);
+    };
+
+    var timer=setTimeout(function(){done(false);},timeout);
   });
 }
 
@@ -1831,10 +1885,12 @@ function setupIframeTimeout(webcam,iframe,timeout){
 }
 
 function buildSourceUrl(source){
-  if(source.type==='youtube_channel')return 'https://www.youtube.com/embed/live_stream?channel='+source.id+'&autoplay=1&mute=1&controls=1&rel=0';
-  if(source.type==='youtube_video')return 'https://www.youtube.com/embed/'+source.id+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1';
+  if(source.type==='earthcamtv')return 'https://www.earthcamtv.com/embed.php';
+  if(source.type==='earthcam')return source.url;
+  if(source.type==='youtube_channel')return 'https://www.youtube.com/embed/live_stream?channel='+source.id+'&autoplay=1&mute=1&controls=1&rel=0&enablejsapi=1';
+  if(source.type==='youtube_video')return 'https://www.youtube.com/embed/'+source.id+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1';
   if(source.type==='iframe')return source.url;
-  return 'https://www.youtube.com/embed/'+source.id+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1';
+  return 'https://www.youtube.com/embed/'+source.id+'?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1';
 }
 
 function hideWebcamAndMove(webcam){
