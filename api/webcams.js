@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const results = await Promise.allSettled(
       offsets.map(offset =>
         fetch(
-          'https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=' + offset + '&orderby=popularity&include=player,location',
+          'https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=' + offset + '&orderby=popularity&include=player,location,streams',
           { headers }
         )
           .then(r => r.json())
@@ -34,7 +34,9 @@ export default async function handler(req, res) {
         country: cam.location?.country || '',
         lat: cam.location.latitude,
         lng: cam.location.longitude,
-        embed: cam.player.live
+        embed: cam.player.live,
+        hls: cam.streams?.hls || null,
+        rtsp: cam.streams?.rtsp || null
       }));
 
     res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=3600');
