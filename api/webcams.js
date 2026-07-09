@@ -17,6 +17,18 @@ export default async function handler(req, res) {
       )
     );
 
+    const sample = results
+      .filter(r => r.status === 'fulfilled')
+      .flatMap(r => r.value)
+      .slice(0, 3);
+    console.log('[Windy] 샘플 스트림 데이터:', JSON.stringify(sample.map(c => ({
+      id: c.webcamId,
+      title: c.title,
+      hasHls: !!(c.streams && c.streams.hls),
+      hlsUrl: c.streams && c.streams.hls,
+      hasEmbed: !!(c.player && c.player.live && c.player.live.embed)
+    }))));
+
     const allCams = results
       .filter(r => r.status === 'fulfilled')
       .flatMap(r => r.value)

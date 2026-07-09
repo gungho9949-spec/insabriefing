@@ -254,8 +254,13 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
     </div>
   </div>
   <div class="webcam-video-wrap" id="webcam-video-wrap">
-    <iframe id="webcam-iframe" src="" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen frameborder="0"></iframe>
-    <video id="webcam-video" style="width:100%;height:100%;display:none;object-fit:cover;" playsinline muted autoplay></video>
+    <iframe id="webcam-iframe" src=""
+      allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+      allowfullscreen
+      frameborder="0"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation"
+    ></iframe>
+    <video id="webcam-video" style="width:100%;height:100%;display:none;object-fit:cover;background:#000;" playsinline muted autoplay></video>
     <div class="webcam-loading" id="webcam-loading">
       <div class="webcam-spinner"></div>
       <div id="webcam-loading-text" data-i18n="liveLoading">연결 중...</div>
@@ -1764,34 +1769,46 @@ function loadWindyWebcamByIndex(index){
 
   if(window._hlsInstance){window._hlsInstance.destroy();window._hlsInstance=null;}
 
-  if(w.hls){
+  if(w.hls&&video){
     iframe.style.display='none';
     iframe.src='';
-    if(video){
-      video.style.display='block';
-      if(typeof Hls!=='undefined'&&Hls.isSupported()){
-        var hls=new Hls({enableWorker:false});
-        window._hlsInstance=hls;
-        hls.loadSource(w.hls);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED,function(){
-          video.play().catch(function(){});
-          if(loading)loading.style.display='none';
-        });
-        hls.on(Hls.Events.ERROR,function(event,data){
-          if(data.fatal){hls.destroy();window._hlsInstance=null;loadWindyEmbed(w,iframe,video,loading);}
-        });
-      }else if(video.canPlayType('application/vnd.apple.mpegurl')){
-        video.src=w.hls;
+    video.style.display='block';
+    if(typeof Hls!=='undefined'&&Hls.isSupported()){
+      var hls=new Hls({enableWorker:false,lowLatencyMode:true});
+      window._hlsInstance=hls;
+      hls.loadSource(w.hls);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED,function(){
         video.play().catch(function(){});
         if(loading)loading.style.display='none';
-      }else{
-        loadWindyEmbed(w,iframe,video,loading);
-      }
+      });
+      hls.on(Hls.Events.ERROR,function(event,data){
+        if(data.fatal){
+          hls.destroy();window._hlsInstance=null;
+          video.style.display='none';
+          iframe.style.display='block';
+          iframe.src=w.embed;
+        }
+      });
+    }else if(video.canPlayType('application/vnd.apple.mpegurl')){
+      video.src=w.hls;
+      video.play().catch(function(){});
+      if(loading)loading.style.display='none';
+    }else{
+      video.style.display='none';
+      iframe.style.display='block';
+      iframe.src=w.embed;
     }
   }else{
     if(video)video.style.display='none';
-    loadWindyEmbed(w,iframe,video,loading);
+    iframe.style.display='block';
+    iframe.src='';
+    iframe.dataset.loaded='false';
+    iframe.onload=function(){
+      iframe.dataset.loaded='true';
+      if(loading)loading.style.display='none';
+    };
+    iframe.src=w.embed;
   }
 
   if(w.lat&&w.lng)flyTo(w.lat,w.lng,1.8);
