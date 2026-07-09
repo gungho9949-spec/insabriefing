@@ -1741,8 +1741,9 @@ function loadWindyWebcamByIndex(index){
   var cityEl=document.getElementById('webcam-city-label');
   var flagEl=document.getElementById('webcam-flag-label');
   var navEl=document.getElementById('webcam-nav-index');
-  if(cityEl)cityEl.textContent=w.city;
-  if(flagEl)flagEl.textContent=flag+' '+(translateCountryName(w.country,w.country)||w.country||'');
+  if(cityEl)cityEl.textContent=translateWindyCity(w.city)||w.city;
+  var _countryName=translateCountryName(w.country,w.country);
+  if(flagEl)flagEl.textContent=flag+' '+_countryName;
   if(navEl)navEl.textContent=(index+1)+' / '+windyWebcams.length;
 
   windyLiveDots.forEach(function(hit){
@@ -2145,6 +2146,137 @@ KE:{en:"Kenya",ko:"케냐",ja:"ケニア",'zh-TW':"肯亞",'zh-CN':"肯尼亚",e
 MA:{en:"Morocco",ko:"모로코",ja:"モロッコ",'zh-TW':"摩洛哥",'zh-CN':"摩洛哥",es:"Marruecos",fr:"Maroc",de:"Marokko",pt:"Marrocos",it:"Marocco",ru:"Марокко",ar:"المغرب",tr:"Fas",id:"Maroko",th:"โมร็อกโก",vi:"Maroc",hi:"मोरक्को",pl:"Maroko",nl:"Marokko",sv:"Marocko",uk:"Марокко",el:"Μαρόκο"}
 };
 
+var WINDY_CITY_NAMES={
+  'Vladivostok':{ko:'블라디보스토크',ja:'ウラジオストク','zh-TW':'海參崴','zh-CN':'符拉迪沃斯托克',es:'Vladivostok',fr:'Vladivostok'},
+  'Moscow':{ko:'모스크바',ja:'モスクワ','zh-TW':'莫斯科','zh-CN':'莫斯科',es:'Moscú',fr:'Moscou'},
+  'Saint Petersburg':{ko:'상트페테르부르크',ja:'サンクトペテルブルク','zh-TW':'聖彼得堡','zh-CN':'圣彼得堡',es:'San Petersburgo',fr:'Saint-Pétersbourg'},
+  'Paris':{ko:'파리',ja:'パリ','zh-TW':'巴黎','zh-CN':'巴黎',es:'París',fr:'Paris'},
+  'London':{ko:'런던',ja:'ロンドン','zh-TW':'倫敦','zh-CN':'伦敦',es:'Londres',fr:'Londres'},
+  'New York':{ko:'뉴욕',ja:'ニューヨーク','zh-TW':'紐約','zh-CN':'纽约',es:'Nueva York',fr:'New York'},
+  'Tokyo':{ko:'도쿄',ja:'東京','zh-TW':'東京','zh-CN':'东京',es:'Tokio',fr:'Tokyo'},
+  'Seoul':{ko:'서울',ja:'ソウル','zh-TW':'首爾','zh-CN':'首尔',es:'Seúl',fr:'Séoul'},
+  'Beijing':{ko:'베이징',ja:'北京','zh-TW':'北京','zh-CN':'北京',es:'Pekín',fr:'Pékin'},
+  'Shanghai':{ko:'상하이',ja:'上海','zh-TW':'上海','zh-CN':'上海',es:'Shanghái',fr:'Shanghai'},
+  'Sydney':{ko:'시드니',ja:'シドニー','zh-TW':'雪梨','zh-CN':'悉尼',es:'Sídney',fr:'Sydney'},
+  'Rome':{ko:'로마',ja:'ローマ','zh-TW':'羅馬','zh-CN':'罗马',es:'Roma',fr:'Rome'},
+  'Berlin':{ko:'베를린',ja:'ベルリン','zh-TW':'柏林','zh-CN':'柏林',es:'Berlín',fr:'Berlin'},
+  'Madrid':{ko:'마드리드',ja:'マドリード','zh-TW':'馬德里','zh-CN':'马德里',es:'Madrid',fr:'Madrid'},
+  'Barcelona':{ko:'바르셀로나',ja:'バルセロナ','zh-TW':'巴塞隆納','zh-CN':'巴塞罗那',es:'Barcelona',fr:'Barcelone'},
+  'Amsterdam':{ko:'암스테르담',ja:'アムステルダム','zh-TW':'阿姆斯特丹','zh-CN':'阿姆斯特丹',es:'Ámsterdam',fr:'Amsterdam'},
+  'Vienna':{ko:'빈',ja:'ウィーン','zh-TW':'維也納','zh-CN':'维也纳',es:'Viena',fr:'Vienne'},
+  'Prague':{ko:'프라하',ja:'プラハ','zh-TW':'布拉格','zh-CN':'布拉格',es:'Praga',fr:'Prague'},
+  'Budapest':{ko:'부다페스트',ja:'ブダペスト','zh-TW':'布達佩斯','zh-CN':'布达佩斯',es:'Budapest',fr:'Budapest'},
+  'Warsaw':{ko:'바르샤바',ja:'ワルシャワ','zh-TW':'華沙','zh-CN':'华沙',es:'Varsovia',fr:'Varsovie'},
+  'Istanbul':{ko:'이스탄불',ja:'イスタンブール','zh-TW':'伊斯坦堡','zh-CN':'伊斯坦布尔',es:'Estambul',fr:'Istanbul'},
+  'Dubai':{ko:'두바이',ja:'ドバイ','zh-TW':'杜拜','zh-CN':'迪拜',es:'Dubái',fr:'Dubaï'},
+  'Singapore':{ko:'싱가포르',ja:'シンガポール','zh-TW':'新加坡','zh-CN':'新加坡',es:'Singapur',fr:'Singapour'},
+  'Bangkok':{ko:'방콕',ja:'バンコク','zh-TW':'曼谷','zh-CN':'曼谷',es:'Bangkok',fr:'Bangkok'},
+  'Mumbai':{ko:'뭄바이',ja:'ムンバイ','zh-TW':'孟買','zh-CN':'孟买',es:'Bombay',fr:'Bombay'},
+  'Cairo':{ko:'카이로',ja:'カイロ','zh-TW':'開羅','zh-CN':'开罗',es:'El Cairo',fr:'Le Caire'},
+  'Nairobi':{ko:'나이로비',ja:'ナイロビ','zh-TW':'奈洛比','zh-CN':'内罗毕',es:'Nairobi',fr:'Nairobi'},
+  'São Paulo':{ko:'상파울루',ja:'サンパウロ','zh-TW':'聖保羅','zh-CN':'圣保罗',es:'São Paulo',fr:'São Paulo'},
+  'Rio de Janeiro':{ko:'리우데자네이루',ja:'リオデジャネイロ','zh-TW':'里約熱內盧','zh-CN':'里约热内卢',es:'Río de Janeiro',fr:'Rio de Janeiro'},
+  'Buenos Aires':{ko:'부에노스아이레스',ja:'ブエノスアイレス','zh-TW':'布宜諾斯艾利斯','zh-CN':'布宜诺斯艾利斯',es:'Buenos Aires',fr:'Buenos Aires'},
+  'Mexico City':{ko:'멕시코시티',ja:'メキシコシティ','zh-TW':'墨西哥城','zh-CN':'墨西哥城',es:'Ciudad de México',fr:'Mexico'},
+  'Los Angeles':{ko:'로스앤젤레스',ja:'ロサンゼルス','zh-TW':'洛杉磯','zh-CN':'洛杉矶',es:'Los Ángeles',fr:'Los Angeles'},
+  'Chicago':{ko:'시카고',ja:'シカゴ','zh-TW':'芝加哥','zh-CN':'芝加哥',es:'Chicago',fr:'Chicago'},
+  'Toronto':{ko:'토론토',ja:'トロント','zh-TW':'多倫多','zh-CN':'多伦多',es:'Toronto',fr:'Toronto'},
+  'Vancouver':{ko:'밴쿠버',ja:'バンクーバー','zh-TW':'溫哥華','zh-CN':'温哥华',es:'Vancouver',fr:'Vancouver'},
+  'Melbourne':{ko:'멜버른',ja:'メルボルン','zh-TW':'墨爾本','zh-CN':'墨尔本',es:'Melbourne',fr:'Melbourne'},
+  'Auckland':{ko:'오클랜드',ja:'オークランド','zh-TW':'奧克蘭','zh-CN':'奥克兰',es:'Auckland',fr:'Auckland'},
+  'Osaka':{ko:'오사카',ja:'大阪','zh-TW':'大阪','zh-CN':'大阪',es:'Osaka',fr:'Osaka'},
+  'Kyoto':{ko:'교토',ja:'京都','zh-TW':'京都','zh-CN':'京都',es:'Kioto',fr:'Kyoto'},
+  'Taipei':{ko:'타이베이',ja:'台北','zh-TW':'臺北','zh-CN':'台北',es:'Taipéi',fr:'Taipei'},
+  'Hong Kong':{ko:'홍콩',ja:'香港','zh-TW':'香港','zh-CN':'香港',es:'Hong Kong',fr:'Hong Kong'},
+  'Kuala Lumpur':{ko:'쿠알라룸푸르',ja:'クアラルンプール','zh-TW':'吉隆坡','zh-CN':'吉隆坡',es:'Kuala Lumpur',fr:'Kuala Lumpur'},
+  'Jakarta':{ko:'자카르타',ja:'ジャカルタ','zh-TW':'雅加達','zh-CN':'雅加达',es:'Yakarta',fr:'Jakarta'},
+  'Manila':{ko:'마닐라',ja:'マニラ','zh-TW':'馬尼拉','zh-CN':'马尼拉',es:'Manila',fr:'Manille'},
+  'Hanoi':{ko:'하노이',ja:'ハノイ','zh-TW':'河內','zh-CN':'河内',es:'Hanói',fr:'Hanoï'},
+  'Ho Chi Minh City':{ko:'호치민',ja:'ホーチミン市','zh-TW':'胡志明市','zh-CN':'胡志明市',es:'Ciudad Ho Chi Minh',fr:'Hô Chi Minh-Ville'},
+  'Lisbon':{ko:'리스본',ja:'リスボン','zh-TW':'里斯本','zh-CN':'里斯本',es:'Lisboa',fr:'Lisbonne'},
+  'Athens':{ko:'아테네',ja:'アテネ','zh-TW':'雅典','zh-CN':'雅典',es:'Atenas',fr:'Athènes'},
+  'Zurich':{ko:'취리히',ja:'チューリッヒ','zh-TW':'蘇黎世','zh-CN':'苏黎世',es:'Zúrich',fr:'Zurich'},
+  'Brussels':{ko:'브뤼셀',ja:'ブリュッセル','zh-TW':'布魯塞爾','zh-CN':'布鲁塞尔',es:'Bruselas',fr:'Bruxelles'},
+  'Stockholm':{ko:'스톡홀름',ja:'ストックホルム','zh-TW':'斯德哥爾摩','zh-CN':'斯德哥尔摩',es:'Estocolmo',fr:'Stockholm'},
+  'Oslo':{ko:'오슬로',ja:'オスロ','zh-TW':'奧斯陸','zh-CN':'奥斯陆',es:'Oslo',fr:'Oslo'},
+  'Copenhagen':{ko:'코펜하겐',ja:'コペンハーゲン','zh-TW':'哥本哈根','zh-CN':'哥本哈根',es:'Copenhague',fr:'Copenhague'},
+  'Helsinki':{ko:'헬싱키',ja:'ヘルシンキ','zh-TW':'赫爾辛基','zh-CN':'赫尔辛基',es:'Helsinki',fr:'Helsinki'},
+  'Reykjavik':{ko:'레이캬비크',ja:'レイキャビク','zh-TW':'雷克雅維克','zh-CN':'雷克雅未克',es:'Reikiavik',fr:'Reykjavik'},
+  'Kyiv':{ko:'키이우',ja:'キーウ','zh-TW':'基輔','zh-CN':'基辅',es:'Kiev',fr:'Kiev'},
+  'Bucharest':{ko:'부쿠레슈티',ja:'ブカレスト','zh-TW':'布加勒斯特','zh-CN':'布加勒斯特',es:'Bucarest',fr:'Bucarest'},
+  'Sofia':{ko:'소피아',ja:'ソフィア','zh-TW':'索菲亞','zh-CN':'索非亚',es:'Sofía',fr:'Sofia'},
+  'Riga':{ko:'리가',ja:'リガ','zh-TW':'里加','zh-CN':'里加',es:'Riga',fr:'Riga'},
+  'Tallinn':{ko:'탈린',ja:'タリン','zh-TW':'塔林','zh-CN':'塔林',es:'Tallin',fr:'Tallinn'},
+  'Vilnius':{ko:'빌뉴스',ja:'ビリニュス','zh-TW':'維爾紐斯','zh-CN':'维尔纽斯',es:'Vilna',fr:'Vilnius'},
+  'Minsk':{ko:'민스크',ja:'ミンスク','zh-TW':'明斯克','zh-CN':'明斯克',es:'Minsk',fr:'Minsk'},
+  'Belgrade':{ko:'베오그라드',ja:'ベオグラード','zh-TW':'貝爾格勒','zh-CN':'贝尔格莱德',es:'Belgrado',fr:'Belgrade'},
+  'Zagreb':{ko:'자그레브',ja:'ザグレブ','zh-TW':'薩格勒布','zh-CN':'萨格勒布',es:'Zagreb',fr:'Zagreb'},
+  'Sarajevo':{ko:'사라예보',ja:'サラエボ','zh-TW':'塞拉耶佛','zh-CN':'萨拉热窝',es:'Sarajevo',fr:'Sarajevo'},
+  'Tirana':{ko:'티라나',ja:'ティラナ','zh-TW':'地拉那','zh-CN':'地拉那',es:'Tirana',fr:'Tirana'},
+  'Skopje':{ko:'스코페',ja:'スコピエ','zh-TW':'史高比耶','zh-CN':'斯科普里',es:'Skopie',fr:'Skopje'},
+  'Podgorica':{ko:'포드고리차',ja:'ポドゴリツァ','zh-TW':'波德戈里察','zh-CN':'波德戈里察',es:'Podgorica',fr:'Podgorica'},
+  'Nicosia':{ko:'니코시아',ja:'ニコシア','zh-TW':'尼科西亞','zh-CN':'尼科西亚',es:'Nicosia',fr:'Nicosie'},
+  'Valletta':{ko:'발레타',ja:'バレッタ','zh-TW':'瓦萊塔','zh-CN':'瓦莱塔',es:'La Valeta',fr:'La Valette'},
+  'Luxembourg':{ko:'룩셈부르크',ja:'ルクセンブルク','zh-TW':'盧森堡','zh-CN':'卢森堡',es:'Luxemburgo',fr:'Luxembourg'},
+  'Bern':{ko:'베른',ja:'ベルン','zh-TW':'伯恩','zh-CN':'伯尔尼',es:'Berna',fr:'Berne'},
+  'Geneva':{ko:'제네바',ja:'ジュネーブ','zh-TW':'日內瓦','zh-CN':'日内瓦',es:'Ginebra',fr:'Genève'},
+  'Tbilisi':{ko:'트빌리시',ja:'トビリシ','zh-TW':'第比利斯','zh-CN':'第比利斯',es:'Tiflis',fr:'Tbilissi'},
+  'Yerevan':{ko:'예레반',ja:'エレバン','zh-TW':'葉里溫','zh-CN':'埃里温',es:'Ereván',fr:'Erevan'},
+  'Baku':{ko:'바쿠',ja:'バクー','zh-TW':'巴庫','zh-CN':'巴库',es:'Bakú',fr:'Bakou'},
+  'Tashkent':{ko:'타슈켄트',ja:'タシュケント','zh-TW':'塔什干','zh-CN':'塔什干',es:'Taskent',fr:'Tachkent'},
+  'Almaty':{ko:'알마티',ja:'アルマティ','zh-TW':'阿拉木圖','zh-CN':'阿拉木图',es:'Almatý',fr:'Almaty'},
+  'Novosibirsk':{ko:'노보시비르스크',ja:'ノヴォシビルスク','zh-TW':'新西伯利亞','zh-CN':'新西伯利亚',es:'Novosibirsk',fr:'Novossibirsk'},
+  'Yekaterinburg':{ko:'예카테린부르크',ja:'エカテリンブルク','zh-TW':'葉卡捷琳堡','zh-CN':'叶卡捷琳堡',es:'Ekaterimburgo',fr:'Iekaterinbourg'},
+  'Norilsk':{ko:'노릴스크',ja:'ノリリスク','zh-TW':'諾里爾斯克','zh-CN':'诺里尔斯克',es:'Norilsk',fr:'Norilsk'},
+  'Murmansk':{ko:'무르만스크',ja:'ムルマンスク','zh-TW':'摩爾曼斯克','zh-CN':'摩尔曼斯克',es:'Múrmansk',fr:'Mourmansk'},
+  'Ulaanbaatar':{ko:'울란바토르',ja:'ウランバートル','zh-TW':'烏蘭巴托','zh-CN':'乌兰巴托',es:'Ulán Bator',fr:'Oulan-Bator'},
+  'Pyongyang':{ko:'평양',ja:'平壌','zh-TW':'平壤','zh-CN':'平壤',es:'Pionyang',fr:'Pyongyang'},
+  'Phnom Penh':{ko:'프놈펜',ja:'プノンペン','zh-TW':'金邊','zh-CN':'金边',es:'Nom Pen',fr:'Phnom Penh'},
+  'Vientiane':{ko:'비엔티안',ja:'ビエンチャン','zh-TW':'永珍','zh-CN':'万象',es:'Vientián',fr:'Vientiane'},
+  'Yangon':{ko:'양곤',ja:'ヤンゴン','zh-TW':'仰光','zh-CN':'仰光',es:'Rangún',fr:'Rangoun'},
+  'Dhaka':{ko:'다카',ja:'ダッカ','zh-TW':'達卡','zh-CN':'达卡',es:'Daca',fr:'Dacca'},
+  'Colombo':{ko:'콜롬보',ja:'コロンボ','zh-TW':'可倫坡','zh-CN':'科伦坡',es:'Colombo',fr:'Colombo'},
+  'Kathmandu':{ko:'카트만두',ja:'カトマンズ','zh-TW':'加德滿都','zh-CN':'加德满都',es:'Katmandú',fr:'Katmandou'},
+  'Kabul':{ko:'카불',ja:'カブール','zh-TW':'喀布爾','zh-CN':'喀布尔',es:'Kabul',fr:'Kaboul'},
+  'Tehran':{ko:'테헤란',ja:'テヘラン','zh-TW':'德黑蘭','zh-CN':'德黑兰',es:'Teherán',fr:'Téhéran'},
+  'Baghdad':{ko:'바그다드',ja:'バグダッド','zh-TW':'巴格達','zh-CN':'巴格达',es:'Bagdad',fr:'Bagdad'},
+  'Riyadh':{ko:'리야드',ja:'リヤド','zh-TW':'利雅德','zh-CN':'利雅得',es:'Riad',fr:'Riyad'},
+  'Tel Aviv':{ko:'텔아비브',ja:'テルアビブ','zh-TW':'特拉維夫','zh-CN':'特拉维夫',es:'Tel Aviv',fr:'Tel Aviv'},
+  'Jerusalem':{ko:'예루살렘',ja:'エルサレム','zh-TW':'耶路撒冷','zh-CN':'耶路撒冷',es:'Jerusalén',fr:'Jérusalem'},
+  'Amman':{ko:'암만',ja:'アンマン','zh-TW':'安曼','zh-CN':'安曼',es:'Ammán',fr:'Amman'},
+  'Beirut':{ko:'베이루트',ja:'ベイルート','zh-TW':'貝魯特','zh-CN':'贝鲁特',es:'Beirut',fr:'Beyrouth'},
+  'Damascus':{ko:'다마스쿠스',ja:'ダマスカス','zh-TW':'大馬士革','zh-CN':'大马士革',es:'Damasco',fr:'Damas'},
+  'Ankara':{ko:'앙카라',ja:'アンカラ','zh-TW':'安卡拉','zh-CN':'安卡拉',es:'Ankara',fr:'Ankara'},
+  'Lagos':{ko:'라고스',ja:'ラゴス','zh-TW':'拉各斯','zh-CN':'拉各斯',es:'Lagos',fr:'Lagos'},
+  'Kinshasa':{ko:'킨샤사',ja:'キンシャサ','zh-TW':'金夏沙','zh-CN':'金沙萨',es:'Kinsasa',fr:'Kinshasa'},
+  'Johannesburg':{ko:'요하네스버그',ja:'ヨハネスブルク','zh-TW':'約翰尼斯堡','zh-CN':'约翰内斯堡',es:'Johannesburgo',fr:'Johannesburg'},
+  'Cape Town':{ko:'케이프타운',ja:'ケープタウン','zh-TW':'開普敦','zh-CN':'开普敦',es:'Ciudad del Cabo',fr:'Le Cap'},
+  'Casablanca':{ko:'카사블랑카',ja:'カサブランカ','zh-TW':'卡薩布蘭卡','zh-CN':'卡萨布兰卡',es:'Casablanca',fr:'Casablanca'},
+  'Tunis':{ko:'튀니스',ja:'チュニス','zh-TW':'突尼斯','zh-CN':'突尼斯',es:'Túnez',fr:'Tunis'},
+  'Algiers':{ko:'알제',ja:'アルジェ','zh-TW':'阿爾及爾','zh-CN':'阿尔及尔',es:'Argel',fr:'Alger'},
+  'Accra':{ko:'아크라',ja:'アクラ','zh-TW':'阿克拉','zh-CN':'阿克拉',es:'Acra',fr:'Accra'},
+  'Addis Ababa':{ko:'아디스아바바',ja:'アディスアベバ','zh-TW':'阿迪斯阿貝巴','zh-CN':'亚的斯亚贝巴',es:'Adís Abeba',fr:'Addis-Abeba'},
+  'Dar es Salaam':{ko:'다르에스살람',ja:'ダルエスサラーム','zh-TW':'三蘭港','zh-CN':'达累斯萨拉姆',es:'Dar es-Salaam',fr:'Dar es Salaam'},
+  'Washington':{ko:'워싱턴',ja:'ワシントン','zh-TW':'華盛頓','zh-CN':'华盛顿',es:'Washington',fr:'Washington'},
+  'Las Vegas':{ko:'라스베이거스',ja:'ラスベガス','zh-TW':'拉斯維加斯','zh-CN':'拉斯维加斯',es:'Las Vegas',fr:'Las Vegas'},
+  'Miami':{ko:'마이애미',ja:'マイアミ','zh-TW':'邁阿密','zh-CN':'迈阿密',es:'Miami',fr:'Miami'},
+  'San Francisco':{ko:'샌프란시스코',ja:'サンフランシスコ','zh-TW':'舊金山','zh-CN':'旧金山',es:'San Francisco',fr:'San Francisco'},
+  'Seattle':{ko:'시애틀',ja:'シアトル','zh-TW':'西雅圖','zh-CN':'西雅图',es:'Seattle',fr:'Seattle'},
+  'Boston':{ko:'보스턴',ja:'ボストン','zh-TW':'波士頓','zh-CN':'波士顿',es:'Boston',fr:'Boston'},
+  'Atlanta':{ko:'애틀랜타',ja:'アトランタ','zh-TW':'亞特蘭大','zh-CN':'亚特兰大',es:'Atlanta',fr:'Atlanta'},
+  'Dallas':{ko:'달라스',ja:'ダラス','zh-TW':'達拉斯','zh-CN':'达拉斯',es:'Dallas',fr:'Dallas'},
+  'Houston':{ko:'휴스턴',ja:'ヒューストン','zh-TW':'休士頓','zh-CN':'休斯顿',es:'Houston',fr:'Houston'},
+  'Denver':{ko:'덴버',ja:'デンバー','zh-TW':'丹佛','zh-CN':'丹佛',es:'Denver',fr:'Denver'},
+  'Phoenix':{ko:'피닉스',ja:'フェニックス','zh-TW':'鳳凰城','zh-CN':'凤凰城',es:'Fénix',fr:'Phoenix'},
+  'Montreal':{ko:'몬트리올',ja:'モントリオール','zh-TW':'蒙特婁','zh-CN':'蒙特利尔',es:'Montreal',fr:'Montréal'},
+  'Ottawa':{ko:'오타와',ja:'オタワ','zh-TW':'渥太華','zh-CN':'渥太华',es:'Ottawa',fr:'Ottawa'},
+  'Havana':{ko:'아바나',ja:'ハバナ','zh-TW':'哈瓦那','zh-CN':'哈瓦那',es:'La Habana',fr:'La Havane'},
+  'Lima':{ko:'리마',ja:'リマ','zh-TW':'利馬','zh-CN':'利马',es:'Lima',fr:'Lima'},
+  'Bogota':{ko:'보고타',ja:'ボゴタ','zh-TW':'波哥大','zh-CN':'波哥大',es:'Bogotá',fr:'Bogota'},
+  'Santiago':{ko:'산티아고',ja:'サンティアゴ','zh-TW':'聖地牙哥','zh-CN':'圣地亚哥',es:'Santiago',fr:'Santiago'},
+  'Caracas':{ko:'카라카스',ja:'カラカス','zh-TW':'卡拉卡斯','zh-CN':'加拉加斯',es:'Caracas',fr:'Caracas'}
+};
+
 /* countryCode(ISO alpha-2)를 현재 UI 언어로 번역, 사전에 없으면 원래 country 문자열 그대로 표시.
    station.name(방송사 고유명사)은 이 함수를 절대 거치지 않는다. */
 function translateCountryName(countryCode,fallback){
@@ -2152,6 +2284,13 @@ function translateCountryName(countryCode,fallback){
   if(!entry)return fallback||'';
   var lang=resolveLang(ST.lang);
   return entry[lang]||entry.en||fallback||'';
+}
+function translateWindyCity(cityName){
+  if(!cityName)return cityName;
+  var lang=resolveLang(ST.lang);
+  var entry=WINDY_CITY_NAMES[cityName];
+  if(!entry)return cityName;
+  return entry[lang]||entry.en||cityName;
 }
 
 function resolveLang(code){
@@ -2226,7 +2365,9 @@ function refreshDynamicUI(){
     var _flag=getCountryFlag(currentWindyWebcam.country||'');
     var _flagEl=document.getElementById('webcam-flag-label');
     var _navEl=document.getElementById('webcam-nav-index');
-    if(_flagEl)_flagEl.textContent=_flag+' '+(translateCountryName(currentWindyWebcam.country,currentWindyWebcam.country)||currentWindyWebcam.country||'');
+    var _cityEl2=document.getElementById('webcam-city-label');
+    if(_cityEl2)_cityEl2.textContent=translateWindyCity(currentWindyWebcam.city)||currentWindyWebcam.city;
+    if(_flagEl)_flagEl.textContent=_flag+' '+translateCountryName(currentWindyWebcam.country,currentWindyWebcam.country);
     if(_navEl)_navEl.textContent=(currentWindyIndex+1)+' / '+windyWebcams.length;
   }
   if(document.getElementById('sheet').classList.contains('open')&&ST.currentCluster){
