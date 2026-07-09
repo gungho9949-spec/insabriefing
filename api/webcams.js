@@ -3,7 +3,7 @@ export default async function handler(req, res) {
   const headers = { 'x-windy-api-key': WINDY_KEY };
 
   if (req.query && req.query.debug === '1') {
-    const testUrl = 'https://api.windy.com/webcams/api/v3/webcams?limit=2&orderby=popularity&include=player,location,streams&key=' + WINDY_KEY;
+    const testUrl = 'https://api.windy.com/webcams/api/v3/webcams?limit=2&orderby=popularity&include=player,location,urls&key=' + WINDY_KEY;
     const testRes = await fetch(testUrl, { headers: { 'x-windy-api-key': WINDY_KEY } });
     const testData = await testRes.json();
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     const results = await Promise.allSettled(
       offsets.map(offset =>
         fetch(
-          'https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=' + offset + '&orderby=popularity&include=player,location,streams',
+          'https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=' + offset + '&orderby=popularity&include=player,location,urls',
           { headers }
         )
           .then(r => {
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
         lat: cam.location.latitude,
         lng: cam.location.longitude,
         embed: cam.player.live,
-        hls: cam.streams?.hls || null
+        hls: cam.urls?.hls || null
       }));
 
     console.log('[Windy] 최종 결과:', allCams.length + '개');
