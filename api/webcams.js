@@ -1,41 +1,38 @@
 export default async function handler(req, res) {
   const WINDY_KEY = 'pIEIA44iepaxAdnmgy8FS5Stwevgdy1t';
-  const headers = { 'x-windy-api-key': WINDY_KEY };
 
   try {
     const offsets = Array.from({length: 20}, (_, i) => i * 50);
 
     const results = await Promise.allSettled(
-      offsets.map(offset =>
-        fetch(
-          'https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=' + offset + '&orderby=popularity&include=player,location,streams',
-          { headers }
-        )
-          .then(r => r.json())
-          .then(d => d.webcams || [])
-          .catch(() => [])
-      )
-    );
+      offsets.map(offset => {
+        const url = 'https://api.windy.com/webcams/api/v3/webcams'
+          + '?limit=50'
+          + '&offset=' + offset
+          + '&orderby=popularity'
+          + '&include=player,location,streams'
+          + '&key=' + WINDY_KEY;
 
-    const sample = results
-      .filter(r => r.status === 'fulfilled')
-      .flatMap(r => r.value)
-      .slice(0, 3);
-    console.log('[Windy] 샘플 스트림 데이터:', JSON.stringify(sample.map(c => ({
-      id: c.webcamId,
-      title: c.title,
-      hasHls: !!(c.streams && c.streams.hls),
-      hlsUrl: c.streams && c.streams.hls,
-      hasEmbed: !!(c.player && c.player.live && c.player.live.embed)
-    }))));
+        return fetch(url)
+          .then(r => {
+            console.log('[Windy] offset=' + offset + ' status=' + r.status);
+            if (!r.ok) return [];
+            return r.json();
+          })
+          .then(d => (d && d.webcams) ? d.webcams : [])
+          .catch(e => {
+            console.error('[Windy] offset=' + offset + ' 실패:', e.message);
+            return [];
+          });
+      })
+    );
 
     const allCams = results
       .filter(r => r.status === 'fulfilled')
       .flatMap(r => r.value)
-      // player.live는 문자열 URL
       .filter(cam =>
-        typeof cam.player?.live === 'string' &&
-        cam.player.live.length > 0 &&
+        cam.player?.live?.available &&
+        cam.player?.live?.embed &&
         cam.location?.latitude &&
         cam.location?.longitude
       )
@@ -46,16 +43,19 @@ export default async function handler(req, res) {
         country: cam.location?.country || '',
         lat: cam.location.latitude,
         lng: cam.location.longitude,
-        embed: cam.player.live,
-        hls: cam.streams?.hls || null,
-        rtsp: cam.streams?.rtsp || null
+        embed: cam.player.live.embed,
+        hls: cam.streams?.hls || null
       }));
 
-    res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=3600');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.json({ webcams: allCams, total: allCams.length });
+    console.log('[Windy] 최종 결과:', allCams.length + '개');
 
-  } catch(err) {
-    res.status(500).json({ error: err.message, webcams: [] });
+    // 캐시 시간 1시간으로 줄임 (디버깅용, 나중에 86400으로 늘릴 것)
+    res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=600');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.json({ webcams: allCams, total: allCams.length, ts: Date.now() });
+
+  } catch (err) {
+    console.error('[Windy] 전체 오류:', err.message);
+    res.status(500).json({ error: err.message, webcams: [], total: 0 });
   }
 }
