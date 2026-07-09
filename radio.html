@@ -37,7 +37,8 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
 #globe-wrap{flex:1;position:relative;overflow:hidden;cursor:grab;touch-action:none;}
 #globe-wrap:active{cursor:grabbing;}
 #globe-canvas{display:block;width:100%;height:100%;}
-#side-btns{position:fixed;right:16px;top:calc(50% - 80px);transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:10;}
+#side-btns{position:fixed;right:16px;top:calc(30% - 80px);transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:10;}
+#side-btns.webcam-open{top:calc(18% - 80px);}
 .sbtn{position:relative;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.15);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s ease;}
 .sbtn:hover,.sbtn:active{background:rgba(255,255,255,0.15);}
 .sbtn::after{content:attr(data-tip);position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);background:rgba(12,19,32,0.92);color:#fff;font-size:11px;padding:5px 10px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s ease;}
@@ -946,6 +947,7 @@ function onLoaded(data){
 
 function autoPlayNearby(){
   if(!ST.hasGPS||!ST.stationsReady)return;
+  if(ST.playing&&ST.current)return;
   var best=null,bestD=9999;
   for(var i=0;i<ST.clusters.length;i++){
     var cl=ST.clusters[i];
@@ -1653,6 +1655,11 @@ function openWebcamPanel(){
     requestAnimationFrame(function(){panel.classList.add('show');});
   });
   if(!currentWebcam)loadWebcamByIndex(0);
+  var sb=document.getElementById('side-btns');
+  if(sb)sb.classList.add('webcam-open');
+  setTimeout(function(){
+    if(ST.playing&&ST.current&&audio.paused){audio.play().catch(function(){});}
+  },800);
 }
 
 function closeWebcamPanel(){
@@ -1661,6 +1668,8 @@ function closeWebcamPanel(){
   isWebcamOpen=false;
   var btn=document.getElementById('live-toggle-btn');
   if(btn)btn.classList.remove('active');
+  var sb=document.getElementById('side-btns');
+  if(sb)sb.classList.remove('webcam-open');
   if(_liveHoverDot){_liveHoverDot.material.color.setHex(0xffd700);_liveHoverDot=null;}
   setTimeout(function(){
     panel.classList.add('hidden');
@@ -1781,6 +1790,10 @@ async function loadWebcamSrc(webcam){
     setupIframeTimeout(webcam,iframe,8000);
     return;
   }
+
+  setTimeout(function(){
+    if(ST.playing&&ST.current&&audio.paused){audio.play().catch(function(){});}
+  },1200);
 
   var ectvSrc=buildSourceUrl({type:'earthcamtv'});
   iframe.src=ectvSrc;
