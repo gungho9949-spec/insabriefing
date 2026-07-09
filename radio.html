@@ -943,6 +943,29 @@ function onLoaded(data){
   ST.stationsReady=true;
   if(ST.hasGPS)autoPlayNearby();
   setTimeout(function(){document.getElementById('center-ring').classList.add('visible');},1800);
+  if(ST._pendingShareUUID){
+    var uuid=ST._pendingShareUUID;
+    ST._pendingShareUUID=null;
+    var found=null;
+    for(var i=0;i<ST.stations.length;i++){
+      if(ST.stations[i].uuid===uuid){found=ST.stations[i];break;}
+    }
+    if(found){play(found);showToast('📻 '+found.name);}
+  }
+  if(ST._pendingShareWebcam){
+    var wid=ST._pendingShareWebcam;
+    ST._pendingShareWebcam=null;
+    var widx=-1;
+    for(var i=0;i<webcamData.length;i++){
+      if(webcamData[i].id===wid){widx=i;break;}
+    }
+    if(widx>=0){
+      setTimeout(function(){
+        openWebcamPanel();
+        loadWebcamByIndex(widx);
+      },800);
+    }
+  }
 }
 
 function autoPlayNearby(){
@@ -1152,9 +1175,20 @@ function toggleLock(){
 
 /* SHARE */
 function shareStation(){
-  var s=ST.current,text=s?'🎵 '+s.name+' — Wild Peaks Radio\n'+location.href:'Wild Peaks Radio\n'+location.href;
-  if(navigator.share)navigator.share({title:'Wild Peaks Radio',text:text,url:location.href}).catch(function(){});
-  else if(navigator.clipboard)navigator.clipboard.writeText(text).then(function(){showToast(t('toastLinkCopied'));});
+  var base=location.href.split('?')[0];
+  var url,text;
+  if(isWebcamOpen&&currentWebcam){
+    url=base+'?w='+encodeURIComponent(currentWebcam.id);
+    text='📹 '+(currentWebcam.cityKo||currentWebcam.city)+' 라이브캠 — Wild Peaks Radio\n'+url;
+  }else if(ST.current){
+    url=base+'?s='+encodeURIComponent(ST.current.uuid);
+    text='📻 '+ST.current.name+' ('+(translateCountryName(ST.current.countrycode,ST.current.country)||ST.current.country)+') — Wild Peaks Radio\n'+url;
+  }else{
+    url=base;
+    text='Wild Peaks Radio\n'+url;
+  }
+  if(navigator.share){navigator.share({title:'Wild Peaks Radio',text:text,url:url}).catch(function(){});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){showToast(t('toastLinkCopied'));});}
 }
 
 /* SEARCH */
@@ -2233,6 +2267,14 @@ try{
   console.error('3D 지구본 초기화 실패:',err);
 }
 
+function handleShareParams(){
+  var params=new URLSearchParams(location.search);
+  var stationUUID=params.get('s');
+  var webcamId=params.get('w');
+  if(stationUUID)ST._pendingShareUUID=stationUUID;
+  if(webcamId)ST._pendingShareWebcam=webcamId;
+}
+
 function enterApp(){
   if(window._entered)return;window._entered=true;
   unlockAudio();
@@ -2244,6 +2286,7 @@ function enterApp(){
     return;
   }
   setTimeout(function(){loadDynamicWindyWebcams();},2000);
+  handleShareParams();
   // loadStations()는 GPS 결과(성공/실패 어느 쪽이든)가 확정된 "뒤에"만 호출한다.
   // 예전에는 GPS 콜백과 상관없이 곧바로 loadStations()를 불러서, 그 시점에 아직
   // ST.hasGPS가 true가 되기 전이라 "내 지역" 조회가 항상 한국(KR) 기준으로
