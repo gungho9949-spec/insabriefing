@@ -1,43 +1,40 @@
 export default async function handler(req, res) {
   const WINDY_KEY = 'pIEIA44iepaxAdnmgy8FS5Stwevgdy1t';
+  const headers = { 'x-windy-api-key': WINDY_KEY };
 
   try {
-    // 진단: 10개만 먼저 가져와서 구조 확인
-    const r = await fetch(
-      'https://api.windy.com/webcams/api/v3/webcams?limit=10&offset=0&orderby=popularity&include=player,location',
-      { headers: { 'x-windy-api-key': WINDY_KEY } }
-    );
-    const data = await r.json();
-    const cams = data.webcams || [];
+    // 여러 include 조합 동시 테스트
+    const [r1, r2, r3] = await Promise.all([
+      fetch('https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=0&orderby=popularity&include=player,location', { headers }).then(r => r.json()),
+      fetch('https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=0&orderby=popularity&include=player,location,urls', { headers }).then(r => r.json()),
+      fetch('https://api.windy.com/webcams/api/v3/webcams?limit=50&offset=0&orderby=popularity&include=player,location,images', { headers }).then(r => r.json()),
+    ]);
 
-    // 첫 번째 웹캠의 player 구조 확인
-    const sample = cams[0] ? {
-      title: cams[0].title,
-      playerKeys: Object.keys(cams[0].player || {}),
-      liveObj: cams[0].player?.live,
-      locationKeys: Object.keys(cams[0].location || {}),
-      lat: cams[0].location?.latitude,
-      lng: cams[0].location?.longitude
-    } : null;
+    // r1: 기본 player
+    const cams1 = r1.webcams || [];
+    const liveCount1 = cams1.filter(c => c.player?.live).length;
 
-    // 필터 통과 개수
-    const passed = cams.filter(cam =>
-      cam.player?.live?.available &&
-      cam.player?.live?.embed &&
-      cam.location?.latitude &&
-      cam.location?.longitude
-    ).length;
+    // 첫 번째 응답에서 player 키 종류 수집
+    const allPlayerKeys = [...new Set(cams1.flatMap(c => Object.keys(c.player || {})))];
+
+    // player.live 가 있는 것 샘플
+    const liveSample = cams1.find(c => c.player?.live);
+
+    // r2: urls 포함
+    const cams2 = r2.webcams || [];
+    const urlSample = cams2[0] ? { urlsKeys: Object.keys(cams2[0].urls || {}), playerKeys: Object.keys(cams2[0].player || {}) } : null;
 
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.json({
-      httpStatus: r.status,
-      totalInResponse: cams.length,
-      passedFilter: passed,
-      topLevelKeys: Object.keys(data),
-      firstCamSample: sample
+      r1_total: cams1.length,
+      r1_liveCount: liveCount1,
+      r1_allPlayerKeys: allPlayerKeys,
+      r1_liveSample: liveSample ? { title: liveSample.title, live: liveSample.player.live } : null,
+      r2_urlSample: urlSample,
+      r1_apiKeys: Object.keys(r1),
     });
   } catch(err) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, stack: err.stack?.split('\n').slice(0,3) });
   }
 }
