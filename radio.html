@@ -1742,7 +1742,7 @@ function loadWindyWebcamByIndex(index){
   var flagEl=document.getElementById('webcam-flag-label');
   var navEl=document.getElementById('webcam-nav-index');
   if(cityEl)cityEl.textContent=w.city;
-  if(flagEl)flagEl.textContent=flag+' '+(w.country||'');
+  if(flagEl)flagEl.textContent=flag+' '+(translateCountryName(w.country,w.country)||w.country||'');
   if(navEl)navEl.textContent=(index+1)+' / '+windyWebcams.length;
 
   windyLiveDots.forEach(function(hit){
@@ -2221,6 +2221,13 @@ function refreshDynamicUI(){
     if(_wcCity)_wcCity.textContent=(_wcLang==='ko'?currentWebcam.cityKo:currentWebcam.city);
     var _wcNav=document.getElementById('webcam-nav-index');
     if(_wcNav)_wcNav.textContent=(currentWebcamIndex+1)+' / '+webcamData.length;
+  }
+  if(currentWindyWebcam){
+    var _flag=getCountryFlag(currentWindyWebcam.country||'');
+    var _flagEl=document.getElementById('webcam-flag-label');
+    var _navEl=document.getElementById('webcam-nav-index');
+    if(_flagEl)_flagEl.textContent=_flag+' '+(translateCountryName(currentWindyWebcam.country,currentWindyWebcam.country)||currentWindyWebcam.country||'');
+    if(_navEl)_navEl.textContent=(currentWindyIndex+1)+' / '+windyWebcams.length;
   }
   if(document.getElementById('sheet').classList.contains('open')&&ST.currentCluster){
     document.getElementById('sh-meta').textContent=t('stationCount',{n:ST.currentCluster.stations.length});
