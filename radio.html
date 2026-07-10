@@ -280,8 +280,8 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
   </div>
 </div>
 <div id="nav">
-  <button class="nbtn on" data-t="globe" onclick="switchTab('globe')"><span class="ni">🌍</span><span data-i18n="navExplore">라디오</span></button>
-  <button class="nbtn" data-t="live" onclick="switchTab('live')"><span class="ni">📹</span><span data-i18n="navLive">라이브</span></button>
+  <button class="nbtn on" data-t="globe" onclick="switchToRadioMode()"><span class="ni">🌍</span><span data-i18n="navExplore">라디오</span></button>
+  <button class="nbtn" data-t="live" onclick="switchToLiveMode()"><span class="ni">📹</span><span data-i18n="navLive">라이브</span></button>
   <button class="nbtn" data-t="fav" onclick="switchTab('fav')"><span class="ni">♡</span><span data-i18n="navFav">즐겨찾기</span></button>
   <button class="nbtn" data-t="search" onclick="switchTab('search')"><span class="ni">🔍</span><span data-i18n="navSearch">검색</span></button>
   <button class="nbtn" data-t="settings" onclick="switchTab('settings')"><span class="ni">☰</span><span data-i18n="navSettings">설정</span></button>
@@ -314,19 +314,6 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
     </div>
     <div class="lofi-list" id="lofi-list"></div>
     <div class="lofi-credit"><span data-i18n="lofiCredit1">🎵 모든 콘텐츠는 YouTube 공식 플레이어를 통해 제공됩니다</span><br><span data-i18n="lofiCredit2">각 채널의 저작권은 원 채널에 있습니다</span></div>
-  </div>
-</div>
-<div class="tab" id="tab-live">
-  <div class="tab-hd">
-    <button class="tab-back" onclick="closeTab('live')">‹</button>
-    <div class="tab-ttl" data-i18n="navLive">라이브</div>
-  </div>
-  <div class="tab-body" id="live-tab-body">
-    <div id="live-globe-wrap" style="width:100%;height:50vh;position:relative;cursor:grab;touch-action:none;border-radius:12px;overflow:hidden;margin-bottom:16px;">
-      <canvas id="live-globe-canvas" style="width:100%;height:100%;display:block;"></canvas>
-      <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,0.5);pointer-events:none;" data-i18n="liveHint">노란 점을 탭하면 라이브캠이 열립니다</div>
-    </div>
-    <div id="live-list" style="padding-bottom:76px;"></div>
   </div>
 </div>
 <div class="tab" id="tab-search">
@@ -624,12 +611,15 @@ function handleTap(cx,cy){
     var lhits=ray.intersectObjects(liveDots).filter(function(h){return isPointVisibleFromCamera(h.point);});
     if(lhits.length){
       var hitObj=lhits[0].object;
-      if(!isWebcamOpen)openWebcamPanel();
       if(hitObj.userData.isWindy){
+        if(_currentMode!=='live')return;
+        if(!isWebcamOpen)openWebcamPanel();
         loadWindyWebcamByIndex(hitObj.userData.index);
-      }else{
-        loadWebcamByIndex(hitObj.userData.index);
+        return;
       }
+      if(_currentMode!=='radio')return;
+      if(!isWebcamOpen)openWebcamPanel();
+      loadWebcamByIndex(hitObj.userData.index);
       return;
     }
   }
@@ -833,7 +823,7 @@ function buildDots(){
     var cl=ST.clusters[i];
     var pos=ll2v(cl.lat,cl.lon,1.018);
     var m=new THREE.Mesh(new THREE.SphereGeometry(dotR,16,16),new THREE.MeshBasicMaterial({color:getTypeColor(cl.type),transparent:true,depthWrite:false}));
-    m.position.copy(pos);m.userData={cluster:cl};globe.add(m);
+    m.position.copy(pos);m.visible=true;m.userData={cluster:cl};globe.add(m);
     var hit=new THREE.Mesh(new THREE.SphereGeometry(hitR,8,8),new THREE.MeshBasicMaterial({visible:false}));
     hit.position.copy(pos);hit.userData={cluster:cl,visualDot:m};globe.add(hit);
     ST.dots.push(hit);
@@ -2457,27 +2447,54 @@ function switchTab(t){
   }
   document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',b.dataset.t===t);});
   document.querySelectorAll('.tab').forEach(function(p){p.classList.remove('open');});
-  // 라이브 버튼: 글로브 탭에서만 표시
-  var liveBtn=document.getElementById('live-toggle-btn');
-  if(liveBtn)liveBtn.style.display=(t==='globe')?'flex':'none';
-  // Windy 점: 글로브 탭에서는 숨김, 라이브 탭에서는 표시
-  windyLiveDots.forEach(function(d){
-    var dot=d.userData.visualDot;
-    if(dot)dot.visible=(t==='globe')?false:true;
-  });
   if(t==='globe')return;
   document.getElementById('tab-'+t).classList.add('open');
   if(t==='fav')renderFav();
   if(t==='lofi'){renderMoodRow();renderLofiList();playFirstInMood(ST.lofiMood);}
   if(t==='search')setTimeout(function(){document.getElementById('search-input').focus();},200);
-  if(t==='live')renderLiveList();
 }
 function closeTab(t){
   if(t==='lofi')stopLofiPlayback();
   document.getElementById('tab-'+t).classList.remove('open');
   document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',b.dataset.t==='globe');});
-  var liveBtn2=document.getElementById('live-toggle-btn');
-  if(liveBtn2)liveBtn2.style.display='flex';
+}
+
+var _currentMode='radio';
+
+function switchToRadioMode(){
+  _currentMode='radio';
+  document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',b.dataset.t==='globe');});
+  document.querySelectorAll('.tab').forEach(function(p){p.classList.remove('open');});
+  ST.dots.forEach(function(d){
+    if(d.userData.visualDot)d.userData.visualDot.visible=true;
+    else d.visible=true;
+  });
+  windyLiveDots.forEach(function(d){
+    if(d.userData.visualDot)d.userData.visualDot.visible=false;
+  });
+  var liveBtn=document.getElementById('live-toggle-btn');
+  if(liveBtn)liveBtn.style.display='none';
+  if(isWebcamOpen)closeWebcamPanel();
+}
+
+function switchToLiveMode(){
+  _currentMode='live';
+  document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',b.dataset.t==='live');});
+  document.querySelectorAll('.tab').forEach(function(p){p.classList.remove('open');});
+  ST.dots.forEach(function(d){
+    if(d.userData.visualDot)d.userData.visualDot.visible=false;
+    else d.visible=false;
+  });
+  windyLiveDots.forEach(function(d){
+    if(d.userData.visualDot)d.userData.visualDot.visible=true;
+  });
+  var liveBtn=document.getElementById('live-toggle-btn');
+  if(liveBtn)liveBtn.style.display='none';
+  if(!windyLiveDots.length){
+    showToast('🌍 라이브캠 로딩 중...');
+  }else{
+    showToast('📹 노란 점을 탭하면 라이브캠이 열립니다');
+  }
 }
 
 function renderLiveList(){
@@ -2554,6 +2571,8 @@ function enterApp(){
   var sp=document.getElementById('splash');
   sp.classList.add('out');
   setTimeout(function(){sp.style.display='none';},600);
+  var _initLiveBtn=document.getElementById('live-toggle-btn');
+  if(_initLiveBtn)_initLiveBtn.style.display='none';
   if(!_threeReady){
     showToast(t('toastWebglError'));
     return;
