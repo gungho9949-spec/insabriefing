@@ -2472,7 +2472,12 @@ function switchToRadioMode(){
     hit.visible=true;
     if(hit.userData&&hit.userData.visualDot)hit.userData.visualDot.visible=true;
   });
-  if(typeof nowPlayingMarker!=='undefined'&&nowPlayingMarker&&ST.current)nowPlayingMarker.visible=true;
+  globe.children.forEach(function(child){
+    if(child.userData&&child.userData.isWindy)return;
+    if(child===nowPlayingMarker)return;
+    child.visible=true;
+  });
+  if(typeof nowPlayingMarker!=='undefined'&&nowPlayingMarker)nowPlayingMarker.visible=!!(ST.current);
   windyLiveDots.forEach(function(d){
     d.visible=false;
     if(d.userData&&d.userData.visualDot)d.userData.visualDot.visible=false;
@@ -2495,6 +2500,11 @@ function switchToLiveMode(){
   ST.dots.forEach(function(hit){
     hit.visible=false;
     if(hit.userData&&hit.userData.visualDot)hit.userData.visualDot.visible=false;
+  });
+  globe.children.forEach(function(child){
+    if(child.userData&&child.userData.isWindy)return;
+    if(child===nowPlayingMarker)return;
+    child.visible=false;
   });
   if(typeof nowPlayingMarker!=='undefined'&&nowPlayingMarker)nowPlayingMarker.visible=false;
   windyLiveDots.forEach(function(d){
