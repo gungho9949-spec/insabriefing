@@ -750,6 +750,55 @@ function checkCenterRing(){
     ST._lastRingCluster=null;
     clearTimeout(_ringHoldTimer);
   }
+
+  // 라이브 모드: 노란 점(Windy 웹캠)이 점선원 안에 들어오면 자동 열기
+  if (_currentMode === 'live' && windyLiveDots.length) {
+    var bestLive = null, bestLiveDist = 9999;
+    var tmpV2 = new THREE.Vector3();
+    var camDir2 = cam.position.clone().normalize();
+
+    for (var li = 0; li < windyLiveDots.length; li++) {
+      var ld = windyLiveDots[li];
+      if (!ld.userData.visualDot || !ld.userData.visualDot.visible) continue;
+      ld.userData.visualDot.getWorldPosition(tmpV2);
+      if (tmpV2.clone().normalize().dot(camDir2) <= 0) continue;
+      var ndcL = tmpV2.clone().project(cam);
+      if (ndcL.z > 1) continue;
+      var pxL = (ndcL.x * 0.5 + 0.5) * rect.width;
+      var pyL = (-ndcL.y * 0.5 + 0.5) * rect.height;
+      var dL = Math.hypot(pxL - cx, pyL - cy);
+      if (dL < bestLiveDist) { bestLiveDist = dL; bestLive = ld; }
+    }
+
+    // 정밀 가림 검사
+    if (bestLive) {
+      var bwp2 = new THREE.Vector3();
+      bestLive.userData.visualDot.getWorldPosition(bwp2);
+      if (!isPointVisibleFromCamera(bwp2)) bestLive = null;
+    }
+
+    if (bestLive && bestLiveDist < ringR) {
+      setRingGreen(true);
+      velQ.identity();
+      var bestWebcam = bestLive.userData.webcam;
+      var bestIdx = bestLive.userData.index;
+      if (ST._lastRingCluster === bestWebcam) return;
+      ST._lastRingCluster = bestWebcam;
+      clearTimeout(_ringHoldTimer);
+      _ringHoldTimer = setTimeout(function() {
+        if (ST._lastRingCluster !== bestWebcam) return;
+        if (!isWebcamOpen) openWebcamPanel();
+        loadWindyWebcamByIndex(bestIdx);
+      }, 600);
+    } else if (_currentMode === 'live') {
+      setRingGreen(false);
+      if (ST._lastRingCluster && typeof ST._lastRingCluster === 'object' && ST._lastRingCluster.embed) {
+        ST._lastRingCluster = null;
+        clearTimeout(_ringHoldTimer);
+      }
+    }
+    return;
+  }
 }
 
 /* GLOBE UTILS */
