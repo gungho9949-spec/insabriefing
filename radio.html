@@ -2516,6 +2516,24 @@ function switchToLiveMode(){
   var ring=document.getElementById('center-ring');
   if(ring)ring.classList.remove('visible');
   showToast('📹 노란 점을 탭하면 라이브캠이 열립니다');
+  // 내 위치에서 가장 가까운 Windy 웹캠 자동 열기
+  if (windyWebcams && windyWebcams.length > 0) {
+    var bestIdx = 0;
+    if (ST.hasGPS) {
+      var bestDist = Infinity;
+      for (var _i = 0; _i < windyWebcams.length; _i++) {
+        var _w = windyWebcams[_i];
+        var _dLat = (_w.lat - ST.myLat);
+        var _dLng = (_w.lng - ST.myLon) * Math.cos(ST.myLat * Math.PI / 180);
+        var _dist = Math.sqrt(_dLat * _dLat + _dLng * _dLng);
+        if (_dist < bestDist) { bestDist = _dist; bestIdx = _i; }
+      }
+    }
+    setTimeout(function() {
+      openWebcamPanel();
+      loadWindyWebcamByIndex(bestIdx);
+    }, 300);
+  }
 }
 
 function renderLiveList(){
