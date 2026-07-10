@@ -788,7 +788,7 @@ function checkCenterRing(){
       _ringHoldTimer = setTimeout(function() {
         if (ST._lastRingCluster !== bestWebcam) return;
         if (!isWebcamOpen) openWebcamPanel();
-        loadWindyWebcamByIndex(bestIdx);
+        loadWindyWebcamByIndex(bestIdx, true);
       }, 600);
     } else if (_currentMode === 'live') {
       setRingGreen(false);
@@ -1788,7 +1788,7 @@ function loadWebcamByIndex(index){
   if(webcam.lat&&webcam.lng)flyTo(webcam.lat,webcam.lng,1.8);
 }
 
-function loadWindyWebcamByIndex(index){
+function loadWindyWebcamByIndex(index, noFly){
   if(index<0||index>=windyWebcams.length)return;
   currentWindyIndex=index;
   var w=windyWebcams[index];
@@ -1866,7 +1866,7 @@ function loadWindyWebcamByIndex(index){
     iframe.src=w.embed;
   }
 
-  if(w.lat&&w.lng)flyTo(w.lat,w.lng,1.8);
+  if(!noFly&&w.lat&&w.lng)flyTo(w.lat,w.lng,1.8);
 }
 
 function loadWindyEmbed(w,iframe,video,loading){
