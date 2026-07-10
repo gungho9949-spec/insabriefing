@@ -1746,13 +1746,15 @@ function loadWindyWebcamByIndex(index){
   currentWindyWebcam=w;
   currentWebcam=null;
 
-  var flag=getCountryFlag(w.country||'');
   var cityEl=document.getElementById('webcam-city-label');
   var flagEl=document.getElementById('webcam-flag-label');
   var navEl=document.getElementById('webcam-nav-index');
-  if(cityEl)cityEl.textContent=translateWindyCity(w.city)||w.city;
-  var _countryName=translateCountryName(w.country,w.country);
-  if(flagEl)flagEl.textContent=flag+' '+_countryName;
+  var lang=resolveLang(ST.lang);
+  var translatedCity=translateWindyCity(w.city)||w.city;
+  var translatedCountry=translateCountryName(w.country,w.country)||w.country||'';
+  var flag=getCountryFlag(w.country||'');
+  if(cityEl)cityEl.textContent=translatedCity;
+  if(flagEl)flagEl.textContent=flag+' '+translatedCountry;
   if(navEl)navEl.textContent=(index+1)+' / '+windyWebcams.length;
 
   windyLiveDots.forEach(function(hit){
@@ -2389,13 +2391,13 @@ function refreshDynamicUI(){
     if(_wcNav)_wcNav.textContent=(currentWebcamIndex+1)+' / '+webcamData.length;
   }
   if(currentWindyWebcam){
-    var _flag=getCountryFlag(currentWindyWebcam.country||'');
+    var _cityEl=document.getElementById('webcam-city-label');
     var _flagEl=document.getElementById('webcam-flag-label');
     var _navEl=document.getElementById('webcam-nav-index');
-    var _cityEl2=document.getElementById('webcam-city-label');
-    if(_cityEl2)_cityEl2.textContent=translateWindyCity(currentWindyWebcam.city)||currentWindyWebcam.city;
-    if(_flagEl)_flagEl.textContent=_flag+' '+translateCountryName(currentWindyWebcam.country,currentWindyWebcam.country);
-    if(_navEl)_navEl.textContent=(currentWindyIndex+1)+' / '+windyWebcams.length;
+    if(_cityEl)_cityEl.textContent=translateWindyCity(currentWindyWebcam.city)||currentWindyWebcam.city;
+    var _cf=getCountryFlag(currentWindyWebcam.country||'');
+    var _cn=translateCountryName(currentWindyWebcam.country,currentWindyWebcam.country)||currentWindyWebcam.country||'';
+    if(_flagEl)_flagEl.textContent=_cf+' '+_cn;
   }
   if(document.getElementById('sheet').classList.contains('open')&&ST.currentCluster){
     document.getElementById('sh-meta').textContent=t('stationCount',{n:ST.currentCluster.stations.length});
@@ -2465,36 +2467,45 @@ function switchToRadioMode(){
   _currentMode='radio';
   document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',b.dataset.t==='globe');});
   document.querySelectorAll('.tab').forEach(function(p){p.classList.remove('open');});
-  ST.dots.forEach(function(d){
-    if(d.userData.visualDot)d.userData.visualDot.visible=true;
-    else d.visible=true;
+  if(isWebcamOpen)closeWebcamPanel();
+  ST.dots.forEach(function(hit){
+    hit.visible=true;
+    if(hit.userData&&hit.userData.visualDot)hit.userData.visualDot.visible=true;
   });
+  if(typeof nowPlayingMarker!=='undefined'&&nowPlayingMarker&&ST.current)nowPlayingMarker.visible=true;
   windyLiveDots.forEach(function(d){
-    if(d.userData.visualDot)d.userData.visualDot.visible=false;
+    d.visible=false;
+    if(d.userData&&d.userData.visualDot)d.userData.visualDot.visible=false;
   });
   var liveBtn=document.getElementById('live-toggle-btn');
   if(liveBtn)liveBtn.style.display='none';
-  if(isWebcamOpen)closeWebcamPanel();
+  var ring=document.getElementById('center-ring');
+  if(ring)ring.classList.add('visible');
 }
 
 function switchToLiveMode(){
   _currentMode='live';
   document.querySelectorAll('.nbtn').forEach(function(b){b.classList.toggle('on',b.dataset.t==='live');});
   document.querySelectorAll('.tab').forEach(function(p){p.classList.remove('open');});
-  ST.dots.forEach(function(d){
-    if(d.userData.visualDot)d.userData.visualDot.visible=false;
-    else d.visible=false;
+  if(ST.playing){
+    audio.pause();ST.playing=false;
+    document.getElementById('btn-play').textContent='▶';
+    document.getElementById('eq').classList.add('paused');
+  }
+  ST.dots.forEach(function(hit){
+    hit.visible=false;
+    if(hit.userData&&hit.userData.visualDot)hit.userData.visualDot.visible=false;
   });
+  if(typeof nowPlayingMarker!=='undefined'&&nowPlayingMarker)nowPlayingMarker.visible=false;
   windyLiveDots.forEach(function(d){
-    if(d.userData.visualDot)d.userData.visualDot.visible=true;
+    d.visible=true;
+    if(d.userData&&d.userData.visualDot)d.userData.visualDot.visible=true;
   });
   var liveBtn=document.getElementById('live-toggle-btn');
   if(liveBtn)liveBtn.style.display='none';
-  if(!windyLiveDots.length){
-    showToast('🌍 라이브캠 로딩 중...');
-  }else{
-    showToast('📹 노란 점을 탭하면 라이브캠이 열립니다');
-  }
+  var ring=document.getElementById('center-ring');
+  if(ring)ring.classList.remove('visible');
+  showToast('📹 노란 점을 탭하면 라이브캠이 열립니다');
 }
 
 function renderLiveList(){
