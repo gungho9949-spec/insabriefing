@@ -49,7 +49,10 @@ export default async function handler(req, res) {
         country: cam.location?.country || '',
         lat: cam.location.latitude,
         lng: cam.location.longitude,
-        embed: cam.player.live || cam.player.day,
+        embed: (function(url) {
+          if (!url) return null;
+          return url + (url.indexOf('?') >= 0 ? '&' : '?') + 'autoplay=true&muted=true';
+        })(cam.player.live || cam.player.day),
         hls: cam.urls?.hls || null
       }));
 
