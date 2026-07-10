@@ -1534,7 +1534,7 @@ var currentWindyWebcam=null;
 var currentWindyIndex=0;
 
 async function loadDynamicWindyWebcams(){
-  var LOCAL_KEY='wp_windy_bulk_v2';
+  var LOCAL_KEY='wp_windy_bulk_v3';
   var EXPIRE=24*60*60*1000;
   try{
     var cached=JSON.parse(localStorage.getItem(LOCAL_KEY)||'null');
