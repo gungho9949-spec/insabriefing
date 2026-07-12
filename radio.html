@@ -2682,16 +2682,28 @@ function switchToLiveMode(){
   // 내 위치에서 가장 가까운 Windy 웹캠 자동 열기
   if (windyWebcams && windyWebcams.length > 0) {
     var bestIdx = 0;
-    if (ST.hasGPS) {
-      var bestDist = Infinity;
+    var bestDist = Infinity;
+
+    // 기준 좌표: 재생 중인 방송국 위치 우선, 없으면 내 GPS 위치
+    var refLat = null, refLon = null;
+    if (ST.current && ST.current.lat && ST.current.lon) {
+      refLat = ST.current.lat;
+      refLon = ST.current.lon;
+    } else if (ST.hasGPS) {
+      refLat = ST.myLat;
+      refLon = ST.myLon;
+    }
+
+    if (refLat !== null) {
       for (var _i = 0; _i < windyWebcams.length; _i++) {
         var _w = windyWebcams[_i];
-        var _dLat = (_w.lat - ST.myLat);
-        var _dLng = (_w.lng - ST.myLon) * Math.cos(ST.myLat * Math.PI / 180);
+        var _dLat = (_w.lat - refLat);
+        var _dLng = (_w.lng - refLon) * Math.cos(refLat * Math.PI / 180);
         var _dist = Math.sqrt(_dLat * _dLat + _dLng * _dLng);
         if (_dist < bestDist) { bestDist = _dist; bestIdx = _i; }
       }
     }
+
     setTimeout(function() {
       openWebcamPanel();
       loadWindyWebcamByIndex(bestIdx);
