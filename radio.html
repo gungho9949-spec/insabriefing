@@ -729,6 +729,7 @@ function checkCenterRing(){
         var s=cl.stations[0];
         var _ringRect=ren.domElement.getBoundingClientRect();
         verifyClusterMatchesScreenPos(cl,_ringRect.left+_ringRect.width/2,_ringRect.top+_ringRect.height/2,'화면 중앙 자동 잠금');
+        ST.currentCluster=cl;ST.sheetList=cl.stations;
         audio.pause();audio.src='';
         ST.current=s;audio.src=s.url;audio.muted=ST.muted;audio.load();
         audio.play().then(function(){
