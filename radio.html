@@ -225,11 +225,11 @@ body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',s
       <div id="share-opt-location-sub" style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;">내 위치의 방송국 목록을 공유</div>
     </div>
   </div>
-  <div onclick="doShare('app')" style="display:flex;align-items:center;gap:16px;padding:16px 24px;cursor:pointer;">
+  <div onclick="doShare('app')" style="display:flex;align-items:center;gap:16px;padding:16px 24px 20px;cursor:pointer;">
     <div style="width:44px;height:44px;border-radius:50%;background:rgba(0,232,122,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;">🌍</div>
     <div>
       <div style="font-size:15px;font-weight:700;color:#fff;">Wild Peaks Radio 공유</div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;">앱 자체를 친구에게 소개</div>
+      <div id="share-opt-app-sub" style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;">전세계 라디오 + 라이브캠을 친구에게 소개</div>
     </div>
   </div>
 </div>
@@ -1061,19 +1061,33 @@ function onLoaded(data){
   ST.stationsReady=true;
   if(ST.hasGPS)autoPlayNearby();
   setTimeout(function(){document.getElementById('center-ring').classList.add('visible');},1800);
+  // 공유 링크로 접속한 경우
   if(ST._pendingShareUUID){
-    var uuid=ST._pendingShareUUID;
-    ST._pendingShareUUID=null;
-    var found=null;
+    var uuid = ST._pendingShareUUID;
+    ST._pendingShareUUID = null;
+    var found = null;
     for(var i=0;i<ST.stations.length;i++){
       if(ST.stations[i].uuid===uuid){found=ST.stations[i];break;}
     }
-    if(found){play(found);showToast('📻 '+found.name);}
+    if(found){
+      play(found);
+      for(var i=0;i<ST.clusters.length;i++){
+        var cl=ST.clusters[i];
+        for(var j=0;j<cl.stations.length;j++){
+          if(cl.stations[j].uuid===uuid){
+            setTimeout(function(){openSheet(cl);},1000);
+            break;
+          }
+        }
+      }
+      showToast('📻 ' + found.name);
+    }
   }
+
   if(ST._pendingShareWebcam){
-    var wid=ST._pendingShareWebcam;
-    ST._pendingShareWebcam=null;
-    var widx=-1;
+    var wid = ST._pendingShareWebcam;
+    ST._pendingShareWebcam = null;
+    var widx = -1;
     for(var i=0;i<webcamData.length;i++){
       if(webcamData[i].id===wid){widx=i;break;}
     }
@@ -1084,19 +1098,20 @@ function onLoaded(data){
       },800);
     }
   }
-  if (ST._pendingShareLat && ST._pendingShareLon) {
+
+  if(ST._pendingShareLat && ST._pendingShareLon){
     var pLat = ST._pendingShareLat;
     var pLon = ST._pendingShareLon;
     ST._pendingShareLat = null;
     ST._pendingShareLon = null;
     flyTo(pLat, pLon, 1.8);
     var nearCl = null, nearD = 9999;
-    for (var i = 0; i < ST.clusters.length; i++) {
-      var cl2 = ST.clusters[i];
-      var d2 = Math.hypot(cl2.lat - pLat, cl2.lon - pLon);
-      if (d2 < nearD) { nearD = d2; nearCl = cl2; }
+    for(var i=0;i<ST.clusters.length;i++){
+      var cl2=ST.clusters[i];
+      var d2=Math.hypot(cl2.lat-pLat,cl2.lon-pLon);
+      if(d2<nearD){nearD=d2;nearCl=cl2;}
     }
-    if (nearCl) setTimeout(function() { openSheet(nearCl); }, 1500);
+    if(nearCl) setTimeout(function(){openSheet(nearCl);},1500);
   }
 }
 
@@ -3112,6 +3127,23 @@ function refreshDynamicUI(){
   }
   var _tabLive=document.getElementById('tab-live');
   if(_tabLive&&_tabLive.classList.contains('open'))renderLiveList();
+  // 공유 시트가 열려있으면 텍스트 갱신
+  var shareSheet = document.getElementById('share-sheet');
+  if (shareSheet && shareSheet.style.transform === 'translateY(0px)') {
+    if (ST.current) {
+      var stEl2 = document.getElementById('share-opt-station-title');
+      var stSub2 = document.getElementById('share-opt-station-sub');
+      if (stEl2) stEl2.textContent = ST.current.name + ' 공유';
+      if (stSub2) stSub2.textContent = translateCountryName(ST.current.countrycode, ST.current.country) + ' · 지금 재생 중인 방송국';
+    }
+    if (ST.currentCluster) {
+      var locEl2 = document.getElementById('share-opt-location-title');
+      var locSub2 = document.getElementById('share-opt-location-sub');
+      var locName2 = translateCountryName(ST.currentCluster.countrycode, ST.currentCluster.country) || '';
+      if (locEl2) locEl2.textContent = locName2 + ' 방송국 공유';
+      if (locSub2) locSub2.textContent = locName2 + ' ' + ST.currentCluster.stations.length + '개 방송국 목록';
+    }
+  }
 }
 
 function setLang(code){
@@ -3316,14 +3348,15 @@ try{
 }
 
 function handleShareParams(){
-  var params=new URLSearchParams(location.search);
-  var stationUUID=params.get('s');
-  var webcamId=params.get('w');
-  if(stationUUID)ST._pendingShareUUID=stationUUID;
-  if(webcamId)ST._pendingShareWebcam=webcamId;
+  var params = new URLSearchParams(location.search);
+  var stationUUID = params.get('s');
+  var webcamId = params.get('w');
   var sharedLat = params.get('lat');
   var sharedLon = params.get('lon');
-  if (sharedLat && sharedLon) {
+
+  if(stationUUID) ST._pendingShareUUID = stationUUID;
+  if(webcamId) ST._pendingShareWebcam = webcamId;
+  if(sharedLat && sharedLon) {
     ST._pendingShareLat = parseFloat(sharedLat);
     ST._pendingShareLon = parseFloat(sharedLon);
   }
