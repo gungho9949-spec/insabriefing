@@ -418,63 +418,10 @@ function initGlobe(){
   ren.setPixelRatio(Math.min(devicePixelRatio,2));
   ren.setSize(W,H);
   ren.setClearColor(0x000000,0);
-  var MAPTILER_KEY = '51HHHuLec4PI9utiFiwv';
-
-  // MapTiler 위성 타일을 캔버스에 합성해서 지구본 텍스처로 사용
-  var canvas = document.createElement('canvas');
-  canvas.width = 4096;
-  canvas.height = 2048;
-  var ctx = canvas.getContext('2d');
-
-  // 배경 먼저 검정으로
-  ctx.fillStyle = '#000011';
-  ctx.fillRect(0, 0, 4096, 2048);
-
-  // MapTiler 위성 타일 로드 (zoom level 3 = 8x4 = 32타일)
-  var zoom = 3;
-  var tilesX = Math.pow(2, zoom); // 8
-  var tilesY = Math.pow(2, zoom); // 8
-  var tileW = 4096 / tilesX;
-  var tileH = 2048 / tilesY;
-  var loaded = 0;
-  var total = tilesX * tilesY;
-
-  for (var tx = 0; tx < tilesX; tx++) {
-    for (var ty = 0; ty < tilesY; ty++) {
-      (function(x, y) {
-        var img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = function() {
-          ctx.drawImage(img, x * tileW, y * tileH, tileW, tileH);
-          loaded++;
-          if (loaded === total) {
-            tex.image = canvas;
-            tex.needsUpdate = true;
-          }
-        };
-        img.onerror = function() {
-          loaded++;
-          if (loaded === total) {
-            tex.image = canvas;
-            tex.needsUpdate = true;
-          }
-        };
-        img.src = 'https://api.maptiler.com/tiles/satellite-v2/' + zoom + '/' + x + '/' + y + '.jpg?key=' + MAPTILER_KEY;
-      })(tx, ty);
-    }
-  }
-
-  var tex = new THREE.Texture(canvas);
-  tex.needsUpdate = true;
-
+  var tex=new THREE.TextureLoader().load('/earth.jpg');
   globe=new THREE.Mesh(
     new THREE.SphereGeometry(1,64,64),
-    new THREE.MeshPhongMaterial({
-      map: tex,
-      specular: new THREE.Color(0x111133),
-      shininess: 12,
-      bumpScale: 0.05
-    })
+    new THREE.MeshPhongMaterial({map:tex,specular:new THREE.Color(0x1a2244),shininess:6})
   );
   scene.add(globe);
 
